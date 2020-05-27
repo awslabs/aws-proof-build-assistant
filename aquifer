@@ -1,10 +1,45 @@
 #!/usr/bin/env python
 import argparse
+import subprocess
+import os
+import re
+import sys
 
 NAME = "aquifer"
 
 def build():
-    print("build is not yet implemented")
+    print("Work in Progress: Print list of all files to build")
+    p1 = subprocess.Popen(["make", "-Bn"], stdout=subprocess.PIPE)
+    out = p1.communicate()[0]
+
+    f = open(os.path.dirname(__file__) + "/raw_out.txt", "w")
+    f.write(out)
+    f.close()
+
+    f = open(os.path.dirname(__file__) + "/allfiles.txt", "w")
+    cntGood = 0
+    cntBad = 0
+    for line in out.splitlines():
+        if line[:2] == "cc":
+            #relevant commands
+            rx = ' -o.+[.]c'
+            p = re.compile(rx)
+            m = p.search(line)
+
+            if m:
+                x = m.group(0).split(" ")[-1:][0]
+                f.write(x + "\n")
+                print x
+                cntGood+=1
+            else:
+                sys.stderr.write("---NO OUTPUT\n")
+                cntBad+=1
+                
+    f.close()
+    print
+    print "Files to run: " + str(cntGood)
+    print "Problematic commands: " + str(cntBad)
+    
 
 def print_file(file):
     print("print is not yet implemented")
@@ -19,7 +54,7 @@ def main():
     parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument("command", nargs=1, default = "", help="run command for {}. Available command: build, print <SRC_FILE>, render".format(NAME))
-    parser.add_argument("argument", nargs="?", default = "", help="<SRC_FILE> argument fo the print command".format(NAME))
+    parser.add_argument("argument", nargs="?", default = "", help="<SRC_FILE> argument for the print command")
     arguments = parser.parse_args()
 
     valid_commands = ["build", "print", "render"]
