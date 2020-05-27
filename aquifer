@@ -4,6 +4,7 @@ import subprocess
 import os
 import re
 import sys
+import json
 
 NAME = "aquifer"
 
@@ -16,7 +17,7 @@ def build():
     f.write(out)
     f.close()
 
-    f = open(os.path.dirname(__file__) + "/allfiles.txt", "w")
+    dict = {}
     cntGood = 0
     cntBad = 0
     for line in out.splitlines():
@@ -27,14 +28,21 @@ def build():
             m = p.search(line)
 
             if m:
-                x = m.group(0).split(" ")[-1:][0]
-                f.write(x + "\n")
-                print x
+                filename = m.group(0).split(" ")[-1:][0]
+                if not filename in dict:
+                    dict[filename] = {}
+                else:
+                    print "DUPLICATE FOR    ", filename
+
+                # print filename
                 cntGood+=1
             else:
                 sys.stderr.write("---NO OUTPUT\n")
                 cntBad+=1
-                
+    
+    outjson = json.dumps(dict, indent=4)
+    f = open(os.path.dirname(__file__) + "/database.json", "w")
+    f.write(outjson)
     f.close()
     print
     print "Files to run: " + str(cntGood)

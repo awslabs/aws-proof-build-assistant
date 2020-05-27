@@ -464,6 +464,11 @@ DYLD_LIBRARY_PATH="../../lib/:../testlib/:/Users/ababikia/git/s2n/libcrypto-root
 	LD_LIBRARY_PATH="../../lib/:../testlib/:/Users/ababikia/git/s2n/libcrypto-root/lib:$LD_LIBRARY_PATH" \
 	LD_PRELOAD="../LD_PRELOAD/allocator_overrides.so" \
 	./s2n_error_type_test
+cc -std=c99 -Wcast-qual -pedantic -Wall -Werror -Wimplicit -Wunused -Wcomment -Wchar-subscripts -Wuninitialized -Wshadow  -Wcast-align -Wwrite-strings -fPIC -Wno-missing-braces -D_POSIX_C_SOURCE=200809L -O2 -I/Users/ababikia/git/s2n/libcrypto-root/include/ -I/Users/ababikia/git/s2n/api/ -I/Users/ababikia/git/s2n -Wno-deprecated-declarations -Wno-unknown-pragmas -Wformat-security -D_FORTIFY_SOURCE=2 -fgnu89-inline  -Wstack-protector -fstack-protector-all -DS2N_HAVE_EXECINFO -Wno-unreachable-code -I../ -o s2n_extension_list_parse_test s2n_extension_list_parse_test.c -L../../lib/ -L/Users/ababikia/git/s2n/libcrypto-root/lib -L../testlib/ -lc -lpthread -lm -ltests2n -ls2n -ldl -lcrypto 2>&1
+DYLD_LIBRARY_PATH="../../lib/:../testlib/:/Users/ababikia/git/s2n/libcrypto-root/lib:$DYLD_LIBRARY_PATH" \
+	LD_LIBRARY_PATH="../../lib/:../testlib/:/Users/ababikia/git/s2n/libcrypto-root/lib:$LD_LIBRARY_PATH" \
+	LD_PRELOAD="../LD_PRELOAD/allocator_overrides.so" \
+	./s2n_extension_list_parse_test
 cc -std=c99 -Wcast-qual -pedantic -Wall -Werror -Wimplicit -Wunused -Wcomment -Wchar-subscripts -Wuninitialized -Wshadow  -Wcast-align -Wwrite-strings -fPIC -Wno-missing-braces -D_POSIX_C_SOURCE=200809L -O2 -I/Users/ababikia/git/s2n/libcrypto-root/include/ -I/Users/ababikia/git/s2n/api/ -I/Users/ababikia/git/s2n -Wno-deprecated-declarations -Wno-unknown-pragmas -Wformat-security -D_FORTIFY_SOURCE=2 -fgnu89-inline  -Wstack-protector -fstack-protector-all -DS2N_HAVE_EXECINFO -Wno-unreachable-code -I../ -o s2n_extension_list_send_test s2n_extension_list_send_test.c -L../../lib/ -L/Users/ababikia/git/s2n/libcrypto-root/lib -L../testlib/ -lc -lpthread -lm -ltests2n -ls2n -ldl -lcrypto 2>&1
 DYLD_LIBRARY_PATH="../../lib/:../testlib/:/Users/ababikia/git/s2n/libcrypto-root/lib:$DYLD_LIBRARY_PATH" \
 	LD_LIBRARY_PATH="../../lib/:../testlib/:/Users/ababikia/git/s2n/libcrypto-root/lib:$LD_LIBRARY_PATH" \
