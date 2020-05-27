@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import subprocess
 import os
@@ -6,47 +6,52 @@ import re
 import sys
 import json
 
-NAME = "aquifer"
+TOOL_NAME = "aquifer"
+COMPILE_CMD_NAME = "/compile_commands.json"
 
 def build():
-    print("Work in Progress: Print list of all files to build")
-    p1 = subprocess.Popen(["make", "-Bn"], stdout=subprocess.PIPE)
-    out = p1.communicate()[0]
+    # Set up environment
+    print("Work in Progress: Print list of all files to build\n")
+    aquiferpath = os.path.dirname(__file__)
+    cwd = os.getcwd()
+    sourcename = os.path.basename(cwd)
 
-    f = open(os.path.dirname(__file__) + "/raw_out.txt", "w")
-    f.write(out)
-    f.close()
+    builddirname = sourcename + "-build"
+    builddirpath = os.path.join(aquiferpath, builddirname)
 
-    dict = {}
-    cntGood = 0
-    cntBad = 0
-    for line in out.splitlines():
-        if line[:2] == "cc":
-            #relevant commands
-            rx = ' -o.+[.]c'
-            p = re.compile(rx)
-            m = p.search(line)
+    subprocess.call("mkdir " + builddirname, shell=True, cwd=aquiferpath) # avoid warning?
 
-            if m:
-                filename = m.group(0).split(" ")[-1:][0]
-                if not filename in dict:
-                    dict[filename] = {}
-                else:
-                    print "DUPLICATE FOR    ", filename
+    # Run the cmake command and output compilation_commands.json file
+    cmake_cmd = ["cmake", "-GNinja", "-DCMAKE_BUILD_TYPE=Debug", \
+        "-DCMAKE_PREFIX_PATH=/usr/local/Cellar/openssl@1.1/1.1.1g", \
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"] #ADJUST ACCORDING TO PROGRAM
+    cmake_cmd.append(cwd)
 
-                # print filename
-                cntGood+=1
-            else:
-                sys.stderr.write("---NO OUTPUT\n")
-                cntBad+=1
-    
-    outjson = json.dumps(dict, indent=4)
-    f = open(os.path.dirname(__file__) + "/database.json", "w")
+    subprocess.call(cmake_cmd, cwd=builddirpath)
+
+    # Load the generated compilation commands
+    cmp_cmd_file = open(builddirpath + COMPILE_CMD_NAME)
+    cmp_cmd = json.load(cmp_cmd_file)
+
+
+    # extract relevant information 
+    dct = {}
+    for cmd in cmp_cmd:
+        filename = cmd['file']
+        if not filename in dct:
+            dct[filename] = {}
+        else:
+            print("DUPLICATE FOR    ", filename)
+
+    # create json file with relevant information
+    outjson = json.dumps(dct, indent=4)
+    db_file_name = "/builddb.json"
+    f = open(aquiferpath + db_file_name, "w")
     f.write(outjson)
     f.close()
-    print
-    print "Files to run: " + str(cntGood)
-    print "Problematic commands: " + str(cntBad)
+
+    print("\nCreated build data base at {}".format(db_file_name))
+
     
 
 def print_file(file):
@@ -57,11 +62,11 @@ def render():
 
 
 def main():
-    description = NAME + " tool: helping developers get build information for cource files they want to test."
+    description = TOOL_NAME + " tool: helping developers get build information for cource files they want to test."
 
     parser = argparse.ArgumentParser(description=description)
 
-    parser.add_argument("command", nargs=1, default = "", help="run command for {}. Available command: build, print <SRC_FILE>, render".format(NAME))
+    parser.add_argument("command", nargs=1, default = "", help="run command for {}. Available command: build, print <SRC_FILE>, render".format(TOOL_NAME))
     parser.add_argument("argument", nargs="?", default = "", help="<SRC_FILE> argument for the print command")
     arguments = parser.parse_args()
 
