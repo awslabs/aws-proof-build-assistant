@@ -1,96 +1,102 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+"""
+aquifer tool:  helping developers get build information for source files they want to test.
+"""
+
 import argparse
 import subprocess
 import os
-import re
-import sys
 import json
+import logging
 
-NAME = "aquifer"
+TOOL_NAME = "aquifer"
+COMPILE_CMD_NAME = "/compile_commands.json"
 
-def build():
-    print("Work in Progress: Print list of all files to build")
-    p1 = subprocess.Popen(["make", "-Bn"], stdout=subprocess.PIPE)
-    out = p1.communicate()[0]
+def build(args):
+    """ Generate a json build database for the current project. No return"""
+    # Set up environment
+    print("Work in Progress: Print list of all files to build\n")
+    aquiferpath = os.path.dirname(__file__)
+    cwd = os.getcwd()
+    sourcename = os.path.basename(cwd)
 
-    f = open(os.path.dirname(__file__) + "/raw_out.txt", "w")
-    f.write(out)
-    f.close()
+    builddirname = sourcename + "-build"
+    builddirpath = os.path.join(aquiferpath, builddirname)
+    if not os.path.exists(builddirpath):
+        os.mkdir(builddirpath) # avoid warning?
 
-    dict = {}
-    cntGood = 0
-    cntBad = 0
-    for line in out.splitlines():
-        if line[:2] == "cc":
-            #relevant commands
-            rx = ' -o.+[.]c'
-            p = re.compile(rx)
-            m = p.search(line)
+    # Run the cmake command and output compilation_commands.json file
+    cmake_cmd = ["cmake", "-GNinja", "-DCMAKE_BUILD_TYPE=Debug",
+                 "-DCMAKE_PREFIX_PATH=/usr/local/Cellar/openssl@1.1/1.1.1g",
+                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"] #TODO ADJUST ACCORDING TO PROGRAM
+    cmake_cmd.append(cwd)
+    subprocess.call(cmake_cmd, cwd=builddirpath)
 
-            if m:
-                filename = m.group(0).split(" ")[-1:][0]
-                if not filename in dict:
-                    dict[filename] = {}
-                else:
-                    print "DUPLICATE FOR    ", filename
+    # Load the generated compilation commands
+    cmp_cmd_file = open(builddirpath + COMPILE_CMD_NAME)
+    cmp_cmd = json.load(cmp_cmd_file)
 
-                # print filename
-                cntGood+=1
-            else:
-                sys.stderr.write("---NO OUTPUT\n")
-                cntBad+=1
-    
-    outjson = json.dumps(dict, indent=4)
-    f = open(os.path.dirname(__file__) + "/database.json", "w")
-    f.write(outjson)
-    f.close()
-    print
-    print "Files to run: " + str(cntGood)
-    print "Problematic commands: " + str(cntBad)
-    
+    # Extract relevant information
+    set_inc = set()
+    dct = {}
+    for cmd in cmp_cmd:
+        # filename
+        filename = cmd['file']
+        if not filename in dct:
+            dct[filename] = {}
+        else:
+            logging.warning("Duplicate for %s", filename)
 
-def print_file(file):
-    print("print is not yet implemented")
+    # create json file with relevant information
+    outjson = json.dumps(dct, indent=4)
+    db_file_name = "builddb.json"
+    with open(os.path.join(aquiferpath, db_file_name), "w") as handle:
+        print(outjson, file=handle)
+    print("\nCreated build data base at {}".format(db_file_name))
 
-def render():
+
+def print_file(args):
+    """ Print build information for a selected file. No return. """
+
+    path_to_file = args.file_path
+    print("print is not yet implemented - file {}".format(path_to_file))
+
+
+def render(args):
+    """ Generate a web interface containing build data for all fioles. No return. """
+
     print("render is not yet implemented")
 
 
 def main():
-    description = NAME + " tool: helping developers get build information for cource files they want to test."
+    """ Main function """
 
-    parser = argparse.ArgumentParser(description=description)
+    logging.basicConfig(filename=os.path.dirname(__file__) + "/out.log", level=logging.DEBUG)
 
-    parser.add_argument("command", nargs=1, default = "", help="run command for {}. Available command: build, print <SRC_FILE>, render".format(NAME))
-    parser.add_argument("argument", nargs="?", default = "", help="<SRC_FILE> argument for the print command")
+    parser = argparse.ArgumentParser(description=__doc__)
+    subparser = parser.add_subparsers(help="Available commands for {}".format(TOOL_NAME))
+
+    # build command
+    parser_build = subparser.add_parser('build', help="Generate a build database \
+        for the current project.")
+    parser_build.set_defaults(func=build)
+
+    # print command
+    parser_print = subparser.add_parser('print', help="Print build information \
+        for a selected file.")
+    parser_print.add_argument("file_path", default="",
+                              help="path to file to output info for.")
+    parser_print.set_defaults(func=print_file)
+
+    # render command
+    parser_render = subparser.add_parser('render', help="Generate a web interface \
+        containing {} data.".format(TOOL_NAME))
+    parser_render.set_defaults(func=render)
+
+    # parse and run
     arguments = parser.parse_args()
-
-    valid_commands = ["build", "print", "render"]
-    cmd = arguments.command[0]
-    arg = arguments.argument
-
-    if not cmd in valid_commands:
-        print("Please input a valid command: " + str(valid_commands))
-
-    if cmd == "print" and arg == "" :
-        print("Please add the file to print build information for: print <SRC_FILE>. Exiting.")
-        return
-    
-    if cmd != "print" and arg != "" :
-        print("Too many arguments. Exiting.")
-        return
-
-    if cmd == "build":
-        build()
-
-    if cmd == "print":
-        print_file(arg)
-
-    if cmd == "render":
-        render()
+    arguments.func(arguments)
 
 
-
-
-if __name__== "__main__":
+if __name__ == "__main__":
     main()
