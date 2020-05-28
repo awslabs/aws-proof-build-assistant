@@ -1,2 +1,3 @@
 .vscode/
-s2n-build/
+builddb.json
+out.log
