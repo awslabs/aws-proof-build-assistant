@@ -12,7 +12,7 @@ import logging
 TOOL_NAME = "aquifer"
 COMPILE_CMD_NAME = "/compile_commands.json"
 
-def build():
+def build(args):
     """ Generate a json build database for the current project. No return"""
     # Set up environment
     print("Work in Progress: Print list of all files to build\n")
@@ -28,7 +28,7 @@ def build():
     # Run the cmake command and output compilation_commands.json file
     cmake_cmd = ["cmake", "-GNinja", "-DCMAKE_BUILD_TYPE=Debug",
                  "-DCMAKE_PREFIX_PATH=/usr/local/Cellar/openssl@1.1/1.1.1g",
-                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"] #TODOADJUST ACCORDING TO PROGRAM
+                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"] #TODO ADJUST ACCORDING TO PROGRAM
     cmake_cmd.append(cwd)
     subprocess.call(cmake_cmd, cwd=builddirpath)
 
@@ -50,29 +50,19 @@ def build():
     # create json file with relevant information
     outjson = json.dumps(dct, indent=4)
     db_file_name = "builddb.json"
-    file = open(os.path.join(aquiferpath, db_file_name), "w")
-    file.write(outjson)
-    file.close()
+    with open(os.path.join(aquiferpath, db_file_name), "w") as handle:
+        print(outjson, file=handle)
     print("\nCreated build data base at {}".format(db_file_name))
 
 
-def get_flag_arg(flag, arg, next_arg):
-    """ if string corresponds to correct flag, return corresponding argument. """
-    if len(arg) < len(flag):
-        return None
-    if len(arg) == len(flag) and arg == flag:
-        return next_arg
-    if len(arg) > len(flag) and arg[:len(flag)] == flag:
-        return arg[len(flag):]
-
-
-def print_file(file):
+def print_file(args):
     """ Print build information for a selected file. No return. """
 
-    print("print is not yet implemented - file {}".format(file))
+    path_to_file = args.file_path
+    print("print is not yet implemented - file {}".format(path_to_file))
 
 
-def render():
+def render(args):
     """ Generate a web interface containing build data for all fioles. No return. """
 
     print("render is not yet implemented")
@@ -84,33 +74,28 @@ def main():
     logging.basicConfig(filename=os.path.dirname(__file__) + "/out.log", level=logging.DEBUG)
 
     parser = argparse.ArgumentParser(description=__doc__)
-    subparser = parser.add_subparsers(dest='command',
-                                      help="Available commands for {}".format(TOOL_NAME))
+    subparser = parser.add_subparsers(help="Available commands for {}".format(TOOL_NAME))
 
     # build command
-    subparser.add_parser('build', help="Generate a build database \
+    parser_build = subparser.add_parser('build', help="Generate a build database \
         for the current project.")
+    parser_build.set_defaults(func=build)
 
     # print command
     parser_print = subparser.add_parser('print', help="Print build information \
         for a selected file.")
     parser_print.add_argument("file_path", default="",
                               help="path to file to output info for.")
+    parser_print.set_defaults(func=print_file)
 
     # render command
-    subparser.add_parser('render', help="Generate a web interface \
+    parser_render = subparser.add_parser('render', help="Generate a web interface \
         containing {} data.".format(TOOL_NAME))
+    parser_render.set_defaults(func=render)
 
+    # parse and run
     arguments = parser.parse_args()
-
-    cmd = arguments.command
-    if cmd == "build":
-        build()
-    if cmd == "print":
-        arg = arguments.file_path
-        print_file(arg)
-    if cmd == "render":
-        render()
+    arguments.func(arguments)
 
 
 if __name__ == "__main__":
