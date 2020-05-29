@@ -10,7 +10,8 @@ import json
 import logging
 
 TOOL_NAME = "aquifer"
-COMPILE_CMD_NAME = "/compile_commands.json"
+COMPILE_CMD_NAME = "compile_commands.json"
+OUT_DB_NAME = "builddb.json"
 
 def build(args):
     """ Generate a json build database for the current project. No return"""
@@ -33,26 +34,127 @@ def build(args):
     subprocess.call(cmake_cmd, cwd=builddirpath)
 
     # Load the generated compilation commands
-    cmp_cmd_file = open(builddirpath + COMPILE_CMD_NAME)
-    cmp_cmd = json.load(cmp_cmd_file)
+    comp_cmds = None
+    with open(os.path.join(builddirpath, COMPILE_CMD_NAME), "r") as handle:
+        comp_cmds = json.load(handle)
 
     # Extract relevant information
-    set_inc = set()
-    dct = {}
-    for cmd in cmp_cmd:
-        # filename
-        filename = cmd['file']
-        if not filename in dct:
-            dct[filename] = {}
+    build_db = {"files":{}}
+    for comp_cmd in comp_cmds:
+        file_dict = {}
+        # file name
+        file_path = comp_cmd['file']
+        file_name = os.path.basename(file_path)
+        file_dict["name"] = file_name
+        file_dir = os.path.dirname(file_path)
+        file_dict["directory"] = file_dir
+
+        #command
+        command = comp_cmd['command'].split()
+        command_include_dirs = []
+        command_defines = {}
+        for cmd_tup in enumerate(command):
+            cmd_ind = cmd_tup[0]
+            next_arg = None if cmd_ind == len(command)-1 else command[cmd_ind+1]
+            include = get_flag_arg("-I", command[cmd_ind], next_arg)
+            if include:
+                command_include_dirs.append(include)
+            include = get_flag_arg("-isystem", command[cmd_ind], next_arg)
+            if include:
+                command_include_dirs.append(include)
+            define = get_flag_arg("-D", command[cmd_ind], next_arg)
+            if define:
+                define_pair = get_define_pair(define)
+                command_defines[define_pair[0]] = define_pair[1]
+
+        #get includes and defines from file
+        file_includes_raw = []
+        file_includes = []
+        file_defines = {}
+        with open(file_path, "r") as file_handle:
+            for line in file_handle:
+
+                #includes
+                if line.strip().startswith("#include"):
+                    split = line.split()
+                    if len(split) != 2:
+                        logging.warning("Malformed #include in %s : %s", file_name, line[:-1])
+                    else:
+                        file_2_include = split[1]
+                        first = file_2_include[0]
+                        last = file_2_include[-1]
+                        local_include = (first == "\"" and last == "\"")
+                        global_include = (first == "<" and last == ">")
+                        malformed = not local_include and not global_include
+                        if malformed:
+                            logging.warning("Malformed #include in %s : %s", file_name, line[:-1])
+                        else:
+                            file_includes_raw.append(file_2_include)
+                            include_name = file_2_include[1:-1]
+                            found_path = False
+                            if local_include:
+                                potential_path = os.path.join(file_dir, include_name)
+                                if os.path.exists(potential_path):
+                                    found_path = True
+                                    file_includes.append(potential_path)
+                            if not found_path:
+                                for included_dir in command_include_dirs:
+                                    potential_path = os.path.join(included_dir, include_name)
+                                    if os.path.exists(potential_path):
+                                        file_includes.append(potential_path)
+                                        found_path = True
+                                        break
+                            if not found_path:
+                                file_includes.append(include_name)
+                                if local_include:
+                                    logging.warning("#include not found for %s : %s", file_name, line[:-1])
+
+                #defines TODO
+                if line.strip().startswith("#define"):
+                    split = line.split()
+                    val = None
+                    if len(split) < 2 or len(split) > 3:
+                        logging.warning("Malformed #define in %s : %s", file_name, line[:-1])
+                    if len(split) == 3:
+                        val = split[2]
+                    file_defines[split[1]] = val
+
+        file_dict["include-files_raw"] = file_includes_raw
+        file_dict["include-files"] = file_includes
+        file_dict["include_directories"] = command_include_dirs
+        file_dict["define-in-file"] = file_defines
+        file_dict["define-in-cmd"] = command_defines
+
+        if file_name in build_db:
+            logging.warning("Duplicate for %s", file_path)
         else:
-            logging.warning("Duplicate for %s", filename)
+            build_db.get("files")[file_name] = file_dict
+
 
     # create json file with relevant information
-    outjson = json.dumps(dct, indent=4)
-    db_file_name = "builddb.json"
-    with open(os.path.join(aquiferpath, db_file_name), "w") as handle:
+    outjson = json.dumps(build_db, indent=4)
+    with open(os.path.join(aquiferpath, OUT_DB_NAME), "w") as handle:
         print(outjson, file=handle)
-    print("\nCreated build data base at {}".format(db_file_name))
+    print("\nCreated build data base at {}".format(OUT_DB_NAME))
+
+
+def get_flag_arg(flag, arg, next_arg):
+    """ if string corresponds to correct flag, return corresponding argument. """
+    if len(arg) < len(flag):
+        return None
+    if len(arg) == len(flag) and arg == flag:
+        return next_arg
+    if len(arg) > len(flag) and arg[:len(flag)] == flag:
+        return arg[len(flag):]
+
+
+def get_define_pair(statement, seperator="="):
+    """ for a define statement, return a key-value pair. """
+    split = statement.split(seperator)
+    val = "1"
+    if len(split) > 1:
+        val = split[1]
+    return (split[0], val)
 
 
 def print_file(args):
