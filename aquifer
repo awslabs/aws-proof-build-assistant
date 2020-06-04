@@ -15,7 +15,12 @@ TOOL_PATH = os.path.dirname(__file__)
 COMPILE_CMD_NAME = "compile_commands.json"
 
 PROJECT_NAME = os.path.basename(os.getcwd())
-OUT_DB_NAME = "aquifer-db.json"
+OUT_DB_NAME = "Makefile.aquifer"
+
+MAKE_FILEUT = "FILEUT"
+MAKE_FUNCUT = "FUNCUT"
+MAKE_INCLUDE = "INC"
+MAKE_DEFINE = "DEF"
 
 def build(args):
     """ Generate a json build database from given compile commands.
@@ -45,61 +50,71 @@ def build(args):
         print("Specified path does not point to an existing file: {}".format(comp_cmds_path))
         sys.exit()
 
-    # compilation commands location
+    # get compilation commands
     comp_cmds_dir = os.path.dirname(comp_cmds_path)
     out_db_path = os.path.join(comp_cmds_dir, OUT_DB_NAME)
-
     comp_cmds = None
     with open(comp_cmds_path, "r") as handle:
         comp_cmds = json.load(handle)
 
     # Extract relevant information
-    build_db = {"files":{}}
-    for comp_cmd in comp_cmds:
-        file_dict = {}
-        # file name. TODO Only consider non-test files.
-        file_path = str(comp_cmd['file'])
-        # if file_path.endswith("test.c"):
-        #     continue
+    all_file_names = {}
+    with open(out_db_path, "w") as output:
+        for comp_cmd in comp_cmds:
+            # file name. TODO Only consider non-test files.
+            file_path = str(comp_cmd['file'])
+            # if file_path.endswith("test.c"):
+            #     continue
 
-        file_name = os.path.basename(file_path)
-        file_dict["name"] = file_name
-        file_dir = os.path.dirname(file_path)
-        file_dict["directory"] = file_dir
+            file_name = os.path.basename(file_path)
 
-        #command
-        command = comp_cmd['command'].split()
-        command_include_dirs = []
-        command_defines = {}
-        for cmd_tup in enumerate(command):
-            cmd_ind = cmd_tup[0]
-            next_arg = None if cmd_ind == len(command)-1 else command[cmd_ind+1]
-            include = get_flag_arg("-I", command[cmd_ind], next_arg)
-            if include:
-                command_include_dirs.append(include)
-            include = get_flag_arg("-isystem", command[cmd_ind], next_arg)
-            if include:
-                command_include_dirs.append(include)
-            define = get_flag_arg("-D", command[cmd_ind], next_arg)
-            if define:
-                define_pair = get_define_pair(define)
-                command_defines[define_pair[0]] = define_pair[1]
-   
-        # file_dict["include-files_raw"] = file_includes_raw
-        file_dict["include_directories"] = command_include_dirs
-        file_dict["defines-in-cmd"] = command_defines
+            #command
+            command_split = comp_cmd['command'].split()
+            command_include_dirs = []
+            command_defines = []
+            for cmd_tup in enumerate(command_split):
+                cmd_ind = cmd_tup[0]
+                next_arg = "" if cmd_ind == len(command_split)-1 else command_split[cmd_ind+1]
+                include = get_flag_arg("-I", command_split[cmd_ind], next_arg)
+                if include:
+                    command_include_dirs.append(include)
+                include = get_flag_arg("-isystem", command_split[cmd_ind], next_arg)
+                if include:
+                    command_include_dirs.append(include)
+                define = get_flag_arg("-D", command_split[cmd_ind], next_arg)
+                if define:
+                    command_defines.append(define)
 
-        if file_name in build_db:
-            logging.warning("Duplicate for %s", file_path)
-        else:
-            build_db.get("files")[file_name] = file_dict
+            # write makefile
+            if file_name in all_file_names:
+                path1 = file_path
+                path2 = all_file_names[file_name]
+                logging.warning("Clashing file name: %s  <>  %s", path1, path2)
+            else:
+                all_file_names[file_name] = file_path
+                print("ifeq (%s,\"%s\")" % (make_value(MAKE_FILEUT), file_name), file=output)
+
+                #iterate through includes
+                for inc in command_include_dirs:
+                    print("  %s" % add_to_var("INC", inc), file=output)
+
+                #iterate through defines
+                for define in command_defines:
+                    print("  %s" % add_to_var("DEF", define), file=output)
+
+                print("endif\n", file=output)
+
+    print("\nCreated aquifer Makefile at {}".format(out_db_path))
 
 
-    # create json file with relevant information
-    outjson = json.dumps(build_db, indent=4)
-    with open(out_db_path, "w") as handle:
-        print(outjson, file=handle)
-    print("\nCreated build database at {}".format(out_db_path))
+def add_to_var(var, term):
+    """ return correct MAKE syntax for adding a value to a variable. """
+    return "%s += %s" % (var, term)
+
+
+def make_value(var):
+    """ return MAKE syntax for accessing a variable value """
+    return "$(" + str(var) + ")"
 
 
 def get_flag_arg(flag, arg, next_arg):
@@ -107,18 +122,9 @@ def get_flag_arg(flag, arg, next_arg):
     if len(arg) < len(flag):
         return None
     if len(arg) == len(flag) and arg == flag:
-        return next_arg
+        return arg + " " + next_arg
     if len(arg) > len(flag) and arg[:len(flag)] == flag:
-        return arg[len(flag):]
-
-
-def get_define_pair(statement, seperator="="):
-    """ for a define statement, return a key-value pair. """
-    split = statement.split(seperator)
-    val = "1"
-    if len(split) > 1:
-        val = split[1]
-    return (split[0], val)
+        return arg
 
 
 def print_file(args):
