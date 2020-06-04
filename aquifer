@@ -4,7 +4,6 @@ aquifer tool:  helping developers get build information for source files they wa
 """
 
 import argparse
-import subprocess
 import os
 import json
 import logging
@@ -28,27 +27,10 @@ def build(args):
     No return"""
 
     comp_cmds_path = args.compile_commands_json_path
-    # if no compile commands path is set
-    if comp_cmds_path == "":
-        # Set up environment
-        cwd = os.getcwd()
-        builddirname = PROJECT_NAME + "-build"
-        builddirpath = os.path.join(TOOL_PATH, builddirname)
-        if not os.path.exists(builddirpath):
-            os.mkdir(builddirpath) # avoid warning?
-
-        # Run the cmake command and output compilation_commands.json file
-        cmake_cmd = ["cmake", "-GNinja", "-DCMAKE_BUILD_TYPE=Debug",
-                     "-DCMAKE_PREFIX_PATH=/usr/local/Cellar/openssl@1.1/1.1.1g",
-                     "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"] # TODO Currently specific to S2N
-        cmake_cmd.append(cwd)
-        subprocess.call(cmake_cmd, cwd=builddirpath)
-        comp_cmds_path = os.path.join(builddirpath, COMPILE_CMD_NAME)
-
     # Load the generated compilation commands, if possible
     if not os.path.exists(comp_cmds_path):
-        print("Specified path does not point to an existing file: {}".format(comp_cmds_path))
-        sys.exit()
+        logging.error("Specified path does not point to an existing file: %s", comp_cmds_path)
+        sys.exit(1)
 
     # get compilation commands
     comp_cmds_dir = os.path.dirname(comp_cmds_path)
@@ -59,52 +41,56 @@ def build(args):
 
     # Extract relevant information
     all_file_names = {}
+    out_lines = []
+    for comp_cmd in comp_cmds:
+        # file name. TODO Only consider non-test files.
+        file_path = str(comp_cmd['file'])
+        # if file_path.endswith("test.c"):
+        #     continue
+
+        file_name = os.path.basename(file_path)
+
+        #command
+        command_split = comp_cmd['command'].split()
+        command_include_dirs = []
+        command_defines = []
+        for cmd_tup in enumerate(command_split):
+            cmd_ind = cmd_tup[0]
+            next_arg = "" if cmd_ind == len(command_split)-1 else command_split[cmd_ind+1]
+            include = get_flag_arg("-I", command_split[cmd_ind], next_arg)
+            if include:
+                command_include_dirs.append(include)
+            include = get_flag_arg("-isystem", command_split[cmd_ind], next_arg)
+            if include:
+                command_include_dirs.append(include)
+            define = get_flag_arg("-D", command_split[cmd_ind], next_arg)
+            if define:
+                command_defines.append(define)
+
+        # collect makefile information
+        if file_name in all_file_names:
+            path1 = file_path
+            path2 = all_file_names[file_name]
+            logging.warning("Clashing file name: %s  <>  %s", path1, path2)
+        else:
+            all_file_names[file_name] = file_path
+            out_lines.append("ifeq (%s,\"%s\")" % (make_value(MAKE_FILEUT), file_name))
+
+            #iterate through includes
+            for inc in command_include_dirs:
+                out_lines.append("  %s" % add_to_var("INC", inc))
+
+            #iterate through defines
+            for define in command_defines:
+                out_lines.append("  %s" % add_to_var("DEF", define))
+
+            out_lines.append("endif\n")
+
+    # Write to output file
     with open(out_db_path, "w") as output:
-        for comp_cmd in comp_cmds:
-            # file name. TODO Only consider non-test files.
-            file_path = str(comp_cmd['file'])
-            # if file_path.endswith("test.c"):
-            #     continue
+        print("\n".join(out_lines), file=output)
 
-            file_name = os.path.basename(file_path)
-
-            #command
-            command_split = comp_cmd['command'].split()
-            command_include_dirs = []
-            command_defines = []
-            for cmd_tup in enumerate(command_split):
-                cmd_ind = cmd_tup[0]
-                next_arg = "" if cmd_ind == len(command_split)-1 else command_split[cmd_ind+1]
-                include = get_flag_arg("-I", command_split[cmd_ind], next_arg)
-                if include:
-                    command_include_dirs.append(include)
-                include = get_flag_arg("-isystem", command_split[cmd_ind], next_arg)
-                if include:
-                    command_include_dirs.append(include)
-                define = get_flag_arg("-D", command_split[cmd_ind], next_arg)
-                if define:
-                    command_defines.append(define)
-
-            # write makefile
-            if file_name in all_file_names:
-                path1 = file_path
-                path2 = all_file_names[file_name]
-                logging.warning("Clashing file name: %s  <>  %s", path1, path2)
-            else:
-                all_file_names[file_name] = file_path
-                print("ifeq (%s,\"%s\")" % (make_value(MAKE_FILEUT), file_name), file=output)
-
-                #iterate through includes
-                for inc in command_include_dirs:
-                    print("  %s" % add_to_var("INC", inc), file=output)
-
-                #iterate through defines
-                for define in command_defines:
-                    print("  %s" % add_to_var("DEF", define), file=output)
-
-                print("endif\n", file=output)
-
-    print("\nCreated aquifer Makefile at {}".format(out_db_path))
+    print("--Created aquifer Makefile at {}".format(out_db_path))
 
 
 def add_to_var(var, term):
@@ -152,7 +138,7 @@ def main():
     # build command
     parser_build = subparser.add_parser('build', help="Generate a build database \
         for the current project.")
-    parser_build.add_argument("compile_commands_json_path", nargs='?', default="",
+    parser_build.add_argument("compile_commands_json_path",
                               help="path to compile_commands json file.")
     parser_build.set_defaults(func=build)
 
