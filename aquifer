@@ -8,42 +8,60 @@ import subprocess
 import os
 import json
 import logging
+import sys
 
 TOOL_NAME = "aquifer"
+TOOL_PATH = os.path.dirname(__file__)
 COMPILE_CMD_NAME = "compile_commands.json"
-OUT_DB_NAME = "builddb.json"
+
+PROJECT_NAME = os.path.basename(os.getcwd())
+OUT_DB_NAME = "aquifer-db.json"
 
 def build(args):
-    """ Generate a json build database for the current project. No return"""
-    # Set up environment
-    print("Work in Progress: Print list of all files to build\n")
-    aquiferpath = os.path.dirname(__file__)
-    cwd = os.getcwd()
-    sourcename = os.path.basename(cwd)
+    """ Generate a json build database from given compile commands.
+    If not compile commands path given, generate compile commands.
+    No return"""
 
-    builddirname = sourcename + "-build"
-    builddirpath = os.path.join(aquiferpath, builddirname)
-    if not os.path.exists(builddirpath):
-        os.mkdir(builddirpath) # avoid warning?
+    comp_cmds_path = args.compile_commands_json_path
+    # if no compile commands path is set
+    if comp_cmds_path == "":
+        # Set up environment
+        cwd = os.getcwd()
+        builddirname = PROJECT_NAME + "-build"
+        builddirpath = os.path.join(TOOL_PATH, builddirname)
+        if not os.path.exists(builddirpath):
+            os.mkdir(builddirpath) # avoid warning?
 
-    # Run the cmake command and output compilation_commands.json file
-    cmake_cmd = ["cmake", "-GNinja", "-DCMAKE_BUILD_TYPE=Debug",
-                 "-DCMAKE_PREFIX_PATH=/usr/local/Cellar/openssl@1.1/1.1.1g",
-                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"] #TODO ADJUST ACCORDING TO PROGRAM
-    cmake_cmd.append(cwd)
-    subprocess.call(cmake_cmd, cwd=builddirpath)
+        # Run the cmake command and output compilation_commands.json file
+        cmake_cmd = ["cmake", "-GNinja", "-DCMAKE_BUILD_TYPE=Debug",
+                     "-DCMAKE_PREFIX_PATH=/usr/local/Cellar/openssl@1.1/1.1.1g",
+                     "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"] # TODO Currently specific to S2N
+        cmake_cmd.append(cwd)
+        subprocess.call(cmake_cmd, cwd=builddirpath)
+        comp_cmds_path = os.path.join(builddirpath, COMPILE_CMD_NAME)
 
-    # Load the generated compilation commands
+    # Load the generated compilation commands, if possible
+    if not os.path.exists(comp_cmds_path):
+        print("Specified path does not point to an existing file: {}".format(comp_cmds_path))
+        sys.exit()
+
+    # compilation commands location
+    comp_cmds_dir = os.path.dirname(comp_cmds_path)
+    out_db_path = os.path.join(comp_cmds_dir, OUT_DB_NAME)
+
     comp_cmds = None
-    with open(os.path.join(builddirpath, COMPILE_CMD_NAME), "r") as handle:
+    with open(comp_cmds_path, "r") as handle:
         comp_cmds = json.load(handle)
 
     # Extract relevant information
     build_db = {"files":{}}
     for comp_cmd in comp_cmds:
         file_dict = {}
-        # file name
-        file_path = comp_cmd['file']
+        # file name. TODO Only consider non-test files.
+        file_path = str(comp_cmd['file'])
+        # if file_path.endswith("test.c"):
+        #     continue
+
         file_name = os.path.basename(file_path)
         file_dict["name"] = file_name
         file_dir = os.path.dirname(file_path)
@@ -66,64 +84,10 @@ def build(args):
             if define:
                 define_pair = get_define_pair(define)
                 command_defines[define_pair[0]] = define_pair[1]
-
-        #get includes and defines from file
-        file_includes_raw = []
-        file_includes = []
-        file_defines = {}
-        with open(file_path, "r") as file_handle:
-            for line in file_handle:
-
-                #includes
-                if line.strip().startswith("#include"):
-                    split = line.split()
-                    if len(split) != 2:
-                        logging.warning("Malformed #include in %s : %s", file_name, line[:-1])
-                    else:
-                        file_2_include = split[1]
-                        first = file_2_include[0]
-                        last = file_2_include[-1]
-                        local_include = (first == "\"" and last == "\"")
-                        global_include = (first == "<" and last == ">")
-                        malformed = not local_include and not global_include
-                        if malformed:
-                            logging.warning("Malformed #include in %s : %s", file_name, line[:-1])
-                        else:
-                            file_includes_raw.append(file_2_include)
-                            include_name = file_2_include[1:-1]
-                            found_path = False
-                            if local_include:
-                                potential_path = os.path.join(file_dir, include_name)
-                                if os.path.exists(potential_path):
-                                    found_path = True
-                                    file_includes.append(potential_path)
-                            if not found_path:
-                                for included_dir in command_include_dirs:
-                                    potential_path = os.path.join(included_dir, include_name)
-                                    if os.path.exists(potential_path):
-                                        file_includes.append(potential_path)
-                                        found_path = True
-                                        break
-                            if not found_path:
-                                file_includes.append(include_name)
-                                if local_include:
-                                    logging.warning("#include not found for %s : %s", file_name, line[:-1])
-
-                #defines TODO
-                if line.strip().startswith("#define"):
-                    split = line.split()
-                    val = None
-                    if len(split) < 2 or len(split) > 3:
-                        logging.warning("Malformed #define in %s : %s", file_name, line[:-1])
-                    if len(split) == 3:
-                        val = split[2]
-                    file_defines[split[1]] = val
-
-        file_dict["include-files_raw"] = file_includes_raw
-        file_dict["include-files"] = file_includes
+   
+        # file_dict["include-files_raw"] = file_includes_raw
         file_dict["include_directories"] = command_include_dirs
-        file_dict["define-in-file"] = file_defines
-        file_dict["define-in-cmd"] = command_defines
+        file_dict["defines-in-cmd"] = command_defines
 
         if file_name in build_db:
             logging.warning("Duplicate for %s", file_path)
@@ -133,9 +97,9 @@ def build(args):
 
     # create json file with relevant information
     outjson = json.dumps(build_db, indent=4)
-    with open(os.path.join(aquiferpath, OUT_DB_NAME), "w") as handle:
+    with open(out_db_path, "w") as handle:
         print(outjson, file=handle)
-    print("\nCreated build data base at {}".format(OUT_DB_NAME))
+    print("\nCreated build database at {}".format(out_db_path))
 
 
 def get_flag_arg(flag, arg, next_arg):
@@ -175,12 +139,15 @@ def main():
 
     logging.basicConfig(filename=os.path.dirname(__file__) + "/out.log", level=logging.DEBUG)
 
+    # parse arguments
     parser = argparse.ArgumentParser(description=__doc__)
     subparser = parser.add_subparsers(help="Available commands for {}".format(TOOL_NAME))
 
     # build command
     parser_build = subparser.add_parser('build', help="Generate a build database \
         for the current project.")
+    parser_build.add_argument("compile_commands_json_path", nargs='?', default="",
+                              help="path to compile_commands json file.")
     parser_build.set_defaults(func=build)
 
     # print command
