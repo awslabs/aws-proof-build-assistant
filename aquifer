@@ -20,7 +20,8 @@ OUT_JSON_NAME = "internal_rep.json"
 MAKE_FILEUT = "FILEUT"
 MAKE_FUNCUT = "FUNCUT"
 MAKE_INCLUDE = "INC"
-MAKE_DEFINE = "DEF"
+MAKE_DEFINE = "DEFINES"
+MAKE_DEPENDENCIES = "DEPENDENCIES"
 
 def build(args):
     """ Generate a json build database from given compile commands.
@@ -30,15 +31,32 @@ def build(args):
     comp_cmds_path = args.compile_commands_json_path
     write_to_json = args.write_json
     save_path = args.save_path
+
+    define_name = args.define_name
+    if define_name:
+        global MAKE_DEFINE
+        MAKE_DEFINE = define_name
+
+    include_name = args.include_name
+    if include_name:
+        global MAKE_INCLUDE
+        MAKE_INCLUDE = include_name
+
+    dependency_name = args.dependency_name
+    if dependency_name:
+        global MAKE_DEPENDENCIES
+        MAKE_DEPENDENCIES = dependency_name
+
+    dep_extension = args.dependency_extension
+
     # Load the generated compilation commands, if possible
     if not os.path.exists(comp_cmds_path):
         logging.error("Specified path does not point to an existing file: %s", comp_cmds_path)
         sys.exit(1)
 
     # get compilation commands
-    comp_cmds_dir = os.path.dirname(comp_cmds_path)
-    out_db_path = os.path.join(comp_cmds_dir, OUT_DB_NAME)
-    internal_rep_path = os.path.join(comp_cmds_dir, OUT_JSON_NAME)
+    out_db_path = OUT_DB_NAME
+    internal_rep_path = OUT_JSON_NAME
     comp_cmds = None
     with open(comp_cmds_path, "r") as handle:
         comp_cmds = json.load(handle)
@@ -53,10 +71,14 @@ def build(args):
         #     continue
 
         file_name = os.path.basename(file_path)
-        internal_file["abspath"] = file_path
+        internal_file["name"] = file_name
         # internal_file["name"] = file_name
         # file_dir = os.path.dirname(file_path)
         # internal_file["directory"] = file_dir
+        if dep_extension:
+            internal_file["alt_path"] = change_extension(file_path, dep_extension)
+        else:
+            internal_file["alt_path"] = None
 
         #command
         command_split = comp_cmd['command'].split()
@@ -68,9 +90,9 @@ def build(args):
             include = get_flag_arg("-I", command_split[cmd_ind], next_arg)
             if include:
                 command_include_dirs.append(include)
-            include = get_flag_arg("-isystem", command_split[cmd_ind], next_arg)
-            if include:
-                command_include_dirs.append(include)
+            # include = get_flag_arg("-isystem", command_split[cmd_ind], next_arg)
+            # if include:
+            #     command_include_dirs.append(include)
             define = get_flag_arg("-D", command_split[cmd_ind], next_arg)
             if define:
                 command_defines.append(define)
@@ -85,10 +107,9 @@ def build(args):
             path2 = internal_rep["files"][file_name]["abspath"]
             logging.warning("Clashing file name: %s  <>  %s", path1, path2)
         else:
-            internal_rep["files"][file_name] = internal_file
+            internal_rep["files"][file_path] = internal_file
 
     # Write to files
-    print(args)
     if write_to_json is not False:
         if write_to_json:
             write_internal_representation(internal_rep, write_to_json)
@@ -99,6 +120,12 @@ def build(args):
         write_makefile(internal_rep, save_path)
     else:
         write_makefile(internal_rep, out_db_path)
+
+
+def change_extension(path, new_ext):
+    """change the extension of a file given it's path"""
+    name, _ = os.path.splitext(path)
+    return name + "." + new_ext
 
 
 def write_internal_representation(rep, path):
@@ -114,15 +141,18 @@ def write_makefile(rep, path):
     all_files = rep["files"]
     out_lines = []
     for file in all_files:
-        out_lines.append("ifeq (%s,\"%s\")" % (make_value(MAKE_FILEUT), file))
+        dep = file
+        if all_files[file]["alt_path"]:
+            dep = all_files[file]["alt_path"]
+        out_lines.append("ifneq (,$(findstring %s, %s))" % (dep, make_value(MAKE_DEPENDENCIES)))
 
         #iterate through includes
         for inc in all_files[file][MAKE_INCLUDE]:
-            out_lines.append("  %s" % add_to_var(MAKE_INCLUDE, inc))
+            out_lines.extend(add_if_not_there(inc, MAKE_INCLUDE))
 
         #iterate through defines
         for define in all_files[file][MAKE_DEFINE]:
-            out_lines.append("  %s" % add_to_var(MAKE_DEFINE, define))
+            out_lines.extend(add_if_not_there(define, MAKE_DEFINE))
 
         out_lines.append("endif\n")
 
@@ -132,14 +162,22 @@ def write_makefile(rep, path):
     print("-- Created aquifer Makefile at {}".format(os.path.abspath(path)))
 
 
-def add_to_var(var, term):
-    """ return correct MAKE syntax for adding a value to a variable. """
-    return "%s += %s" % (var, term)
-
-
+def add_if_not_there(file, tag):
+    """ add conditional append of Make variable to list of test lines """
+    lines = []
+    lines.append("  ifeq (,$(findstring %s, %s))" % (file, make_value(tag)))
+    lines.append("    %s" % add_to_var(tag, file))
+    lines.append("  endif")
+    return lines
+    
 def make_value(var):
     """ return MAKE syntax for accessing a variable value """
     return "$(" + str(var) + ")"
+
+
+def add_to_var(var, term):
+    """ return correct MAKE syntax for adding a value to a variable. """
+    return "%s += %s" % (var, term)
 
 
 def get_flag_arg(flag, arg, next_arg):
@@ -186,6 +224,14 @@ def main():
                               help="output a file containing a json internal \
                               representation of the stored information. \
                               Possible to add save path")
+    parser_build.add_argument("-def", "--define_name", 
+                              help="label for defines used in the Makefile")
+    parser_build.add_argument("-inc", "--include_name", 
+                              help="label for includes used in the Makefile")
+    parser_build.add_argument("-dep", "--dependency_name", 
+                              help="label for dependencies used in the Makefile")
+    parser_build.add_argument("-dx", "--dependency_extension", 
+                              help="alternate extension for dependecies")
     parser_build.set_defaults(func=build)
 
     # print command
