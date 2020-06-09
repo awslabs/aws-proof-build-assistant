@@ -88,12 +88,10 @@ def build(args):
             internal_rep["files"][file_name] = internal_file
 
     # Write to files
-    print(args)
-    if write_to_json is not False:
-        if write_to_json:
-            write_internal_representation(internal_rep, write_to_json)
-        else:
-            write_internal_representation(internal_rep, internal_rep_path)
+    if write_to_json:
+        write_internal_representation(internal_rep, write_to_json)
+    else:
+        write_internal_representation(internal_rep, internal_rep_path)
 
     if save_path:
         write_makefile(internal_rep, save_path)
@@ -182,7 +180,7 @@ def main():
                               help="path to compile_commands json file.")
     parser_build.add_argument("-sp", "--save-path",
                               help="file path where the output Makefile will be saved")
-    parser_build.add_argument("-wj", "--write-json", nargs='?', default=False,
+    parser_build.add_argument("-wj", "--write-json",
                               help="output a file containing a json internal \
                               representation of the stored information. \
                               Possible to add save path")
