@@ -8,6 +8,8 @@ import os
 import json
 import logging
 import sys
+import subprocess
+import re
 
 TOOL_NAME = "aquifer"
 TOOL_PATH = os.path.dirname(__file__)
@@ -22,6 +24,8 @@ MAKE_FUNCUT = "FUNCUT"
 MAKE_INCLUDE = "INC"
 MAKE_DEFINE = "DEFINES"
 MAKE_DEPENDENCIES = "DEPENDENCIES"
+
+CFLOW_OUT = "CFLOW_temp0"
 
 def build(args):
     """ Generate a json build database from given compile commands.
@@ -63,6 +67,8 @@ def build(args):
 
     # Extract relevant information
     internal_rep = {"files":{}}
+    cflow_cmd = ["cflow"]
+
     for comp_cmd in comp_cmds:
         internal_file = {}
         # file name. TODO Only consider non-test files.
@@ -80,7 +86,7 @@ def build(args):
         else:
             internal_file["alt_path"] = None
 
-        #command
+        #COMMAND
         command_split = comp_cmd['command'].split()
         command_include_dirs = []
         command_defines = []
@@ -97,9 +103,16 @@ def build(args):
             if define:
                 command_defines.append(define)
 
+        # CFLOW prep
+        cflow_cmd.append(file_path)
+        header = find_header(file_path)
+        if header:
+            cflow_cmd.append(header)
+
         # fill in intrernal representation
         internal_file[MAKE_INCLUDE] = command_include_dirs
         internal_file[MAKE_DEFINE] = command_defines
+        internal_file["functions"] = {}
 
         # collect makefile information
         if file_name in internal_rep["files"]:
@@ -108,6 +121,22 @@ def build(args):
             logging.warning("Clashing file name: %s  <>  %s", path1, path2)
         else:
             internal_rep["files"][file_path] = internal_file
+
+    # HANDLING DEPENDENCIES
+    # run CFLOW, and output to file
+    i = 0
+    while True:
+        global CFLOW_OUT
+        CFLOW_OUT = CFLOW_OUT[:-1] + str(i)
+        i += 1
+        if not os.path.exists(CFLOW_OUT):
+            break
+
+    cflow_cmd.extend(["-A", "--no-main", "-o"+CFLOW_OUT, "--brief"])
+    subprocess.call(cflow_cmd)
+
+    # parse CFLOW output
+    parse_cflow(internal_rep)
 
     # Write to files
     if write_to_json:
@@ -119,6 +148,76 @@ def build(args):
         write_makefile(internal_rep, save_path)
     else:
         write_makefile(internal_rep, out_db_path)
+
+
+def parse_cflow(rep):
+    """parse cflow output file. integrate it into json internal representation"""
+
+    with open(CFLOW_OUT, "r") as cflow:
+
+        current_at_level = []
+        for cur_line in cflow.readlines():
+
+            # get depth of current line
+            leading_spaces = len(cur_line) - len(cur_line.lstrip(" "))
+            cur_depth = int(leading_spaces/4)
+            if leading_spaces%4:
+                logging.warning("Line has %d leading spaces: %s", leading_spaces, cur_line[:-1])
+
+            #add function to internal rep
+            regex = r"(?P<fct>\w+)\(\)( <.+ at (?P<file>.+):\d+>( (?P<rec>\(R\)))?:)?( \[see (?P<ref>\d+)\])?"
+            match = re.search(regex, cur_line)
+            if not match:
+                logging.warning("Regex did not match for \"%s\"", cur_line)
+                break
+
+            parsed_define = match.groupdict()
+            cf_func = parsed_define["fct"]
+            cf_file = parsed_define["file"]
+            cf_ref = parsed_define["ref"]
+            if cf_file and not cf_ref:
+                if cf_file in rep["files"]:
+                    if cf_func in rep["files"][cf_file]["functions"]:
+                        logging.warning("duplicate entry for %s in %s", cf_func, cf_file)
+                    rep["files"][cf_file]["functions"][cf_func] = {}
+                else:
+                    logging.warning("%s not found in internal representation", cf_file)
+
+            #handle function callings
+            cur_node = (cf_func, cf_file)
+
+            if cur_depth < len(current_at_level)-1:
+                current_at_level = current_at_level[:cur_depth+1]
+                current_at_level[cur_depth] = cur_node
+            if cur_depth == len(current_at_level)-1:
+                current_at_level[cur_depth] = cur_node
+            if cur_depth == len(current_at_level):
+                current_at_level.append(cur_node)
+            if cur_depth > len(current_at_level):
+                logging.warning("jump in depth at line NOT AVAILABLE", )
+            if cur_depth != 0:
+                #add to 1 depth less
+                parent_depth = cur_depth - 1
+                parent_func = current_at_level[parent_depth][0]
+                parent_file = current_at_level[parent_depth][1]
+                if not parent_file in rep["files"]:
+                    logging.warning("Parent file %s of calling function %s of called function %s is not found in internal rep.",
+                                    parent_file, parent_func, cf_func)
+                else:
+                    rep["files"][parent_file]["functions"][parent_func][cf_func] = cf_file
+
+    os.remove(CFLOW_OUT)
+
+def find_header(file_path):
+    """If a file has a header with the corresponding name, return it"""
+    if not file_path.endswith(".c"):
+        return None
+
+    header_path = file_path[:-2] + ".h"
+    if not os.path.exists(header_path):
+        # logging.warning("No header file found for %s", file_path)
+        return None
+    return header_path
 
 
 def change_extension(path, new_ext):
@@ -168,7 +267,8 @@ def add_if_not_there(file, tag):
     lines.append("    %s" % add_to_var(tag, file))
     lines.append("  endif")
     return lines
-    
+
+
 def make_value(var):
     """ return MAKE syntax for accessing a variable value """
     return "$(" + str(var) + ")"
@@ -202,13 +302,8 @@ def render(args):
     print("render is not yet implemented")
 
 
-def main():
-    """ Main function """
-
-    logging.basicConfig(filename=os.path.join(os.path.dirname(__file__), "out.log"),
-                        level=logging.DEBUG)
-
-    # parse arguments
+def parse_args():
+    """parse arguments"""
     parser = argparse.ArgumentParser(description=__doc__)
     subparser = parser.add_subparsers(help="Available commands for {}".format(TOOL_NAME))
 
@@ -223,13 +318,13 @@ def main():
                               help="output a file containing a json internal \
                               representation of the stored information. \
                               Possible to add save path")
-    parser_build.add_argument("-def", "--define_name", 
+    parser_build.add_argument("-def", "--define_name",
                               help="label for defines used in the Makefile")
-    parser_build.add_argument("-inc", "--include_name", 
+    parser_build.add_argument("-inc", "--include_name",
                               help="label for includes used in the Makefile")
-    parser_build.add_argument("-dep", "--dependency_name", 
+    parser_build.add_argument("-dep", "--dependency_name",
                               help="label for dependencies used in the Makefile")
-    parser_build.add_argument("-dx", "--dependency_extension", 
+    parser_build.add_argument("-dx", "--dependency_extension",
                               help="alternate extension for dependecies")
     parser_build.set_defaults(func=build)
 
@@ -246,7 +341,16 @@ def main():
     parser_render.set_defaults(func=render)
 
     # parse and run
-    arguments = parser.parse_args()
+    return parser.parse_args()
+
+
+def main():
+    """ Main function """
+
+    logging.basicConfig(filename=os.path.join(os.path.dirname(__file__), "aquifer.log"),
+                        level=logging.DEBUG)
+
+    arguments = parse_args()
     arguments.func(arguments)
     print()
 
