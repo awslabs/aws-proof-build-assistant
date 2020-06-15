@@ -10,6 +10,7 @@ import logging
 import sys
 import subprocess
 import re
+import tempfile
 
 TOOL_NAME = "aquifer"
 TOOL_PATH = os.path.dirname(__file__)
@@ -25,14 +26,13 @@ MAKE_INCLUDE = "INC"
 MAKE_DEFINE = "DEFINES"
 MAKE_DEPENDENCIES = "DEPENDENCIES"
 
-CFLOW_OUT = "CFLOW_temp0"
-
 def build(args):
     """ Generate a json build database from given compile commands.
     If not compile commands path given, generate compile commands.
     No return"""
 
     comp_cmds_path = args.compile_commands_json_path
+    root_dir = args.root_dir
     write_to_json = args.write_json
     save_path = args.save_path
 
@@ -103,12 +103,6 @@ def build(args):
             if define:
                 command_defines.append(define)
 
-        # CFLOW prep
-        cflow_cmd.append(file_path)
-        header = find_header(file_path)
-        if header:
-            cflow_cmd.append(header)
-
         # fill in intrernal representation
         internal_file[MAKE_INCLUDE] = command_include_dirs
         internal_file[MAKE_DEFINE] = command_defines
@@ -123,20 +117,20 @@ def build(args):
             internal_rep["files"][file_path] = internal_file
 
     # HANDLING DEPENDENCIES
-    # run CFLOW, and output to file
-    i = 0
-    while True:
-        global CFLOW_OUT
-        CFLOW_OUT = CFLOW_OUT[:-1] + str(i)
-        i += 1
-        if not os.path.exists(CFLOW_OUT):
-            break
+    # get all header and source files in the project,
+    # add to cflow command
+    h_and_c_files = find_h_and_c(root_dir)
+    cflow_cmd.extend(h_and_c_files)
 
-    cflow_cmd.extend(["-A", "--no-main", "-o"+CFLOW_OUT, "--brief"])
+    # run CFLOW, and output to file
+    temp_file = tempfile.NamedTemporaryFile()
+    tf_path = temp_file.name
+
+    cflow_cmd.extend(["-A", "--no-main", "-o"+tf_path, "--brief"])
     subprocess.call(cflow_cmd)
 
     # parse CFLOW output
-    parse_cflow(internal_rep)
+    parse_cflow(internal_rep, temp_file)
 
     # Write to files
     if write_to_json:
@@ -144,80 +138,87 @@ def build(args):
     else:
         write_internal_representation(internal_rep, internal_rep_path)
 
-    if save_path:
-        write_makefile(internal_rep, save_path)
-    else:
-        write_makefile(internal_rep, out_db_path)
+    # if save_path:
+    #     write_makefile(internal_rep, save_path)
+    # else:
+    #     write_makefile(internal_rep, out_db_path)
 
 
-def parse_cflow(rep):
+def parse_cflow(rep, temp_file):
     """parse cflow output file. integrate it into json internal representation"""
 
-    with open(CFLOW_OUT, "r") as cflow:
+    current_at_level = []
+    for cur_line_b in temp_file:
+        cur_line = cur_line_b.decode("utf-8") # TODO handle encoding in a more general manner?
+        # get depth of current line
+        leading_spaces = len(cur_line) - len(cur_line.lstrip(" "))
+        cur_depth = leading_spaces // 4
+        if leading_spaces % 4:
+            logging.warning("Line has %d leading spaces: %s", leading_spaces, cur_line[:-1])
 
-        current_at_level = []
-        for cur_line in cflow.readlines():
+        #add function to internal rep
+        regex = (r"(?P<fct>\w+)\(\)"
+                 r"( <.+ at (?P<file>.+):\d+>"
+                 r"( (?P<rec>\(R\)))?:)?"
+                 r"( \[see (?P<ref>\d+)\])?")
+        match = re.match(regex, cur_line.strip())
+        if not match:
+            logging.warning("Regex did not match for \"%s\"", cur_line[:-1])
+            continue
 
-            # get depth of current line
-            leading_spaces = len(cur_line) - len(cur_line.lstrip(" "))
-            cur_depth = int(leading_spaces/4)
-            if leading_spaces%4:
-                logging.warning("Line has %d leading spaces: %s", leading_spaces, cur_line[:-1])
+        cf_func = match["fct"]
+        cf_file = match["file"]
+        cf_ref = match["ref"]
+        if cf_file and not cf_ref:
+            if cf_file in rep["files"]:
+                if cf_func in rep["files"][cf_file]["functions"]:
+                    logging.warning("duplicate entry for %s in %s", cf_func,
+                                    cf_file)
+                rep["files"][cf_file]["functions"][cf_func] = {}
+            else:
+                logging.warning("%s not found in internal representation. Added.", cf_file)
+                rep["files"][cf_file] = {"functions" : {cf_func: {}}}
 
-            #add function to internal rep
-            regex = r"(?P<fct>\w+)\(\)( <.+ at (?P<file>.+):\d+>( (?P<rec>\(R\)))?:)?( \[see (?P<ref>\d+)\])?"
-            match = re.search(regex, cur_line)
-            if not match:
-                logging.warning("Regex did not match for \"%s\"", cur_line)
-                break
+        #handle function callings
+        cur_node = (cf_func, cf_file)
 
-            parsed_define = match.groupdict()
-            cf_func = parsed_define["fct"]
-            cf_file = parsed_define["file"]
-            cf_ref = parsed_define["ref"]
-            if cf_file and not cf_ref:
-                if cf_file in rep["files"]:
-                    if cf_func in rep["files"][cf_file]["functions"]:
-                        logging.warning("duplicate entry for %s in %s", cf_func, cf_file)
-                    rep["files"][cf_file]["functions"][cf_func] = {}
-                else:
-                    logging.warning("%s not found in internal representation", cf_file)
+        if cur_depth < len(current_at_level) - 1:
+            current_at_level = current_at_level[:cur_depth + 1]
+            current_at_level[cur_depth] = cur_node
+        elif cur_depth == len(current_at_level) - 1:
+            current_at_level[cur_depth] = cur_node
+        elif cur_depth == len(current_at_level):
+            current_at_level.append(cur_node)
+        elif cur_depth > len(current_at_level):
+            logging.error("jump in depth at line NOT AVAILABLE")
+            sys.exit(1)
 
-            #handle function callings
-            cur_node = (cf_func, cf_file)
+        if cur_depth != 0:
+            #add to 1 depth less
+            parent_depth = cur_depth - 1
+            parent_func = current_at_level[parent_depth][0]
+            parent_file = current_at_level[parent_depth][1]
+            if not parent_file in rep["files"]:
+                logging.error("Parent file %s of calling function %s of "
+                              "called function %s is not found in internal rep.",
+                              parent_file, parent_func, cf_func)
+                sys.exit(1)
+            else:
+                rep["files"][parent_file]["functions"]\
+                    [parent_func][cf_func] = cf_file
 
-            if cur_depth < len(current_at_level)-1:
-                current_at_level = current_at_level[:cur_depth+1]
-                current_at_level[cur_depth] = cur_node
-            if cur_depth == len(current_at_level)-1:
-                current_at_level[cur_depth] = cur_node
-            if cur_depth == len(current_at_level):
-                current_at_level.append(cur_node)
-            if cur_depth > len(current_at_level):
-                logging.warning("jump in depth at line NOT AVAILABLE", )
-            if cur_depth != 0:
-                #add to 1 depth less
-                parent_depth = cur_depth - 1
-                parent_func = current_at_level[parent_depth][0]
-                parent_file = current_at_level[parent_depth][1]
-                if not parent_file in rep["files"]:
-                    logging.warning("Parent file %s of calling function %s of called function %s is not found in internal rep.",
-                                    parent_file, parent_func, cf_func)
-                else:
-                    rep["files"][parent_file]["functions"][parent_func][cf_func] = cf_file
+    temp_file.close()
 
-    os.remove(CFLOW_OUT)
+def find_h_and_c(root_dir):
+    """From the project root, return a list of all header and source files in the project"""
+    all_h_and_c = []
+    for root, _, files in os.walk(root_dir):
+        for file in files:
+            if file.endswith(".h") or file.endswith(".c"):
+                f_path = os.path.abspath(os.path.join(root, file))
+                all_h_and_c.append(f_path)
 
-def find_header(file_path):
-    """If a file has a header with the corresponding name, return it"""
-    if not file_path.endswith(".c"):
-        return None
-
-    header_path = file_path[:-2] + ".h"
-    if not os.path.exists(header_path):
-        # logging.warning("No header file found for %s", file_path)
-        return None
-    return header_path
+    return all_h_and_c
 
 
 def change_extension(path, new_ext):
@@ -312,6 +313,8 @@ def parse_args():
         for the current project.")
     parser_build.add_argument("compile_commands_json_path",
                               help="path to compile_commands json file.")
+    parser_build.add_argument("-r", "--root-dir", required=True,
+                              help="root directory for the project under test")
     parser_build.add_argument("-sp", "--save-path",
                               help="file path where the output Makefile will be saved")
     parser_build.add_argument("-wj", "--write-json",
