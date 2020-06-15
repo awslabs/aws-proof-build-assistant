@@ -11,14 +11,21 @@ import sys
 import subprocess
 import re
 import tempfile
+from dataclasses import dataclass
 
 TOOL_NAME = "aquifer"
 TOOL_PATH = os.path.dirname(__file__)
 COMPILE_CMD_NAME = "compile_commands.json"
 
 PROJECT_NAME = os.path.basename(os.getcwd())
-OUT_DB_NAME = "Makefile.aquifer"
 OUT_JSON_NAME = "internal_rep.json"
+OUT_MF_NAME = "Makefile.aquifer"
+
+JSON_FILE = "files"
+JSON_NAME = "name"
+JSON_INC = "includes"
+JSON_DEF = "defines"
+JSON_FCT = "functions"
 
 MAKE_FILEUT = "FILEUT"
 MAKE_FUNCUT = "FUNCUT"
@@ -31,42 +38,22 @@ def build(args):
     If not compile commands path given, generate compile commands.
     No return"""
 
-    comp_cmds_path = args.compile_commands_json_path
+    comp_cmds_path = args.compile_commands
     root_dir = args.root_dir
-    write_to_json = args.write_json
-    save_path = args.save_path
-
-    define_name = args.define_name
-    if define_name:
-        global MAKE_DEFINE
-        MAKE_DEFINE = define_name
-
-    include_name = args.include_name
-    if include_name:
-        global MAKE_INCLUDE
-        MAKE_INCLUDE = include_name
-
-    dependency_name = args.dependency_name
-    if dependency_name:
-        global MAKE_DEPENDENCIES
-        MAKE_DEPENDENCIES = dependency_name
-
-    dep_extension = args.dependency_extension
-
+    json_path = args.json_path
     # Load the generated compilation commands, if possible
     if not os.path.exists(comp_cmds_path):
         logging.error("Specified path does not point to an existing file: %s", comp_cmds_path)
         sys.exit(1)
 
     # get compilation commands
-    out_db_path = OUT_DB_NAME
     internal_rep_path = OUT_JSON_NAME
     comp_cmds = None
     with open(comp_cmds_path, "r") as handle:
         comp_cmds = json.load(handle)
 
     # Extract relevant information
-    internal_rep = {"files":{}}
+    internal_rep = {JSON_FILE:{}}
     cflow_cmd = ["cflow"]
 
     for comp_cmd in comp_cmds:
@@ -77,16 +64,9 @@ def build(args):
         #     continue
 
         file_name = os.path.basename(file_path)
-        internal_file["name"] = file_name
-        # internal_file["name"] = file_name
-        # file_dir = os.path.dirname(file_path)
-        # internal_file["directory"] = file_dir
-        if dep_extension:
-            internal_file["alt_path"] = change_extension(file_path, dep_extension)
-        else:
-            internal_file["alt_path"] = None
+        internal_file[JSON_NAME] = file_name
 
-        #COMMAND
+        # COMPILE COMMAND
         command_split = comp_cmd['command'].split()
         command_include_dirs = []
         command_defines = []
@@ -103,18 +83,16 @@ def build(args):
             if define:
                 command_defines.append(define)
 
-        # fill in intrernal representation
-        internal_file[MAKE_INCLUDE] = command_include_dirs
-        internal_file[MAKE_DEFINE] = command_defines
-        internal_file["functions"] = {}
+        # fill in internal representation
+        internal_file[JSON_INC] = command_include_dirs
+        internal_file[JSON_DEF] = command_defines
+        internal_file[JSON_FCT] = {}
 
         # collect makefile information
-        if file_name in internal_rep["files"]:
-            path1 = file_path
-            path2 = internal_rep["files"][file_name]["abspath"]
-            logging.warning("Clashing file name: %s  <>  %s", path1, path2)
+        if file_path in internal_rep[JSON_FILE]:
+            logging.warning("Clashing file name: %s", file_path)
         else:
-            internal_rep["files"][file_path] = internal_file
+            internal_rep[JSON_FILE][file_path] = internal_file
 
     # HANDLING DEPENDENCIES
     # get all header and source files in the project,
@@ -125,23 +103,17 @@ def build(args):
     # run CFLOW, and output to file
     temp_file = tempfile.NamedTemporaryFile()
     tf_path = temp_file.name
-
     cflow_cmd.extend(["-A", "--no-main", "-o"+tf_path, "--brief"])
     subprocess.call(cflow_cmd)
 
     # parse CFLOW output
     parse_cflow(internal_rep, temp_file)
 
-    # Write to files
-    if write_to_json:
-        write_internal_representation(internal_rep, write_to_json)
+    # Write internal representation to files
+    if json_path:
+        write_internal_representation(internal_rep, json_path)
     else:
         write_internal_representation(internal_rep, internal_rep_path)
-
-    # if save_path:
-    #     write_makefile(internal_rep, save_path)
-    # else:
-    #     write_makefile(internal_rep, out_db_path)
 
 
 def parse_cflow(rep, temp_file):
@@ -170,14 +142,22 @@ def parse_cflow(rep, temp_file):
         cf_file = match["file"]
         cf_ref = match["ref"]
         if cf_file and not cf_ref:
-            if cf_file in rep["files"]:
-                if cf_func in rep["files"][cf_file]["functions"]:
+            if cf_file in rep[JSON_FILE]:
+                if cf_func in rep[JSON_FILE][cf_file][JSON_FCT]:
                     logging.warning("duplicate entry for %s in %s", cf_func,
                                     cf_file)
-                rep["files"][cf_file]["functions"][cf_func] = {}
+                rep[JSON_FILE][cf_file][JSON_FCT][cf_func] = {}
             else:
-                logging.warning("%s not found in internal representation. Added.", cf_file)
-                rep["files"][cf_file] = {"functions" : {cf_func: {}}}
+                if cf_file.endswith(".c"):
+                    logging.warning("source file <%s> not found"
+                                    " in internal representation. Adding.", cf_file)
+                elif cf_file.endswith(".h"):
+                    logging.info("Header <%s> not found "
+                                 "in internal representation. Adding.", cf_file)
+                else:
+                    logging.error("<%s> not found in internal representation. Adding.", cf_file)
+                    sys.exit(1)
+                add_to_int_rep(cf_file, cf_func, rep)
 
         #handle function callings
         cur_node = (cf_func, cf_file)
@@ -198,13 +178,13 @@ def parse_cflow(rep, temp_file):
             parent_depth = cur_depth - 1
             parent_func = current_at_level[parent_depth][0]
             parent_file = current_at_level[parent_depth][1]
-            if not parent_file in rep["files"]:
+            if not parent_file in rep[JSON_FILE]:
                 logging.error("Parent file %s of calling function %s of "
                               "called function %s is not found in internal rep.",
                               parent_file, parent_func, cf_func)
                 sys.exit(1)
             else:
-                rep["files"][parent_file]["functions"]\
+                rep[JSON_FILE][parent_file][JSON_FCT]\
                     [parent_func][cf_func] = cf_file
 
     temp_file.close()
@@ -217,14 +197,17 @@ def find_h_and_c(root_dir):
             if file.endswith(".h") or file.endswith(".c"):
                 f_path = os.path.abspath(os.path.join(root, file))
                 all_h_and_c.append(f_path)
-
     return all_h_and_c
 
 
-def change_extension(path, new_ext):
-    """change the extension of a file given it's path"""
-    name, _ = os.path.splitext(path)
-    return name + "." + new_ext
+def add_to_int_rep(cf_file, cf_func, rep):
+    """add a file to the internal json representation adequately"""
+    f_info = {}
+    f_info[JSON_NAME] = os.path.basename(cf_file)
+    f_info[JSON_INC] = []
+    f_info[JSON_DEF] = []
+    f_info[JSON_FCT] = {cf_func:{}}
+    rep[JSON_FILE][cf_file] = f_info
 
 
 def write_internal_representation(rep, path):
@@ -235,30 +218,107 @@ def write_internal_representation(rep, path):
     print("-- Saved the internal representation at: {}".format(os.path.abspath(path)))
 
 
-def write_makefile(rep, path):
-    """ write the Makefile """
-    all_files = rep["files"]
-    out_lines = []
-    for file in all_files:
-        dep = file
-        if all_files[file]["alt_path"]:
-            dep = all_files[file]["alt_path"]
-        out_lines.append("ifneq (,$(findstring %s, %s))" % (dep, make_value(MAKE_DEPENDENCIES)))
+def get_flag_arg(flag, arg, next_arg):
+    """ if string corresponds to correct flag, return corresponding argument. """
+    if len(arg) < len(flag):
+        return None
+    if len(arg) == len(flag) and arg == flag:
+        return arg + " " + next_arg
+    if len(arg) > len(flag) and arg[:len(flag)] == flag:
+        return arg
 
-        #iterate through includes
-        for inc in all_files[file][MAKE_INCLUDE]:
-            out_lines.extend(add_if_not_there(inc, MAKE_INCLUDE))
 
-        #iterate through defines
-        for define in all_files[file][MAKE_DEFINE]:
-            out_lines.extend(add_if_not_there(define, MAKE_DEFINE))
+def create_makefile(args):
+    """ Output a makefile containing relevant information for
+    an input harness. No return. """
 
-        out_lines.append("endif\n")
+    harness_path = os.path.abspath(args.harness)
+    save_path = os.path.join(os.path.dirname(harness_path), OUT_MF_NAME)
+    if args.save_path:
+        save_path = args.save_path
+
+    json_path = OUT_JSON_NAME
+    if args.json_path:
+        json_path = args.json_path
+
+    if args.define_name:
+        global MAKE_DEFINE
+        MAKE_DEFINE = args.define_name
+
+    if args.include_name:
+        global MAKE_INCLUDE
+        MAKE_INCLUDE = args.include_name
+
+    if args.dependency_name:
+        global MAKE_DEPENDENCIES
+        MAKE_DEPENDENCIES = args.dependency_name
+
+    dep_extension = args.dependency_extension
+
+    if not os.path.exists(harness_path) or not harness_path.endswith(".c"):
+        logging.error("Specified path does not point to an existing .c file: %s", harness_path)
+        sys.exit(1)
+
+    if not os.path.exists(json_path):
+        logging.error("Specified path does not point to an existing .json file: %s", json_path)
+        sys.exit(1)
+
+    int_rep = None
+    with open(json_path, "r") as json_file:
+        int_rep = json.load(json_file)
+
+    makefile_list = build_makefile(int_rep, harness_path)
 
     # Write to output file
-    with open(path, "w") as output:
-        print("\n".join(out_lines), file=output)
-    print("-- Created aquifer Makefile at {}".format(os.path.abspath(path)))
+    with open(save_path, "w") as output:
+        print("\n".join(makefile_list), file=output)
+    print("-- Created aquifer Makefile at {}".format(os.path.abspath(save_path)))
+
+
+def build_makefile(rep, h_path):
+    """ build the makeffile """
+    if h_path not in rep[JSON_FILE]:
+        logging.error("<%s> not found in given internal representation. "
+                      "Try rebuilding the internal rep.", h_path)
+        sys.exit(1)
+
+    out_lines = []
+    out_lines.append("This file is generated autonatically by Aquifer")
+    out_lines.append("")
+
+    harness_info = MakefileInfo
+    harness_entry = rep[JSON_FILE][h_path]
+    all_files = rep[JSON_FILE]
+
+    # for file in all_files:
+    #     dep = file
+    #     if all_files[file]["alt_path"]:
+    #         dep = all_files[file]["alt_path"]
+    #     out_lines.append("ifneq (,$(findstring %s, %s))" % (dep, make_value(MAKE_DEPENDENCIES)))
+
+    #     #iterate through includes
+    #     for inc in all_files[file][MAKE_INCLUDE]:
+    #         out_lines.extend(add_if_not_there(inc, MAKE_INCLUDE))
+
+    #     #iterate through defines
+    #     for define in all_files[file][MAKE_DEFINE]:
+    #         out_lines.extend(add_if_not_there(define, MAKE_DEFINE))
+
+    #     out_lines.append("endif\n")
+    return out_lines
+
+@dataclass
+class MakefileInfo:
+    """ class that contains all the iunfo needed to create a makefile for a given harness """
+    includes = []
+    defines = []
+    dependencies = []
+
+
+def change_extension(path, new_ext):
+    """change the extension of a file given it's path"""
+    name, _ = os.path.splitext(path)
+    return name + "." + new_ext
 
 
 def add_if_not_there(file, tag):
@@ -280,29 +340,6 @@ def add_to_var(var, term):
     return "%s += %s" % (var, term)
 
 
-def get_flag_arg(flag, arg, next_arg):
-    """ if string corresponds to correct flag, return corresponding argument. """
-    if len(arg) < len(flag):
-        return None
-    if len(arg) == len(flag) and arg == flag:
-        return arg + " " + next_arg
-    if len(arg) > len(flag) and arg[:len(flag)] == flag:
-        return arg
-
-
-def print_file(args):
-    """ Print build information for a selected file. No return. """
-
-    path_to_file = args.file_path
-    print("print is not yet implemented - file {}".format(path_to_file))
-
-
-def render(args):
-    """ Generate a web interface containing build data for all fioles. No return. """
-
-    print("render is not yet implemented")
-
-
 def parse_args():
     """parse arguments"""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -311,37 +348,33 @@ def parse_args():
     # build command
     parser_build = subparser.add_parser('build', help="Generate a build database \
         for the current project.")
-    parser_build.add_argument("compile_commands_json_path",
+    parser_build.add_argument("-cc", "--compile-commands", required=True,
                               help="path to compile_commands json file.")
     parser_build.add_argument("-r", "--root-dir", required=True,
                               help="root directory for the project under test")
-    parser_build.add_argument("-sp", "--save-path",
-                              help="file path where the output Makefile will be saved")
-    parser_build.add_argument("-wj", "--write-json",
-                              help="output a file containing a json internal \
-                              representation of the stored information. \
-                              Possible to add save path")
-    parser_build.add_argument("-def", "--define_name",
-                              help="label for defines used in the Makefile")
-    parser_build.add_argument("-inc", "--include_name",
-                              help="label for includes used in the Makefile")
-    parser_build.add_argument("-dep", "--dependency_name",
-                              help="label for dependencies used in the Makefile")
-    parser_build.add_argument("-dx", "--dependency_extension",
-                              help="alternate extension for dependecies")
+    parser_build.add_argument("-jp", "--json_path",
+                              help="output location for a file containing a json internal \
+                              representation of the stored information.")
     parser_build.set_defaults(func=build)
 
     # print command
-    parser_print = subparser.add_parser('print', help="Print build information \
-        for a selected file.")
-    parser_print.add_argument("file_path", default="",
-                              help="path to file to output info for.")
-    parser_print.set_defaults(func=print_file)
-
-    # render command
-    parser_render = subparser.add_parser('render', help="Generate a web interface \
-        containing {} data.".format(TOOL_NAME))
-    parser_render.set_defaults(func=render)
+    parser_make = subparser.add_parser('makefile', help="Create a makefile \
+        containing relevant info for a given harness.")
+    parser_make.add_argument("-ha", "--harness", required=True,
+                             help="path to harness for which we create a makefile.")
+    parser_make.add_argument("-jp", "--json-path",
+                             help="file path to JSON internal representation")
+    parser_make.add_argument("-sp", "--save-path",
+                             help="file path where the output Makefile will be saved")
+    parser_make.add_argument("-def", "--define_name",
+                             help="label for defines used in the Makefile")
+    parser_make.add_argument("-inc", "--include_name",
+                             help="label for includes used in the Makefile")
+    parser_make.add_argument("-dep", "--dependency_name",
+                             help="label for dependencies used in the Makefile")
+    parser_make.add_argument("-dx", "--dependency_extension",
+                             help="alternate extension for dependecies")
+    parser_make.set_defaults(func=create_makefile)
 
     # parse and run
     return parser.parse_args()
