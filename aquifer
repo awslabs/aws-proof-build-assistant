@@ -27,11 +27,12 @@ JSON_INC = "includes"
 JSON_DEF = "defines"
 JSON_FCT = "functions"
 
-MAKE_FILEUT = "FILEUT"
-MAKE_FUNCUT = "FUNCUT"
+MAKE_ENTRY = "ENTRY"
 MAKE_INCLUDE = "INC"
 MAKE_DEFINE = "DEFINES"
 MAKE_DEPENDENCIES = "DEPENDENCIES"
+MAKE_DEPENDENCY_EXTENSION = None
+MAKE_COMMON_PATH = "../Makefile.common"
 
 def build(args):
     """ Generate a json build database from given compile commands.
@@ -189,6 +190,7 @@ def parse_cflow(rep, temp_file):
 
     temp_file.close()
 
+
 def find_h_and_c(root_dir):
     """From the project root, return a list of all header and source files in the project"""
     all_h_and_c = []
@@ -228,7 +230,7 @@ def get_flag_arg(flag, arg, next_arg):
         return arg
 
 
-def create_makefile(args):
+def makefile(args):
     """ Output a makefile containing relevant information for
     an input harness. No return. """
 
@@ -241,22 +243,10 @@ def create_makefile(args):
     if args.json_path:
         json_path = args.json_path
 
-    if args.define_name:
-        global MAKE_DEFINE
-        MAKE_DEFINE = args.define_name
+    handle_global_args(args)
 
-    if args.include_name:
-        global MAKE_INCLUDE
-        MAKE_INCLUDE = args.include_name
-
-    if args.dependency_name:
-        global MAKE_DEPENDENCIES
-        MAKE_DEPENDENCIES = args.dependency_name
-
-    dep_extension = args.dependency_extension
-
-    if not os.path.exists(harness_path) or not harness_path.endswith(".c"):
-        logging.error("Specified path does not point to an existing .c file: %s", harness_path)
+    if not os.path.exists(harness_path):
+        logging.error("Specified path does not point to an existing file: %s", harness_path)
         sys.exit(1)
 
     if not os.path.exists(json_path):
@@ -274,70 +264,122 @@ def create_makefile(args):
         print("\n".join(makefile_list), file=output)
     print("-- Created aquifer Makefile at {}".format(os.path.abspath(save_path)))
 
+def handle_global_args(args):
+    """ handle comand line flags that modify global variables"""
+    global MAKE_ENTRY
+    global MAKE_DEFINE
+    global MAKE_INCLUDE
+    global MAKE_DEPENDENCIES
+    global MAKE_DEPENDENCY_EXTENSION
+    global MAKE_COMMON_PATH
+
+    if args.project == "freertos":
+        MAKE_DEFINE = "CFLAGS"
+        MAKE_DEPENDENCIES = "OBJS"
+        MAKE_DEPENDENCY_EXTENSION = "goto"
+        MAKE_COMMON_PATH = "../../Makefile.common"
+
+    if args.entry_name:
+        MAKE_ENTRY = args.define_name
+    if args.define_name:
+        MAKE_DEFINE = args.define_name
+    if args.include_name:
+        MAKE_INCLUDE = args.include_name
+    if args.dependency_name:
+        MAKE_DEPENDENCIES = args.dependency_name
+    if args.dependency_extension:
+        MAKE_DEPENDENCY_EXTENSION = args.dependency_extension
+    if args.makefile_common_path:
+        MAKE_COMMON_PATH = args.makefile_common_path
+
+@dataclass
+class MakefileInfo:
+    """ class that contains all the iunfo needed to create a makefile for a given harness """
+    includes = set()
+    defines = set()
+    dependencies = set()
+    func_calls = {} # not currently used, but this may be usefule going forward
+
 
 def build_makefile(rep, h_path):
-    """ build the makeffile """
+    """ build the makefile """
     if h_path not in rep[JSON_FILE]:
         logging.error("<%s> not found in given internal representation. "
                       "Try rebuilding the internal rep.", h_path)
         sys.exit(1)
 
     out_lines = []
-    out_lines.append("This file is generated autonatically by Aquifer")
+    out_lines.append("# This file is generated autonatically by Aquifer")
+    out_lines.append("")
+
+    entry_name, _ = os.path.splitext(os.path.basename(h_path))
+    out_lines.append(MAKE_ENTRY + " = " + entry_name)
     out_lines.append("")
 
     harness_info = MakefileInfo
-    harness_entry = rep[JSON_FILE][h_path]
-    all_files = rep[JSON_FILE]
+    h_fcts = rep[JSON_FILE][h_path][JSON_FCT].keys()
+    get_recursive_info(rep, harness_info, h_path, h_fcts)
 
-    # for file in all_files:
-    #     dep = file
-    #     if all_files[file]["alt_path"]:
-    #         dep = all_files[file]["alt_path"]
-    #     out_lines.append("ifneq (,$(findstring %s, %s))" % (dep, make_value(MAKE_DEPENDENCIES)))
-
-    #     #iterate through includes
-    #     for inc in all_files[file][MAKE_INCLUDE]:
-    #         out_lines.extend(add_if_not_there(inc, MAKE_INCLUDE))
-
-    #     #iterate through defines
-    #     for define in all_files[file][MAKE_DEFINE]:
-    #         out_lines.extend(add_if_not_there(define, MAKE_DEFINE))
-
-    #     out_lines.append("endif\n")
+    out_lines.extend(makefile_content(harness_info))
+    out_lines.append("include " + MAKE_COMMON_PATH)
     return out_lines
 
-@dataclass
-class MakefileInfo:
-    """ class that contains all the iunfo needed to create a makefile for a given harness """
-    includes = []
-    defines = []
-    dependencies = []
+
+def get_recursive_info(rep, info, cur_path, relevant_fcts):
+    """ crecursively look for interesting information related to Makefile generation """
+    # TODO currently this would be problematic for recursive functions
+    cur_json = rep[JSON_FILE][cur_path]
+    info.includes.update(set(cur_json[JSON_INC]))
+    info.defines.update(set(cur_json[JSON_DEF]))
+    file_to_funcs = {}
+    for fct in relevant_fcts:
+        for called_fct, called_file in cur_json[JSON_FCT][fct].items():
+            if called_file:
+                called_file_ext = called_file
+                if MAKE_DEPENDENCY_EXTENSION:
+                    called_file_ext = change_extension(called_file)
+                info.dependencies.add(called_file_ext)
+
+                if called_file in file_to_funcs:
+                    file_to_funcs[called_file].append(called_fct)
+                else:
+                    file_to_funcs[called_file] = [called_fct]
+
+                if called_file in info.func_calls:
+                    info.func_calls[called_file_ext].append(called_fct)
+                else:
+                    info.func_calls[called_file_ext] = [called_fct]
+    for f_path, f_funcs in file_to_funcs.items():
+        get_recursive_info(rep, info, f_path, f_funcs)
 
 
-def change_extension(path, new_ext):
-    """change the extension of a file given it's path"""
-    name, _ = os.path.splitext(path)
-    return name + "." + new_ext
+def makefile_content(info):
+    """ return a list of strings that contain Makefile content for a given file """
+    mf_lines = []
+    mf_lines.extend(add_to_makefile(info.includes, MAKE_INCLUDE))
+    mf_lines.extend(add_to_makefile(info.defines, MAKE_DEFINE))
+    mf_lines.extend(add_to_makefile(info.dependencies, MAKE_DEPENDENCIES))
 
+    return mf_lines
 
-def add_if_not_there(file, tag):
-    """ add conditional append of Make variable to list of test lines """
+def add_to_makefile(elements, label):
+    """ return a list of Makefile commands associtaed to a specific variable """
     lines = []
-    lines.append("  ifeq (,$(findstring %s, %s))" % (file, make_value(tag)))
-    lines.append("    %s" % add_to_var(tag, file))
-    lines.append("  endif")
+    for element in elements:
+        lines.append(add_to_var(label, element))
+    lines.append("")
     return lines
-
-
-def make_value(var):
-    """ return MAKE syntax for accessing a variable value """
-    return "$(" + str(var) + ")"
 
 
 def add_to_var(var, term):
     """ return correct MAKE syntax for adding a value to a variable. """
     return "%s += %s" % (var, term)
+
+
+def change_extension(path):
+    """change the extension of a file given it's path"""
+    name, _ = os.path.splitext(path)
+    return name + "." + MAKE_DEPENDENCY_EXTENSION
 
 
 def parse_args():
@@ -366,6 +408,10 @@ def parse_args():
                              help="file path to JSON internal representation")
     parser_make.add_argument("-sp", "--save-path",
                              help="file path where the output Makefile will be saved")
+    parser_make.add_argument("-p", "--project", choices=['s2n', 'freertos'],
+                             help="predefine configurartion for a given project")
+    parser_make.add_argument("-ent", "--entry_name",
+                             help="label for entry used in the Makefile")
     parser_make.add_argument("-def", "--define_name",
                              help="label for defines used in the Makefile")
     parser_make.add_argument("-inc", "--include_name",
@@ -374,7 +420,9 @@ def parse_args():
                              help="label for dependencies used in the Makefile")
     parser_make.add_argument("-dx", "--dependency_extension",
                              help="alternate extension for dependecies")
-    parser_make.set_defaults(func=create_makefile)
+    parser_make.add_argument("-mc", "--makefile-common-path",
+                             help="path to Makefile.common")
+    parser_make.set_defaults(func=makefile)
 
     # parse and run
     return parser.parse_args()
