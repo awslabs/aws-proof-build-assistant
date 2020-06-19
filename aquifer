@@ -24,7 +24,7 @@ OUT_MF_NAME = "Makefile.aquifer"
 
 FROM_RUN = False
 
-JSON_INFO = "info"
+JSON_INFO = "root"
 JSON_FILE = "files"
 JSON_NAME = "name"
 JSON_INC = "includes"
@@ -330,6 +330,8 @@ def handle_global_args(args, root_path):
     global MAKE_PROOFS_PATH
 
     MAKE_ROOT_PATH = root_path
+    if args.make_source_path:
+        MAKE_ROOT_PATH = os.path.abspath(os.path.join(os.getcwd(), args.make_source_path))
     MAKE_PROOFS_PATH = os.path.abspath(os.path.join(MAKE_ROOT_PATH, "tests/cbmc"))
 
     if args.project == "freertos":
@@ -338,8 +340,8 @@ def handle_global_args(args, root_path):
         MAKE_DEPENDENCIES = "OBJS"
         MAKE_DEPENDENCY_EXTENSION = "goto"
         MAKE_COMMON_PATH = "../../Makefile.common"
-        MAKE_ROOT = "$(FREERTOS)"
-        MAKE_PROOFS = "$(PROOFS)"
+        MAKE_ROOT = "FREERTOS"
+        MAKE_PROOFS = "PROOFS"
         MAKE_PROOFS_PATH = os.path.abspath(os.path.join(MAKE_ROOT_PATH, "tools/cbmc/proofs"))
 
     if args.entry_name:
@@ -388,7 +390,7 @@ def build_makefile(rep, h_path):
         sys.exit(1)
 
     out_lines = []
-    out_lines.append("# This file is generated autonatically by Aquifer")
+    out_lines.append("# This file is generated automatically by Aquifer")
     out_lines.append("")
 
     out_lines.append(MAKE_ROOT + " = " + MAKE_ROOT_PATH)
@@ -408,7 +410,7 @@ def build_makefile(rep, h_path):
     harness_ordered = adjust_info(harness_info)
 
     out_lines.extend(makefile_content(harness_ordered))
-    out_lines.append("include " + MAKE_COMMON_PATH)
+    # out_lines.append("include " + MAKE_COMMON_PATH)
     return out_lines
 
 
@@ -552,13 +554,13 @@ def parse_args():
                                   help="path to compile_commands json file.")
 
     parser_build = subparser.add_parser('build', parents=[parser_run_build],
-                                        help="Generate a build database \
-        for the current project.")
+                                        help="Generate a JSON build database \
+        for the current project. Assumed cwd = roject root.")
     parser_build.add_argument("-r", "--root-dir", default=os.getcwd(),
                               help="root directory for the project under test")
     parser_build.add_argument("-jp", "--json_path",
                               help="output location for a file containing a json internal \
-                              representation of the stored information.")
+        representation of the stored information.")
     parser_build.set_defaults(func=build)
 
     # makefile command
@@ -586,14 +588,16 @@ def parse_args():
 
     parser_run_make.add_argument("-msn", "--make-source-name",
                                  help="Makefile variable name for source directory")
+    parser_run_make.add_argument("-msp", "--make-source-path",
+                                 help="path mskefile real source directory")
     parser_run_make.add_argument("-mpn", "--make-proofs-name",
                                  help="Makefile variable name for proofs directory")
     parser_run_make.add_argument("-mpp", "--make-proofs-path",
-                                 help="path mskefile proofs directory")
+                                 help="path makefile proofs directory")
 
     parser_make = subparser.add_parser('makefile', parents=[parser_run_make],
                                        help="Create a makefile \
-        containing relevant info for a given harness.")
+        from the internal representation for a given harness. Assumed cwd = harness directory.")
     parser_make.add_argument("-jp", "--json-path", required=True,
                              help="file path to JSON internal representation")
     parser_make.set_defaults(func=makefile)
@@ -601,7 +605,8 @@ def parse_args():
     # run command
     # default = called from harness directory
     parser_run = subparser.add_parser('run', parents=[parser_run_build, parser_run_make],
-                                      help="Generate a makefile from scratch.")
+                                      help="Generate a Makefile from scratch \
+        for a given harness. Assumed cwd = harness directory.")
     parser_run.add_argument("-r", "--root-dir", required=True,
                             help="root directory for the project under test")
     parser_run.set_defaults(func=run)
