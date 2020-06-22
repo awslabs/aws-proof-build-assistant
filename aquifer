@@ -313,7 +313,7 @@ def find_harness_file(path):
 
 def handle_project_flag(args, root_path):
     """ handle comand line flags that modify global variables"""
-    # TODO add case for s2n
+    # potentialTODO add case for s2n
     if args.project == "freertos":
         args.shorten_entry = True
         args.define_name = "CFLAGS"
@@ -370,6 +370,9 @@ def build_makefile(args, rep, h_path):
     out_lines.append("")
 
     entry_name, ext = os.path.splitext(os.path.basename(h_path))
+    if not entry_name.endswith("_harness"):
+        logging.error("invalid harness name: %s", h_path)
+        sys.exit(1)
     function_name = entry_name[:-len("_harness")]
     if args.shorten_entry:
         entry_name = function_name
@@ -428,7 +431,7 @@ def find_source_file(rep, function_ut, dependencies):
 
 def get_recursive_info(args, rep, info, cur_path, relevant_fcts):
     """ recursively look for interesting information related to Makefile generation """
-    # TODO currently this would be problematic for recursive functions
+    # Recursion issues are supposed to be handled by cflow
     cur_json = rep[JSON_FILE][cur_path]
     info.includes.update(set(cur_json[JSON_INC]))
     info.defines.update(set(cur_json[JSON_DEF]))
@@ -442,9 +445,9 @@ def get_recursive_info(args, rep, info, cur_path, relevant_fcts):
                 info.dependencies.add(called_file_ext)
 
                 if called_file in file_to_funcs:
-                    file_to_funcs[called_file].append(called_fct)
+                    file_to_funcs[called_file].add(called_fct)
                 else:
-                    file_to_funcs[called_file] = [called_fct]
+                    file_to_funcs[called_file] = {called_fct}
 
                 if called_file in info.func_calls:
                     info.func_calls[called_file_ext].append(called_fct)
@@ -553,7 +556,7 @@ def run(args):
 
 def parse_args():
     """parse arguments"""
-    # TODO get inputs from JSON
+    # potentialTODO get inputs from JSON
     parser = argparse.ArgumentParser(description=__doc__)
     subparser = parser.add_subparsers(help="Available commands for {}".format(TOOL_NAME))
 
