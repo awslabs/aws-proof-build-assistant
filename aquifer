@@ -369,23 +369,62 @@ def build_makefile(args, rep, h_path):
     out_lines.append("%s = %s" % (args.make_proofs_name, args.make_proofs_path))
     out_lines.append("")
 
-    entry_name, _ = os.path.splitext(os.path.basename(h_path))
+    entry_name, ext = os.path.splitext(os.path.basename(h_path))
+    function_name = entry_name[:-len("_harness")]
     if args.shorten_entry:
-        length = len("_harness")
-        entry_name = entry_name[:-length]
-    out_lines.append("%s = %s" % (args.entry_name, entry_name))
+        entry_name = function_name
+    out_lines.append("%s=harness" % (args.entry_name))
+    out_lines.append("%s = %s" % (args.entry_file, entry_name))
     out_lines.append("")
 
     harness_info = MakefileInfo
     h_fcts = rep[JSON_FILE][h_path][JSON_FCT].keys()
     get_recursive_info(args, rep, harness_info, h_path, h_fcts)
 
-    harness_ordered = adjust_info(args, harness_info)
+    # find source path
+    # Which dependecy source contains the function under test?
+    src_file_path = find_source_file(rep, function_name, harness_info.dependencies)
+    src_file_path = check_com_prefs(args, src_file_path)
 
+    # write inc, def, dep info to Makefile
+    harness_ordered = adjust_info(args, harness_info)
     out_lines.extend(makefile_content(args, harness_ordered))
-    out_lines.append("include %s" %(args.makefile_common_path))
+
+    # CBMC-related things:
+    out_lines.append(add_to_var(args.exclude_function_name, ""))
+    out_lines.append(add_to_var(args.unwindset_name, ""))
+    out_lines.append("")
+
+    # write proofs file path to Makefile
+    proof_src_path = find_proof_source(args, h_path, ext)
+    out_lines.append(add_to_var(args.make_proofs_sources, proof_src_path))
+
+    # write source path to Makefile
+    out_lines.append(add_to_var(args.make_root_sources, src_file_path))
+    # out_lines.append("include %s" %(args.makefile_common_path))
     return out_lines
 
+
+def find_proof_source(args, h_path, ext):
+    """ return a shortcut version of the proof source file """
+    proof_src_dir = os.path.dirname(h_path)
+    proof_src_dir = check_com_prefs(args, proof_src_dir)
+    proof_src_file = make_val(args.entry_file) + ext
+    return os.path.join(proof_src_dir, proof_src_file)
+
+
+def find_source_file(rep, function_ut, dependencies):
+    """ return path to source file that contains the function under test """
+    src_file = None
+    for dep in dependencies:
+        dep_in_rep = rep[JSON_FILE][dep]
+        if function_ut in dep_in_rep[JSON_FCT]:
+            if src_file:
+                logging.error("Multiple source files contain the function under test: %s, %s",
+                              os.path.basename(src_file), os.path.basename(dep))
+                sys.exit(1)
+            src_file = dep
+    return src_file
 
 def get_recursive_info(args, rep, info, cur_path, relevant_fcts):
     """ recursively look for interesting information related to Makefile generation """
@@ -429,24 +468,26 @@ def shortcut_path(args, paths, prefix):
     """ replace project root and proofs root path with Makefile variable """
     new_paths = []
     for path in paths:
-        new_path = path
-        # TODO refactor to use "add_prefix"
-        if os.path.commonprefix([path, args.make_proofs_path]) == args.make_proofs_path:
-            if path == args.make_proofs_path:
-                new_path = make_val(args.make_proofs_name)
-            else:
-                rel_path = os.path.relpath(path, args.make_proofs_path)
-                new_path = os.path.join(make_val(args.make_proofs_name), rel_path)
-        elif os.path.commonprefix([path, args.make_root_path]) == args.make_root_path:
-            if path == args.make_root_path:
-                new_path = make_val(args.make_root_name)
-            else:
-                rel_path = os.path.relpath(path, args.make_root_path)
-                new_path = os.path.join(make_val(args.make_root_name), rel_path)
+        new_path = check_com_prefs(args, path)
 
         new_paths.append("%s%s" % (prefix, new_path))
 
     return sorted(new_paths)
+
+
+def check_com_prefs(args, path):
+    """ check if prefix is a prefix of path. return updated path """
+    prefix_path2name = {args.make_proofs_path: args.make_proofs_name,
+                        args.make_root_path: args.make_root_name}
+    for prefix_path in prefix_path2name:
+        if os.path.commonprefix([path, prefix_path]) == prefix_path:
+            if path == prefix_path:
+                return make_val(prefix_path2name[prefix_path])
+
+            rel_path = os.path.relpath(path, prefix_path)
+            return os.path.join(make_val(prefix_path2name[prefix_path]), rel_path)
+
+    return path
 
 
 def add_prefix(items, prefix):
@@ -472,8 +513,8 @@ class MakefileOrderedinfo:
 def makefile_content(args, info):
     """ return a list of strings that contain Makefile content for a given file """
     mf_lines = []
-    mf_lines.extend(add_to_makefile(info.includes, args.include_name))
     mf_lines.extend(add_to_makefile(info.defines, args.define_name))
+    mf_lines.extend(add_to_makefile(info.includes, args.include_name))
     mf_lines.extend(add_to_makefile(info.dependencies, args.dependency_name))
 
     return mf_lines
@@ -513,7 +554,6 @@ def run(args):
 def parse_args():
     """parse arguments"""
     # TODO get inputs from JSON
-    # TODO make defaults correspond to template
     parser = argparse.ArgumentParser(description=__doc__)
     subparser = parser.add_subparsers(help="Available commands for {}".format(TOOL_NAME))
 
@@ -543,17 +583,23 @@ def parse_args():
 
     parser_run_make.add_argument("-p", "--project", choices=['s2n', 'freertos'],
                                  help="predefine configurartion for a given project")
-    parser_run_make.add_argument("-ent", "--entry_name", default="ENTRY",
-                                 help="label for entry used in the Makefile")
+    parser_run_make.add_argument("-ef", "--entry-file", default="HARNESS_FILE",
+                                 help="label for entry file used in the Makefile")
+    parser_run_make.add_argument("-en", "--entry-name", default="HARNESS_ENTRY",
+                                 help="label for entry type used in the Makefile")
     parser_run_make.add_argument("-sh", "--shorten-entry", action="store_true",
                                  help="shorten harness name when writing entry")
-    parser_run_make.add_argument("-def", "--define_name", default="DEFINES",
+    parser_run_make.add_argument("-def", "--define-name", default="DEFINES",
                                  help="label for defines used in the Makefile")
-    parser_run_make.add_argument("-inc", "--include_name", default="INC",
+    parser_run_make.add_argument("-inc", "--include-name", default="INCLUDES",
                                  help="label for includes used in the Makefile")
-    parser_run_make.add_argument("-dep", "--dependency_name", default="DEPENDENCIES",
+    parser_run_make.add_argument("-dep", "--dependency-name", default="DEPENDENCIES",
                                  help="label for dependencies used in the Makefile")
-    parser_run_make.add_argument("-dx", "--dependency_extension",
+    parser_run_make.add_argument("-xfn", "--exclude_function_name", default="REMOVE_FUNCTION_BODY",
+                                 help="label for function body exclusion used in the Makefile")
+    parser_run_make.add_argument("-unw", "--unwindset-name", default="UNWINDSET",
+                                 help="label for dependencies used in the Makefile")
+    parser_run_make.add_argument("-dx", "--dependency-extension",
                                  help="alternate extension for dependecies")
     parser_run_make.add_argument("-mc", "--makefile-common-path",
                                  default="../Makefile.common",
@@ -561,10 +607,14 @@ def parse_args():
 
     parser_run_make.add_argument("-mrn", "--make-root-name", default="SRCDIR",
                                  help="Makefile variable name for root directory")
+    parser_run_make.add_argument("-mrs", "--make-root-sources", default="PROJECT_SOURCES",
+                                 help="Makefile variable name for source file under test")
     parser_run_make.add_argument("-mrp", "--make-root-path",
                                  help="path mskefile real root directory")
-    parser_run_make.add_argument("-mpn", "--make-proofs-name", default="HELPERDIR",
+    parser_run_make.add_argument("-mpn", "--make-proofs-name", default="PROOFDIR",
                                  help="Makefile variable name for proofs directory")
+    parser_run_make.add_argument("-mps", "--make-proofs-sources", default="PROOF_SOURCES",
+                                 help="Makefile variable name for proofs source file")
     parser_run_make.add_argument("-mpp", "--make-proofs-path", default="tests/cbmc",
                                  help="path makefile proofs directory")
 
@@ -591,9 +641,9 @@ def parse_args():
 def main():
     """ Main function """
     arguments = parse_args()
-    log_file = os.path.join(arguments.root_dir, LOG_FILE_NAME)
+    # log_file = os.path.join(arguments.root_dir, LOG_FILE_NAME)
     # Below is to make debugging simpler
-    # log_file = "/Users/ababikia/git/argaquifer/aquifer.log"
+    log_file = "/Users/ababikia/git/argaquifer/aquifer.log"
     logging.basicConfig(filename=log_file,
                         level=logging.DEBUG)
 
