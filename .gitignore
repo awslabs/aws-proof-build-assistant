@@ -4,3 +4,7 @@ out/
 aquifer.log
 archive/
 Makefile.aquifer
+
+test/tests/*/build
+test/tests/*/aquifer
+test/tests/*/logs
