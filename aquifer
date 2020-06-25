@@ -12,6 +12,9 @@ import subprocess
 import re
 import tempfile
 from dataclasses import dataclass
+import voluptuous
+import voluptuous.humanize
+#TODO add the import in method to allow running without validation
 
 LOG_FILE_NAME = "aquifer.log"
 TOOL_NAME = "aquifer"
@@ -114,6 +117,9 @@ def builder(args, from_run):
 
     # parse CFLOW output
     parse_cflow(internal_rep, tf_path)
+
+    #voluptuous
+    validate_int_rep(internal_rep)
 
     # Write internal representation to files
     if json_path:
@@ -226,6 +232,54 @@ def add_to_int_rep(cf_file, cf_func, rep):
         JSON_FCT: {cf_func:{}},
     }
     rep[JSON_FILE][cf_file] = f_info
+
+
+def validate_int_rep(rep):
+    """ validate the internal representation using voluptuous """
+    def h_c_file(value):
+        if isinstance(value, str) and ( value.endswith(".c") or value.endswith(".h")):
+            return value
+        raise voluptuous.Invalid("Not a .c or .h file.")
+
+    def is_file(value):
+        if isinstance(value, str) and os.path.isfile(value):
+            return value
+        raise voluptuous.Invalid("Not a file.")
+
+    def is_dir(value):
+        if isinstance(value, str) and os.path.isdir(value):
+            return value
+        raise voluptuous.Invalid("Not a directory.")
+
+    def is_define(value):
+        regex = re.compile(r"\w+(=\w+)?")
+        if isinstance(value, str) and regex.match(value):
+            return value
+        raise voluptuous.Invalid("Not a valid define.")
+
+    def is_fct(value):
+        regex = re.compile(r"\w+")
+        if isinstance(value, str) and regex.match(value):
+            return value
+        raise voluptuous.Invalid("Not a valid function name.")
+
+    schema = voluptuous.Schema({
+        JSON_INFO: is_dir,
+        JSON_FILE: {
+            voluptuous.All(h_c_file, is_file): {
+                JSON_NAME: h_c_file,
+                JSON_INC: [is_dir],
+                JSON_DEF: [is_define],
+                JSON_FCT: {
+                    is_fct: {
+                        is_fct: voluptuous.Any(voluptuous.All(h_c_file, is_file), None)
+                    }
+                }
+            }
+        }
+    }, required=True)
+    # schema(rep)
+    voluptuous.humanize.validate_with_humanized_errors(rep, schema)
 
 
 def write_internal_representation(from_run, rep, path):

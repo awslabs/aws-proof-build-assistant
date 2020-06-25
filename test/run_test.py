@@ -79,7 +79,6 @@ def run_test(test, build_cmd, timestamp, results):
     os.symlink(log_file, tmp_link)
     os.rename(tmp_link, logs_path / "latest")
 
-
     if p_aquifer.returncode:
         results["fail"].append(test)
     else:
