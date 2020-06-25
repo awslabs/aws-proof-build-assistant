@@ -5,5 +5,8 @@
             "-DCMAKE_PREFIX_PATH=/usr/local/Cellar/openssl@1.1/1.1.1g",
             "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
             "--",
-            "-n"]
+            "-n"],
+    "aws-c-common": ["cmake",
+                "-GNinja",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"]
 }
