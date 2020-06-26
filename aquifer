@@ -237,7 +237,7 @@ def add_to_int_rep(cf_file, cf_func, rep):
 def validate_int_rep(rep):
     """ validate the internal representation using voluptuous """
     def h_c_file(value):
-        if isinstance(value, str) and ( value.endswith(".c") or value.endswith(".h")):
+        if isinstance(value, str) and (value.endswith(".c") or value.endswith(".h")):
             return value
         raise voluptuous.Invalid("Not a .c or .h file.")
 
@@ -385,18 +385,19 @@ def handle_project_flag(args, root_path):
         args.make_root_path = root_path
 
     # handle proofs path
-    proofs_path = args.make_proofs_path
+    proofs_path = args.make_helper_path
     joined_proofs_path = os.path.join(args.make_root_path, proofs_path)
     if proofs_path:
         if os.path.isabs(proofs_path) and os.path.exists(proofs_path):
-            args.make_proofs_path = proofs_path
+            args.make_helper_path = proofs_path
         elif os.path.exists(joined_proofs_path):
-            args.make_proofs_path = os.path.abspath(joined_proofs_path)
+            args.make_helper_path = os.path.abspath(joined_proofs_path)
         elif os.path.exists(proofs_path):
-            args.make_proofs_path = os.path.abspath(proofs_path)
+            args.make_helper_path = os.path.abspath(proofs_path)
         else:
             logging.error("Specified proofs directory is incorrect: %s", proofs_path)
             sys.exit(1)
+    args.make_proofs_path = os.path.abspath(args.make_proofs_path)
 
 
 @dataclass
@@ -420,6 +421,7 @@ def build_makefile(args, rep, h_path):
     out_lines.append("")
 
     out_lines.append("%s = %s" % (args.make_root_name, args.make_root_path))
+    out_lines.append("%s = %s" % (args.make_helper_name, args.make_helper_path))
     out_lines.append("%s = %s" % (args.make_proofs_name, args.make_proofs_path))
     out_lines.append("")
 
@@ -535,6 +537,7 @@ def shortcut_path(args, paths, prefix):
 def check_com_prefs(args, path):
     """ check if prefix is a prefix of path. return updated path """
     prefix_path2name = {args.make_proofs_path: args.make_proofs_name,
+                        args.make_helper_path: args.make_helper_name,
                         args.make_root_path: args.make_root_name}
     for prefix_path in prefix_path2name:
         if os.path.commonprefix([path, prefix_path]) == prefix_path:
@@ -668,12 +671,18 @@ def parse_args():
                                  help="Makefile variable name for source file under test")
     parser_run_make.add_argument("-mrp", "--make-root-path",
                                  help="path mskefile real root directory")
+
+    parser_run_make.add_argument("-mhn", "--make-helper-name", default="HELPERDIR",
+                                 help="Makefile variable name for proofs directory")
+    parser_run_make.add_argument("-mhp", "--make-helper-path", default="tests/cbmc",
+                                 help="path makefile proofs directory") 
+                                 #TODO do I need to include above? no entry in template
     parser_run_make.add_argument("-mpn", "--make-proofs-name", default="PROOFDIR",
+                                 help="Makefile variable name for proofs directory")
+    parser_run_make.add_argument("-mpp", "--make-proofs-path", default=os.getcwd(),
                                  help="Makefile variable name for proofs directory")
     parser_run_make.add_argument("-mps", "--make-proofs-sources", default="PROOF_SOURCES",
                                  help="Makefile variable name for proofs source file")
-    parser_run_make.add_argument("-mpp", "--make-proofs-path", default="tests/cbmc",
-                                 help="path makefile proofs directory")
 
     parser_make = subparser.add_parser('makefile', parents=[parser_run_make],
                                        help="Create a makefile \
