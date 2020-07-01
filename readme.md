@@ -20,7 +20,5 @@ It's ease of use makes AWS Proof Assistant ideal for local proof implementation 
 * [Cflow](https://www.gnu.org/software/cflow/) : 
   * `apt-get install cflow`
   * `brew install cflow`
-* [Dataclasses](https://pypi.org/project/dataclasses/) : 
-  * `pip3 install dataclasses`
 * [Voluptuous](https://pypi.org/project/voluptuous/)
   * `pip3 install voluptuous`
