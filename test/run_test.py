@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Run tests for aquifer
+Run tests for arpa
 """
 
 import os
@@ -18,7 +18,7 @@ cur_dir = os.path.dirname(__file__)
 
 TESTS_DIR = "tests"
 BUILDS_DIR = "builds"
-AQUIFER_DIR = "aquifer"
+ARPA_DIR = "arpa"
 LOGS_DIR = "logs"
 
 BUILD_COMMANDS_JSON = "build_commands.json"
@@ -53,45 +53,45 @@ def run_test(test, build_cmd, timestamp, results):
         results["build_err"].append(test[0])
         return
 
-    # AQUIFER BUILD JSON
-    aquifer_path = (test_root_dir / AQUIFER_DIR)
-    create_if_inexistant(aquifer_path)
+    # ARPA BUILD JSON
+    arpa_path = (test_root_dir / ARPA_DIR)
+    create_if_inexistant(arpa_path)
 
     comp_cmds_path = (build_path / "compile_commands.json")
-    aquifer_out_path = (aquifer_path / "int_rep.json")
-    aquifer_cmd = ["aquifer", "build",
+    arpa_out_path = (arpa_path / "int_rep.json")
+    arpa_cmd = ["arpa", "build",
                    "-cc", comp_cmds_path,
                    "-r", submod_root_path,
-                   "-jp", aquifer_out_path
+                   "-jp", arpa_out_path
                    ]
 
-    p_aquifer = subprocess.Popen(
-        aquifer_cmd, stdout=subprocess.PIPE,
+    p_arpa = subprocess.Popen(
+        arpa_cmd, stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT, text=True)
 
-    stdout_aquifer, _ = p_aquifer.communicate()
+    stdout_arpa, _ = p_arpa.communicate()
 
     log_file = (logs_path / ("%s.txt" % timestamp)).resolve()
     with open(log_file, "w") as handle:
         print(stdout_build, file=handle)
-        print(stdout_aquifer, file=handle)
+        print(stdout_arpa, file=handle)
     tmp_link = logs_path / ("latest-%s" % uuid.uuid4())
     os.symlink(log_file, tmp_link)
     os.rename(tmp_link, logs_path / "latest")
 
-    if p_aquifer.returncode:
+    if p_arpa.returncode:
         results["fail"].append(test)
     else:
         results["pass"].append(test)
 
-    # TODO test aquifer makefile command
+    # TODO test arpa makefile command
 
 
 def main():
     """ Run all tests """
 
     logging.basicConfig(
-        level=logging.INFO, format="aquifer-test: %(message)s")
+        level=logging.INFO, format="arpa-test: %(message)s")
 
     # TODO voluptuous
 
