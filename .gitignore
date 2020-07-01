@@ -5,3 +5,7 @@ aquifer.log
 archive/
 Makefile.aquifer
 index.html
+
+test/tests/*/build
+test/tests/*/aquifer
+test/tests/*/logs
