@@ -1,15 +1,15 @@
 <header id="title">
   <h1>AWS Proof Assistant</h1>
-  <p id="subtitle">aquifer command-line Reference</p>
+  <p id="subtitle">arpa command-line Reference</p>
 </header>
 
 
 AWS Proof Assistant automatically finds build-related information such as *file dependencies*, *included directories* and *defines* for source files within a `c` code base.
-Users can access the AWS Proof Assistant through `aquifer`, the command-line interface.
-This document serves as a reference for using `aquifer` and integrating it into your project.
+Users can access the AWS Proof Assistant through `arpa`, the command-line interface.
+This document serves as a reference for using `arpa` and integrating it into your project.
 
-`aquifer` accumulates build information for a complete `c` code base inside an internal JSON representation which is used to generate a `Makefile` containing all the relevant information *for a given source file*.
-`aquifer` simplifies the task of proof developers by automatically generating a ready-to-use `Makefile` containing information that developers previously had to find manually.
+`arpa` accumulates build information for a complete `c` code base inside an internal JSON representation which is used to generate a `Makefile` containing all the relevant information *for a given source file*.
+`arpa` simplifies the task of proof developers by automatically generating a ready-to-use `Makefile` containing information that developers previously had to find manually.
 In order to use the generated `Makefile`, developers must simply include it in another custom (and possibly trivial) `Makefile` and run `make` on it.
 It's ease of use makes AWS Proof Assistant ideal for local proof implementation and building as well as part of CI.
 
@@ -41,7 +41,7 @@ The above file, along with the source files it depends on, also require certain 
 
 AWS Proof Assistant runs the relevant commands, parses the outputs and gathers all the build information for a specified source file within an easy-to-read and easy-to-integrate `Makefile`. Users can run the following command:
 
-<pre class="command"><code>aquifer run                       \
+<pre class="command"><code>arpa run                       \
     -ha path/to/file.c            \
     -cc path/to/compile/commands  \
     -r path/to/project/root/dir
@@ -68,9 +68,9 @@ Doing so generates the following `Makefile`, which contains all the relevant bui
 
 
 ## Motivation
-Although `aquifer` is capable of generating valuable `Makefile`s for any source file of a code base, it's main use case is in the context of running CBMC proofs. Generally speaking, running a CBMC proof requires users to create a *harness* (a `c` source file containing the CBMC call) and a corresponding *Makefile*. This `Makefile` should contain all the required build information and should include a `Makefile.common` that contains all the `make` rules. `aquifer` is useful in this context as it generates a `Makefile.aquifer` that contains all the build information (excluding customizations) that can be included directly in a custom `Makefile`.
+Although `arpa` is capable of generating valuable `Makefile`s for any source file of a code base, it's main use case is in the context of running CBMC proofs. Generally speaking, running a CBMC proof requires users to create a *harness* (a `c` source file containing the CBMC call) and a corresponding *Makefile*. This `Makefile` should contain all the required build information and should include a `Makefile.common` that contains all the `make` rules. `arpa` is useful in this context as it generates a `Makefile.arpa` that contains all the build information (excluding customizations) that can be included directly in a custom `Makefile`.
 
-`aquifer` would be ideal for code bases that already contain CBMC proofs. In this context, `aquifer` would be integrated as a submodule inside these code bases and would simplify the development of additional CBMC proofs. Currently, we can envision `aquifer` to be integrated in the following five AWS projects: 
+`arpa` would be ideal for code bases that already contain CBMC proofs. In this context, `arpa` would be integrated as a submodule inside these code bases and would simplify the development of additional CBMC proofs. Currently, we can envision `arpa` to be integrated in the following five AWS projects: 
 
 * [AWS C Common](https://github.com/awslabs/aws-c-common/)
 * [AWS Encryption sdk](https://github.com/aws/aws-encryption-sdk-c)
@@ -93,7 +93,7 @@ Although `aquifer` is capable of generating valuable `Makefile`s for any source 
 ## For Proof Writers
 In this section, we provide a step-by-step guide designed to help proof developers integrate AWS Proof Assistant into their project and use it for implementation of CBMC Proofs:
 
-### Integrating `aquifer` into a project
+### Integrating `arpa` into a project
 1. Integrate AWS Proof Assistant as a submodule:
     1. Inside your git repository, run:  
     <pre class="command"><code>git submodule add 
@@ -109,7 +109,7 @@ In this section, we provide a step-by-step guide designed to help proof develope
     * [Dataclasses](https://pypi.org/project/dataclasses/) - (`pip3 install dataclasses`)
     * [Voluptuous](https://pypi.org/project/voluptuous/) - (`pip3 install voluptuous`)
 
-### Using `aquifer` for writing proofs
+### Using `arpa` for writing proofs
 3. Generate the build files (including the compilation commands):
     * Run `cmake` on the code base using project-specific flags, if necessary:
     <pre class="command"><code>cmake [--project-specific-flags]       \
@@ -117,40 +117,40 @@ In this section, we provide a step-by-step guide designed to help proof develope
             -B path/to/build/dir               \
             -S path/to/source/root/dir
     </code></pre>
-    * Currently, `aquifer` can only handle projects that build with `cmake`.
+    * Currently, `arpa` can only handle projects that build with `cmake`.
 
 4. Generate the internal representation *JSON* file:
     1. Move to the root directory of the code base :
     <pre class="command"><code>cd path/to/source/root/dir
     </code></pre>
-    2. Run `aquifer build`:
-    <pre class="command"><code>aquifer build                                    \
+    2. Run `arpa build`:
+    <pre class="command"><code>arpa build                                    \
             -cc path/to/build/dir/compile_commands.json 
     </code></pre>
-    3. This generates a *JSON* file containing the internal representation used by `aquifer` at `path/to/source/root/dir/internal_rep.json`.
+    3. This generates a *JSON* file containing the internal representation used by `arpa` at `path/to/source/root/dir/internal_rep.json`.
 5. Generate a `Makefile` for a given proof harness:
     1. Move to the proof directory which contains a harness source file:
     <pre class="command"><code>cd path/to/proof/dir
     </code></pre>
-    2. Run `aquifer makefile`:
-    <pre class="command"><code>aquifer makefile                                   \
+    2. Run `arpa makefile`:
+    <pre class="command"><code>arpa makefile                                   \
             -jp path/to/source/root/dir/internal_rep.json 
     </code></pre>
-    3. This generates a `Makefile` at `path/to/proof/dir/Makefile.aquifer`.
-6. Create a simple `Makefile` that calls `Makefile.aquifer`:
+    3. This generates a `Makefile` at `path/to/proof/dir/Makefile.arpa`.
+6. Create a simple `Makefile` that calls `Makefile.arpa`:
     1. In the same directory as the harness, create a simple `Makefile` that:
         * contains variable name adaptations (if required)
         * contains variable customizations (if required)
-        * includes `Makefile.aquifer`
+        * includes `Makefile.arpa`
         * includes `Makefile.common`
     2. Such a `Makefile` may resemble the following:
         <pre><code># Variable name adaptation:
-        PROJECT\_SPECIFIC\_VAR\_NAME = $(VAR\_NAME\_USED\_BY\_AQUIFER)
+        PROJECT\_SPECIFIC\_VAR\_NAME = $(VAR\_NAME\_USED\_BY\_arpa)
         # ex. INC = $(INCLUDES)  
         # Variable customizations:
         CUSTOM\_VAR = CUSTOM_VAL
         # ex. CHECKFLAGS += --bounds-check  
-        include path/to/Makefile.aquifer
+        include path/to/Makefile.arpa
         include path/to/Makefile.common
         </code></pre>
 7. Run CBMC:
@@ -161,36 +161,36 @@ In this section, we provide a step-by-step guide designed to help proof develope
 
 ## Subtool reference
 
-`aquifer` consists of three user-facing commands, where one is a combination of the other two commands:
+`arpa` consists of three user-facing commands, where one is a combination of the other two commands:
 <ul class="command-list">
-<li class="cmd"><code>aquifer build</code>:<br>
-generate a JSON file containing the internal representation used by <code>aquifer</code></li>
-<li class="cmd"><code>aquifer makefile</code>:<br>
+<li class="cmd"><code>arpa build</code>:<br>
+generate a JSON file containing the internal representation used by <code>arpa</code></li>
+<li class="cmd"><code>arpa makefile</code>:<br>
 generate a `Makefile` containing build information for a given harness</li>
-<li class="cmd"><code>aquifer run</code>:<br>
+<li class="cmd"><code>arpa run</code>:<br>
 run the above commands successively</li>
 </ul>
 
-As mentioned, `aquifer build` and `aquifer makefile` must be used sequentially. However, these commands can be replaced by a single `aquifer run` call. Specifically, both of the following code boxes are equivalent:
+As mentioned, `arpa build` and `arpa makefile` must be used sequentially. However, these commands can be replaced by a single `arpa run` call. Specifically, both of the following code boxes are equivalent:
 
-<pre class="command"><code>aquifer run                                      \
+<pre class="command"><code>arpa run                                      \
     -cc path/to/build/dir/compile_commands.json  \
     -r path/to/source/root/dir
 </code></pre>
 
-<pre class="command"><code>aquifer build                                    \
+<pre class="command"><code>arpa build                                    \
     -cc path/to/build/dir/compile_commands.json  \
     -r path/to/source/root/dir
-aquifer makefile                                   \
+arpa makefile                                   \
     -jp path/to/source/root/dir/internal_rep.json  
 </code></pre>
 
-### `aquifer build`
+### `arpa build`
     
-<pre class="command"><code>aquifer build [-h] -cc F [-r DIR] [-jp F]
+<pre class="command"><code>arpa build [-h] -cc F [-r DIR] [-jp F]
 </code></pre>
 
-This command generates a JSON file containing the internal representation used by `aquifer` from the compilation commands generated through the `cmake` call and from the root directory of the project.
+This command generates a JSON file containing the internal representation used by `arpa` from the compilation commands generated through the `cmake` call and from the root directory of the project.
 
 <p class="flag-name">
 `-cc F, --compile-commands F`
@@ -213,11 +213,11 @@ Path to the root directory of the project under test. By default, this flag is s
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Output path for the generated JSON file. By default, `aquifer` generates an `internal_rep.json` in the working directory.
+Output path for the generated JSON file. By default, `arpa` generates an `internal_rep.json` in the working directory.
 </p><!-- class="flag-desc" -->
 
-### `aquifer makefile`
-<pre class="command"><code>aquifer makefile [-h] -jp F [-ha F] [-sp F]
+### `arpa makefile`
+<pre class="command"><code>arpa makefile [-h] -jp F [-ha F] [-sp F]
                  [-ef V] [-en V] [-sh] 
                  [-def V] [-inc V] [-dep V] 
                  [-xfn V] [-unw V] [-dx EXT] 
@@ -225,14 +225,14 @@ Output path for the generated JSON file. By default, `aquifer` generates an `int
                  [-mpn V] [-mps V] [-mpp DIR]
 </code></pre>
 
-This command generates a `Makefile` containing relevant build information for a specified harness given the internal JSON representation generated by `aquifer build`.
+This command generates a `Makefile` containing relevant build information for a specified harness given the internal JSON representation generated by `arpa build`.
 
 <p class="flag-name">
 `-jp F, --json_path F`
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Path to the internal JSON representation file output by `aquifer build`.
+Path to the internal JSON representation file output by `arpa build`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -240,7 +240,7 @@ Path to the internal JSON representation file output by `aquifer build`.
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Path to the harness source file for which a `Makefile.aquifer` will be generated. By default, `aquifer` will search the working directory for a file that ends with "_harness.c". If the number of such files in the working directory is not exactly 1, `aquifer` will throw an error.
+Path to the harness source file for which a `Makefile.arpa` will be generated. By default, `arpa` will search the working directory for a file that ends with "_harness.c". If the number of such files in the working directory is not exactly 1, `arpa` will throw an error.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -248,7 +248,7 @@ Path to the harness source file for which a `Makefile.aquifer` will be generated
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Output path for the generated `Makefile`. By default, `aquifer` generates a `Makefile.aquifer` in the working directory.
+Output path for the generated `Makefile`. By default, `arpa` generates a `Makefile.arpa` in the working directory.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -344,7 +344,7 @@ Name of the `Makefile` variable containing the *path to the source file under te
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Path to the project root directory as it appears in the generated `Makefile`. By default, the project root directory is extracted from the internal representation and corresponds to the `-r` flag value when running `aquifer build`.
+Path to the project root directory as it appears in the generated `Makefile`. By default, the project root directory is extracted from the internal representation and corresponds to the `-r` flag value when running `arpa build`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -371,9 +371,9 @@ Name of the `Makefile` variable containing the *path to the harness file*. By de
 Relative path from the project source root directory to the directory containing all the proof directories. By default, the relative path is "tests/cbmc".
 </p><!-- class="flag-desc" -->
 
-### `aquifer run`
+### `arpa run`
 
-<pre class="command"><code>aquifer run [-h] -cc F -r DIR [-ha F]
+<pre class="command"><code>arpa run [-h] -cc F -r DIR [-ha F]
             [-sp F] [-ef V] [-en V] [-sh] 
             [-def V] [-inc V] [-dep V] 
             [-xfn V] [-unw V] [-dx EXT] 
@@ -381,7 +381,7 @@ Relative path from the project source root directory to the directory containing
             [-mpn V] [-mps V] [-mpp DIR]
 </code></pre>
 
-This command generates a `Makefile` containing relevant build information for a specified source file given the internal JSON representation generated by `aquifer build`.
+This command generates a `Makefile` containing relevant build information for a specified source file given the internal JSON representation generated by `arpa build`.
 
 <p class="flag-name">
 `-cc F, --compile-commands F`
@@ -404,7 +404,7 @@ Path to the root directory of the project under test. By default, this flag is s
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Path to the harness source file for which a `Makefile.aquifer` will be generated. By default, `aquifer` will search the working directory for a file that ends with "_harness.c". If the number of such files in the working directory is not exactly 1, `aquifer` will throw an error.
+Path to the harness source file for which a `Makefile.arpa` will be generated. By default, `arpa` will search the working directory for a file that ends with "_harness.c". If the number of such files in the working directory is not exactly 1, `arpa` will throw an error.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -412,7 +412,7 @@ Path to the harness source file for which a `Makefile.aquifer` will be generated
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Output path for the generated `Makefile`. By default, `aquifer` generates a `Makefile.aquifer` in the working directory.
+Output path for the generated `Makefile`. By default, `arpa` generates a `Makefile.arpa` in the working directory.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
