@@ -621,14 +621,17 @@ def parse_args():
     # default = called from project root
     parser_run_build = argparse.ArgumentParser(add_help=False)
     parser_run_build.add_argument("-cc", "--compile-commands", required=True,
+                                  metavar="F",
                                   help="path to compile_commands json file.")
 
     parser_build = subparser.add_parser('build', parents=[parser_run_build],
                                         help="Generate a JSON build database \
         for the current project. Assumed cwd = roject root.")
     parser_build.add_argument("-r", "--root-dir", default=os.getcwd(),
+                              metavar="DIR",
                               help="root directory for the project under test")
     parser_build.add_argument("-jp", "--json_path", default=OUT_JSON_NAME,
+                              metavar="F",
                               help="output location for a file containing a json internal \
         representation of the stored information.")
     parser_build.set_defaults(func=build)
@@ -636,58 +639,76 @@ def parse_args():
     # makefile command
     # default = called from harness directory
     parser_run_make = argparse.ArgumentParser(add_help=False)
-    parser_run_make.add_argument("-ha", "--harness",
+    parser_run_make.add_argument("-ha", "--harness", metavar="F",
                                  help="path to harness for which we create a makefile.")
-    parser_run_make.add_argument("-sp", "--save-path",
+    parser_run_make.add_argument("-sp", "--save-path", metavar="F",
                                  help="file path where the output Makefile will be saved")
 
     parser_run_make.add_argument("-p", "--project", choices=['s2n', 'freertos'],
                                  help="predefine configurartion for a given project")
     parser_run_make.add_argument("-ef", "--entry-file", default="HARNESS_FILE",
+                                 metavar="V",
                                  help="label for entry file used in the Makefile")
     parser_run_make.add_argument("-en", "--entry-name", default="HARNESS_ENTRY",
+                                 metavar="V",
                                  help="label for entry type used in the Makefile")
     parser_run_make.add_argument("-sh", "--shorten-entry", action="store_true",
                                  help="shorten harness name when writing entry")
     parser_run_make.add_argument("-def", "--define-name", default="DEFINES",
+                                 metavar="V",
                                  help="label for defines used in the Makefile")
     parser_run_make.add_argument("-inc", "--include-name", default="INCLUDES",
+                                 metavar="V",
                                  help="label for includes used in the Makefile")
     parser_run_make.add_argument("-dep", "--dependency-name", default="DEPENDENCIES",
+                                 metavar="V",
                                  help="label for dependencies used in the Makefile")
-    parser_run_make.add_argument("-xfn", "--exclude_function_name", default="REMOVE_FUNCTION_BODY",
+    parser_run_make.add_argument("-xfn", "--exclude-function-name", default="REMOVE_FUNCTION_BODY",
+                                 metavar="V",
                                  help="label for function body exclusion used in the Makefile")
     parser_run_make.add_argument("-unw", "--unwindset-name", default="UNWINDSET",
+                                 metavar="V",
                                  help="label for dependencies used in the Makefile")
     parser_run_make.add_argument("-dx", "--dependency-extension",
+                                 metavar="EXT",
                                  help="alternate extension for dependecies")
     parser_run_make.add_argument("-mc", "--makefile-common-path",
                                  default="../Makefile.common",
+                                 metavar="DIR",
                                  help="path to Makefile.common")
 
     parser_run_make.add_argument("-mrn", "--make-root-name", default="SRCDIR",
+                                 metavar="V",
                                  help="Makefile variable name for root directory")
     parser_run_make.add_argument("-mrs", "--make-root-sources", default="PROJECT_SOURCES",
+                                 metavar="V",
                                  help="Makefile variable name for source file under test")
     parser_run_make.add_argument("-mrp", "--make-root-path",
-                                 help="path mskefile real root directory")
+                                 metavar="DIR",
+                                 help="path makefile real root directory")
 
     parser_run_make.add_argument("-mhn", "--make-helper-name", default="HELPERDIR",
+                                 metavar="V",
                                  help="Makefile variable name for proofs directory")
     parser_run_make.add_argument("-mhp", "--make-helper-path", default="tests/cbmc",
-                                 help="path makefile proofs directory") 
-                                 #TODO do I need to include above? no entry in template
+                                 metavar="DIR",
+                                 help="path makefile proofs directory")
+
     parser_run_make.add_argument("-mpn", "--make-proofs-name", default="PROOFDIR",
-                                 help="Makefile variable name for proofs directory")
-    parser_run_make.add_argument("-mpp", "--make-proofs-path", default=os.getcwd(),
+                                 metavar="V",
                                  help="Makefile variable name for proofs directory")
     parser_run_make.add_argument("-mps", "--make-proofs-sources", default="PROOF_SOURCES",
+                                 metavar="V",
                                  help="Makefile variable name for proofs source file")
+    parser_run_make.add_argument("-mpp", "--make-proofs-path", default=os.getcwd(),
+                                 metavar="DIR",
+                                 help="path makefile proofs directory")
 
     parser_make = subparser.add_parser('makefile', parents=[parser_run_make],
                                        help="Create a makefile \
         from the internal representation for a given harness. Assumed cwd = harness directory.")
     parser_make.add_argument("-jp", "--json-path", required=True,
+                             metavar="F",
                              help="file path to JSON internal representation")
     parser_make.set_defaults(func=makefile)
 
@@ -696,7 +717,7 @@ def parse_args():
     parser_run = subparser.add_parser('run', parents=[parser_run_build, parser_run_make],
                                       help="Generate a Makefile from scratch \
         for a given harness. Assumed cwd = harness directory.")
-    parser_run.add_argument("-r", "--root-dir", required=True,
+    parser_run.add_argument("-r", "--root-dir", required=True, metavar="DIR",
                             help="root directory for the project under test")
     parser_run.set_defaults(func=run)
 
