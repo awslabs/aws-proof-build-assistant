@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-aquifer tool:  helping developers get build information for source files they want to test.
+arpa tool:  helping developers get build information for source files they want to test.
 """
 
 import argparse
@@ -16,14 +16,14 @@ import voluptuous
 import voluptuous.humanize
 #TODO add the import in method to allow running without validation
 
-LOG_FILE_NAME = "aquifer.log"
-TOOL_NAME = "aquifer"
+LOG_FILE_NAME = "arpa.log"
+TOOL_NAME = "arpa"
 TOOL_PATH = os.path.dirname(__file__)
 COMPILE_CMD_NAME = "compile_commands.json"
 
 PROJECT_NAME = os.path.basename(os.getcwd())
 OUT_JSON_NAME = "internal_rep.json"
-OUT_MF_NAME = "Makefile.aquifer"
+OUT_MF_NAME = "Makefile.arpa"
 
 JSON_INFO = "root"
 JSON_FILE = "files"
@@ -37,7 +37,7 @@ CC_DEFINE = "-D"
 
 
 def build(args):
-    """ this function is called only when the aquifer build command is called """
+    """ this function is called only when the arpa build command is called """
     builder(args, False)
 
 def builder(args, from_run):
@@ -335,7 +335,7 @@ def makefile(args):
     # Write to output file
     with open(save_path, "w") as output:
         print("\n".join(makefile_list), file=output)
-    print("-- Created aquifer Makefile at {}".format(os.path.abspath(save_path)))
+    print("-- Created arpa Makefile at {}".format(os.path.abspath(save_path)))
 
 
 def find_harness_file(path):
@@ -417,7 +417,7 @@ def build_makefile(args, rep, h_path):
         sys.exit(1)
 
     out_lines = []
-    out_lines.append("# This file is generated automatically by Aquifer")
+    out_lines.append("# This file is generated automatically by Arpa")
     out_lines.append("")
 
     out_lines.append("%s = %s" % (args.make_root_name, args.make_root_path))
@@ -727,7 +727,7 @@ def main():
     arguments = parse_args()
     # log_file = os.path.join(arguments.root_dir, LOG_FILE_NAME)
     # Below is to make debugging simpler
-    log_file = "/Users/ababikia/git/argaquifer/aquifer.log"
+    log_file = os.path.join(TOOL_PATH, "arpa.log")
     logging.basicConfig(filename=log_file,
                         level=logging.DEBUG)
 
