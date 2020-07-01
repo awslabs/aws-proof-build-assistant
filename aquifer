@@ -672,10 +672,10 @@ def parse_args():
     parser_run_make.add_argument("-dx", "--dependency-extension",
                                  metavar="EXT",
                                  help="alternate extension for dependecies")
-    parser_run_make.add_argument("-mc", "--makefile-common-path",
-                                 default="../Makefile.common",
-                                 metavar="DIR",
-                                 help="path to Makefile.common")
+    # parser_run_make.add_argument("-mc", "--makefile-common-path",
+    #                              default="../Makefile.common",
+    #                              metavar="DIR",
+    #                              help="path to Makefile.common")
 
     parser_run_make.add_argument("-mrn", "--make-root-name", default="SRCDIR",
                                  metavar="V",
