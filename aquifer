@@ -308,6 +308,7 @@ def makefile(args):
 
     # HARNESS
     harness_path = find_harness_file(args.harness)
+    args.make_proofs_path = os.path.abspath(os.path.dirname(harness_path))
 
     # SAVE PATH
     save_path = os.path.join(os.path.dirname(harness_path), OUT_MF_NAME)
@@ -368,15 +369,15 @@ def find_harness_file(path):
 def handle_project_flag(args, root_path):
     """ handle comand line flags that modify global variables"""
     # potentialTODO add case for s2n
-    if args.project == "freertos":
-        args.shorten_entry = True
-        args.define_name = "CFLAGS"
-        args.dependency_name = "OBJS"
-        args.dependency_extension = "goto"
-        args.makefile_common_path = "../../Makefile.common"
-        args.make_root_name = "FREERTOS"
-        args.make_proofs_name = "PROOFS"
-        args.make_proofs_path = "tools/cbmc/proofs"
+    # if args.project == "freertos":
+    #     args.shorten_entry = True
+    #     args.define_name = "CFLAGS"
+    #     args.dependency_name = "OBJS"
+    #     args.dependency_extension = "goto"
+    #     args.makefile_common_path = "../../Makefile.common"
+    #     args.make_root_name = "FREERTOS"
+    #     args.make_proofs_name = "PROOFS"
+    #     args.make_helper_path = "tools/cbmc/proofs"
 
     # store root path
     if args.make_root_path:
@@ -397,7 +398,6 @@ def handle_project_flag(args, root_path):
         else:
             logging.error("Specified proofs directory is incorrect: %s", proofs_path)
             sys.exit(1)
-    args.make_proofs_path = os.path.abspath(args.make_proofs_path)
 
 
 @dataclass
@@ -644,8 +644,8 @@ def parse_args():
     parser_run_make.add_argument("-sp", "--save-path", metavar="F",
                                  help="file path where the output Makefile will be saved")
 
-    parser_run_make.add_argument("-p", "--project", choices=['s2n', 'freertos'],
-                                 help="predefine configurartion for a given project")
+    # parser_run_make.add_argument("-p", "--project", choices=['s2n', 'freertos'],
+    #                              help="predefine configurartion for a given project")
     parser_run_make.add_argument("-ef", "--entry-file", default="HARNESS_FILE",
                                  metavar="V",
                                  help="label for entry file used in the Makefile")
@@ -700,9 +700,6 @@ def parse_args():
     parser_run_make.add_argument("-mps", "--make-proofs-sources", default="PROOF_SOURCES",
                                  metavar="V",
                                  help="Makefile variable name for proofs source file")
-    parser_run_make.add_argument("-mpp", "--make-proofs-path", default=os.getcwd(),
-                                 metavar="DIR",
-                                 help="path makefile proofs directory")
 
     parser_make = subparser.add_parser('makefile', parents=[parser_run_make],
                                        help="Create a makefile \
