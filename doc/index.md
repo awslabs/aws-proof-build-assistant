@@ -103,9 +103,8 @@ In this section, we provide a step-by-step guide designed to help proof develope
     <pre class="command"><code>export PATH=path/to/submodule/root/dir:$PATH
     </code></pre>
 2. Install the required dependencies listed below:
-    * [Cmake](https://cmake.org/) - (`apt-get install cmake` or `brew install cmake`)
-    * [Ninja](https://ninja-build.org/) - (`apt-get install ninja-build` or `brew install ninja`)
-    * [Cflow](https://www.gnu.org/software/cflow/) - (`apt-get install cflow` or `brew install cflow`)
+    * [Cmake](https://cmake.org/) (for tests) - (`apt-get install cmake` or `brew install cmake`)
+    * [GNU cflow](https://www.gnu.org/software/cflow/) - (`apt-get install cflow` or `brew install cflow`)
     * [Voluptuous](https://pypi.org/project/voluptuous/) - (`pip3 install voluptuous`)
 
 ### Using `arpa` for writing proofs

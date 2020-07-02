@@ -14,10 +14,7 @@ It's ease of use makes AWS Proof Assistant ideal for local proof implementation 
 * [Cmake](https://cmake.org/) : 
   * `apt-get install cmake`
   * `brew install cmake`
-* [Ninja](https://ninja-build.org/) : 
-  * `apt-get install ninja-build`
-  * `brew install ninja`
-* [Cflow](https://www.gnu.org/software/cflow/) : 
+* [GNU cflow](https://www.gnu.org/software/cflow/) : 
   * `apt-get install cflow`
   * `brew install cflow`
 * [Voluptuous](https://pypi.org/project/voluptuous/)
