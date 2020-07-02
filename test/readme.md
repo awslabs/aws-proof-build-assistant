@@ -1,4 +1,12 @@
-# Test directory
-Aquifer is tested on the submoduled projects in this repository.
-Aquifer dry-run builds these projects and outputs a JSON file from the generated compile_commands.json and the source file structure
-Testing consist of structural validation for the generted JSON file.
+# AWS Proof Assistant
+
+## Testing
+
+The testing approach for AWS Proof Assistant involves running the tool on various AWS projects included as submodules (each submodule corresponds to a test case). 
+The test suite simply runs the tool on each submodule and AWS Proof Assistant's built-in data validator ensure that the internal JSON representation is well-formed. 
+Currently, there are no tests pertaining to the generation of `Makefile`s.
+
+## Included Submodules
+
+* [S2N](https://github.com/awslabs/s2n)
+* [AWS-C-Common](https://github.com/awslabs/aws-c-common)
