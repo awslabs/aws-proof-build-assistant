@@ -1,17 +1,17 @@
 <header id="title">
-  <h1>AWS Proof Assistant</h1>
+  <h1>AWS Proof Build Assistant</h1>
   <p id="subtitle">arpa command-line Reference</p>
 </header>
 
 
-AWS Proof Assistant automatically finds build-related information such as *file dependencies*, *included directories* and *defines* for source files within a `c` code base.
-Users can access the AWS Proof Assistant through `arpa`, the command-line interface.
+AWS Proof Build Assistant automatically finds build-related information such as *file dependencies*, *included directories* and *defines* for source files within a `c` code base.
+Users can access the AWS Proof Build Assistant through `arpa`, the command-line interface.
 This document serves as a reference for using `arpa` and integrating it into your project.
 
 `arpa` accumulates build information for a complete `c` code base inside an internal JSON representation which is used to generate a `Makefile` containing all the relevant information *for a given source file*.
 `arpa` simplifies the task of proof developers by automatically generating a ready-to-use `Makefile` containing information that developers previously had to find manually.
 In order to use the generated `Makefile`, developers must simply include it in another custom (and possibly trivial) `Makefile` and run `make` on it.
-It's ease of use makes AWS Proof Assistant ideal for local proof implementation and building as well as part of CI.
+It's ease of use makes AWS Proof Build Assistant ideal for local proof implementation and building as well as part of CI.
 
 [Source code repository](path/to/aws-proof-assistant)
 
@@ -35,11 +35,11 @@ Consider the following `c` file:
         };
     }
 
-As any source file in a code base, the above file has source file dependencies. This information can be found through a static analysis tool applied on the entire code base (for this purpose, AWS Proof Assistant uses `cflow`, which generates a function-level call graph). 
+As any source file in a code base, the above file has source file dependencies. This information can be found through a static analysis tool applied on the entire code base (for this purpose, AWS Proof Build Assistant uses `cflow`, which generates a function-level call graph). 
 
 The above file, along with the source files it depends on, also require certain directories to be included and certain variables to be defined for proper compilation. Compile commands for each source file in a code base are obtained by using the `-DCMAKE_EXPORT_COMPILE_COMMANDS=1` flag when calling `cmake` on the code base.
 
-AWS Proof Assistant runs the relevant commands, parses the outputs and gathers all the build information for a specified source file within an easy-to-read and easy-to-integrate `Makefile`. Users can run the following command:
+AWS Proof Build Assistant runs the relevant commands, parses the outputs and gathers all the build information for a specified source file within an easy-to-read and easy-to-integrate `Makefile`. Users can run the following command:
 
 <pre class="command"><code>arpa run                       \
     -ha path/to/file.c            \
@@ -91,10 +91,10 @@ Although `arpa` is capable of generating valuable `Makefile`s for any source fil
 </table> -->
 
 ## For Proof Writers
-In this section, we provide a step-by-step guide designed to help proof developers integrate AWS Proof Assistant into their project and use it for implementation of CBMC Proofs:
+In this section, we provide a step-by-step guide designed to help proof developers integrate AWS Proof Build Assistant into their project and use it for implementation of CBMC Proofs:
 
 ### Integrating `arpa` into a project
-1. Integrate AWS Proof Assistant as a submodule:
+1. Integrate AWS Proof Build Assistant as a submodule:
     1. Inside your git repository, run:  
     <pre class="command"><code>git submodule add 
             https://github.com/path/to/aws/proof/assistant
