@@ -1,4 +1,4 @@
-HTML_DEPS = head.html index.tmp.html foot.html
+HTML_DEPS = head1.html style.css head2.html index.tmp.html foot.html
 
 index.html: $(HTML_DEPS)
 	cat $(HTML_DEPS) > $@

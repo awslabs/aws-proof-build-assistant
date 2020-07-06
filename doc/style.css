@@ -1,0 +1,140 @@
+#title{
+    background-color: #b83a3a;
+    padding: 2em;
+    margin-bottom: 4em;
+    color: #fff;
+}
+h1 {
+    margin-bottom: 0em;
+}
+#subtitle {
+    font-variant: small-caps;
+    text-transform: lowercase;
+    letter-spacing: 0.2em;
+}
+body {
+    color: #263238;
+    background-color: #fff;
+    font-family: Helvetica, sans-serif;
+    font-size: large;
+    text-align: justify;
+}
+#content {
+    max-width: 70ex;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 2em;
+    padding-bottom: 4em;
+}
+p {
+    margin: 0;
+    margin-bottom: 0.75em;
+}
+li p {
+    margin-bottom: 0;
+}
+code {
+    font-size: smaller;
+    font-family: Menlo, Consolas, monospace;
+}
+summary code {
+    background-color: #fff2f2;
+    color: #660c0c;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+p code {
+    background-color: #fff2f2;
+    color: #660c0c;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+li code {
+    background-color: #fff2f2;
+    color: #660c0c;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+li pre code {
+    /* font-size: 14; */
+    background-color: inherit;
+    color: inherit;
+    padding: 0;
+    margin-top: 0.25em;
+    margin-bottom: 0.5em;
+}
+pre {
+    border: 1pt solid #e2e2e2;
+    background-color: #e2f8ff;
+    padding: 0.4em;
+    white-space: pre-wrap;
+    text-align: left;
+    margin-top: 0.25em;
+    margin-bottom: 0.5em;
+}
+pre.command {
+    margin-top: 0.25em;
+    margin-bottom: 0.5em;
+    background-color: #fff0e2;
+    border: 1pt dashed #000000;
+}
+h2 {
+    margin-top: 2em;
+}
+h3 {
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+}
+li.cmd {
+    margin: 0;
+    padding-left: 0;
+    padding-top: 0;
+    padding-bottom: 0.2em;
+}
+li {
+    padding-left: 0em;
+    padding-top: 0.75em;
+}
+li li {
+    padding-top: 0.25em;
+}
+
+p.flag-name {
+    margin-top: 1em;
+    margin-bottom: 0em;
+}
+details p.flag-name {
+    margin-left: 2em;
+}
+p.flag-desc {
+    margin-left: 4em;
+    margin-top: 0;
+}
+details p.flag-desc {
+    margin-left: 6em;
+}
+  
+a:visited:hover   { background-color: #7e57c2; color: #fff; }
+a:hover           { background-color: #00bcd4; color: #fff; }
+a:visited:active  { background-color: #33691e; color: #fff; }
+a:active          { background-color: #33691e; color: #fff; }
+a:visited         {            color: #7e57c2;              }
+a                 {            color: #00bcd4;              }
+a {
+    text-decoration-style: solid;
+}
+/*
+@media (prefers-color-scheme: dark){
+    body {
+      color: #eceff1;
+      background-color: #263238;
+    }
+    #title h1{
+      color: #fffe;
+    }
+    a:visited:hover   { background-color: #7e57c2; color: #263238; }
+    a:hover           { background-color: #00bcd4; color: #263238; }
+    a:visited:active  { background-color: #33691e; color: #263238; }
+    a:active          { background-color: #33691e; color: #263238; }
+}
+*/
