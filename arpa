@@ -450,9 +450,9 @@ def build_makefile(args, rep, h_path):
     out_lines.extend(makefile_content(args, harness_ordered))
 
     # CBMC-related things:
-    out_lines.append(add_to_var(args.exclude_function_name, ""))
-    out_lines.append(add_to_var(args.unwindset_name, ""))
-    out_lines.append("")
+    # out_lines.append(add_to_var(args.exclude_function_name, ""))
+    # out_lines.append(add_to_var(args.unwindset_name, ""))
+    # out_lines.append("")
 
     # write proofs file path to Makefile
     proof_src_path = find_proof_source(args, h_path, ext)
