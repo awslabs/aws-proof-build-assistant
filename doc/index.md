@@ -11,7 +11,7 @@ This document serves as a reference for using `arpa` and integrating it into you
 `arpa` accumulates build information for a complete `c` code base inside an internal JSON representation which is used to generate a `Makefile` containing all the relevant information *for a single given source file*.
 `arpa` simplifies the task of proof developers by automatically generating a ready-to-use `Makefile` containing information that developers previously had to find manually.
 In order to use the generated `Makefile`, developers must include it in another custom (and possibly trivial) `Makefile` and run `make` on it.
-It's ease of use makes AWS Proof Build Assistant ideal for local proof implementation and building as well as part of CI.
+Its ease of use makes AWS Proof Build Assistant ideal for local proof implementation and building as well as part of CI.
 
 [Source code repository](path/to/aws-proof-assistant)
 
@@ -71,7 +71,10 @@ Doing so generates the following `Makefile`, which contains all the relevant bui
 
 
 ## Motivation
-Although `arpa` is capable of generating valuable `Makefile`s for any source file of a code base, it's main use case is in the context of running CBMC proofs. Generally speaking, running a CBMC proof requires users to create a *harness* (a `c` source file containing the CBMC call) and a corresponding *Makefile*. This `Makefile` should contain all the required build information for the proof harness under test and should include a `Makefile.common` that contains all the `make` rules. `arpa` is useful in this context as it generates a `Makefile.arpa` that contains all the build information (excluding customizations) that can be included directly in a custom `Makefile`.
+Although `arpa` is capable of generating valuable `Makefile`s for any source file of a code base, its main use case is in the context of running CBMC proofs. 
+Generally speaking, running a CBMC proof requires users to create a *harness* (a `c` source file containing the CBMC call) and a corresponding *Makefile*. 
+This `Makefile` should contain all the required build information for the proof harness under test and should include a `Makefile.common` that contains all the `make` rules. 
+`arpa` is useful in this context as it generates a `Makefile.arpa` that contains all the build information (excluding customizations) that can be included directly in a custom `Makefile`.
 
 `arpa` would be ideal for code bases that already contain CBMC proofs. In this context, `arpa` would be integrated as a submodule inside these code bases and would simplify the development of additional CBMC proofs. Currently, we can envision `arpa` to be integrated in the following five AWS projects: 
 
@@ -261,7 +264,7 @@ Output path for the generated `Makefile`. By default, `arpa` generates a `Makefi
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *harness file name*. By default, the variable name is "HARNESS_FILE".
+Name of the `Makefile` variable containing the *harness file name*. By default, the variable name is `HARNESS_FILE`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -269,7 +272,7 @@ Name of the `Makefile` variable containing the *harness file name*. By default, 
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *entry type* for the harness file. By default, the variable name is "HARNESS_ENTRY".
+Name of the `Makefile` variable containing the *entry type* for the harness file. By default, the variable name is `HARNESS_ENTRY`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -288,7 +291,7 @@ Remove the "_harness" suffix from the entry file name when writing to the genera
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *variable definitions* required to compile the harness file. By default, the variable name is "DEFINES".
+Name of the `Makefile` variable containing the *variable definitions* required to compile the harness file. By default, the variable name is `DEFINES`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -296,7 +299,7 @@ Name of the `Makefile` variable containing the *variable definitions* required t
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *included directories* required to compile the harness file. By default, the variable name is "INCLUDES".
+Name of the `Makefile` variable containing the *included directories* required to compile the harness file. By default, the variable name is `INCLUDES`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -304,7 +307,7 @@ Name of the `Makefile` variable containing the *included directories* required t
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *source file dependencies* for the harness. By default, the variable name is "DEPENDENCIES".
+Name of the `Makefile` variable containing the *source file dependencies* for the harness. By default, the variable name is `DEPENDENCIES`.
 </p><!-- class="flag-desc" -->
 </details>
 
@@ -315,7 +318,7 @@ Name of the `Makefile` variable containing the *source file dependencies* for th
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *functions to be excluded by CBMC*. By default, the variable name is "REMOVE\_FUNCTION\_BODY".
+Name of the `Makefile` variable containing the *functions to be excluded by CBMC*. By default, the variable name is `REMOVE_FUNCTION_BODY`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -323,7 +326,7 @@ Name of the `Makefile` variable containing the *functions to be excluded by CBMC
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *undwindset CBMC flag value*. By default, the variable name is "UNWINDSET".
+Name of the `Makefile` variable containing the *undwindset CBMC flag value*. By default, the variable name is `UNWINDSET`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -342,7 +345,7 @@ Modify the extension of the source file dependencies as they appear in the gener
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *path to the source root directory*. By default, the variable name is "SRCDIR".
+Name of the `Makefile` variable containing the *path to the source root directory*. By default, the variable name is `SRCDIR`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -350,7 +353,7 @@ Name of the `Makefile` variable containing the *path to the source root director
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *path to the source file under test*, used for CBMC proofs. By default, the variable name is "PROJECT_SOURCES".
+Name of the `Makefile` variable containing the *path to the source file under test*, used for CBMC proofs. By default, the variable name is `PROJECT_SOURCES`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -369,7 +372,7 @@ Path to the project root directory as it appears in the generated `Makefile`. By
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *path to the helper directory containing all the proof directories*. By default, the variable name is "CBMC_ROOT".
+Name of the `Makefile` variable containing the *path to the helper directory containing all the proof directories*. By default, the variable name is `CBMC_ROOT`.
 </p><!-- class="flag-desc" -->
 
 
@@ -378,7 +381,7 @@ Name of the `Makefile` variable containing the *path to the helper directory con
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Relative path from the project source root directory to the directory containing all the proof directories. By default, the relative path is "tests/cbmc".
+Relative path from the project source root directory to the directory containing all the proof directories. By default, the relative path is `tests/cbmc`.
 </p><!-- class="flag-desc" -->
 </details>
 
@@ -389,7 +392,7 @@ Relative path from the project source root directory to the directory containing
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *path to the proof directory containing the harness file*. By default, the variable name is "PROOFDIR".
+Name of the `Makefile` variable containing the *path to the proof directory containing the harness file*. By default, the variable name is `PROOFDIR`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -397,7 +400,7 @@ Name of the `Makefile` variable containing the *path to the proof directory cont
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *path to the harness file*. By default, the variable name is "PROOF_SOURCES".
+Name of the `Makefile` variable containing the *path to the harness file*. By default, the variable name is `PROOF_SOURCES`.
 </p><!-- class="flag-desc" -->
 </details>
 
@@ -453,7 +456,7 @@ Output path for the generated `Makefile`. By default, `arpa` generates a `Makefi
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *harness file name*. By default, the variable name is "HARNESS_FILE".
+Name of the `Makefile` variable containing the *harness file name*. By default, the variable name is `HARNESS_FILE`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -461,7 +464,7 @@ Name of the `Makefile` variable containing the *harness file name*. By default, 
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *entry type* for the harness file. By default, the variable name is "HARNESS_ENTRY".
+Name of the `Makefile` variable containing the *entry type* for the harness file. By default, the variable name is `HARNESS_ENTRY`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -480,7 +483,7 @@ Remove the "_harness" suffix from the entry file name when writing to the genera
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *variable definitions* required to compile the harness file. By default, the variable name is "DEFINES".
+Name of the `Makefile` variable containing the *variable definitions* required to compile the harness file. By default, the variable name is `DEFINES`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -488,7 +491,7 @@ Name of the `Makefile` variable containing the *variable definitions* required t
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *included directories* required to compile the harness file. By default, the variable name is "INCLUDES".
+Name of the `Makefile` variable containing the *included directories* required to compile the harness file. By default, the variable name is `INCLUDES`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -496,7 +499,7 @@ Name of the `Makefile` variable containing the *included directories* required t
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *source file dependencies* for the harness. By default, the variable name is "DEPENDENCIES".
+Name of the `Makefile` variable containing the *source file dependencies* for the harness. By default, the variable name is `DEPENDENCIES`.
 </p><!-- class="flag-desc" -->
 </details>
 
@@ -507,7 +510,7 @@ Name of the `Makefile` variable containing the *source file dependencies* for th
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *functions to be excluded by CBMC*. By default, the variable name is "REMOVE\_FUNCTION\_BODY".
+Name of the `Makefile` variable containing the *functions to be excluded by CBMC*. By default, the variable name is `REMOVE_FUNCTION_BODY`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -515,7 +518,7 @@ Name of the `Makefile` variable containing the *functions to be excluded by CBMC
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *undwindset CBMC flag value*. By default, the variable name is "UNWINDSET".
+Name of the `Makefile` variable containing the *undwindset CBMC flag value*. By default, the variable name is `UNWINDSET`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -534,7 +537,7 @@ Modify the extension of the source file dependencies as they appear in the gener
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *path to the source root directory*. By default, the variable name is "SRCDIR".
+Name of the `Makefile` variable containing the *path to the source root directory*. By default, the variable name is `SRCDIR`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -542,7 +545,7 @@ Name of the `Makefile` variable containing the *path to the source root director
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *path to the source file under test*, used for CBMC proofs. By default, the variable name is "PROJECT_SOURCES".
+Name of the `Makefile` variable containing the *path to the source file under test*, used for CBMC proofs. By default, the variable name is `PROJECT_SOURCES`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -561,7 +564,7 @@ Path to the project root directory as it appears in the generated `Makefile`. By
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *path to the helper directory containing all the proof directories*. By default, the variable name is "CBMC_ROOT".
+Name of the `Makefile` variable containing the *path to the helper directory containing all the proof directories*. By default, the variable name is `CBMC_ROOT`.
 </p><!-- class="flag-desc" -->
 
 
@@ -570,7 +573,7 @@ Name of the `Makefile` variable containing the *path to the helper directory con
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Relative path from the project source root directory to the directory containing all the proof directories. By default, the relative path is "tests/cbmc".
+Relative path from the project source root directory to the directory containing all the proof directories. By default, the relative path is `tests/cbmc`.
 </p><!-- class="flag-desc" -->
 </details>
 
@@ -581,7 +584,7 @@ Relative path from the project source root directory to the directory containing
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *path to the proof directory containing the harness file*. By default, the variable name is "PROOFDIR".
+Name of the `Makefile` variable containing the *path to the proof directory containing the harness file*. By default, the variable name is `PROOFDIR`.
 </p><!-- class="flag-desc" -->
 
 <p class="flag-name">
@@ -589,6 +592,6 @@ Name of the `Makefile` variable containing the *path to the proof directory cont
 </p><!-- class="flag-name" -->
 
 <p class="flag-desc">
-Name of the `Makefile` variable containing the *path to the harness file*. By default, the variable name is "PROOF_SOURCES".
+Name of the `Makefile` variable containing the *path to the harness file*. By default, the variable name is `PROOF_SOURCES`.
 </p><!-- class="flag-desc" -->
 </details>
