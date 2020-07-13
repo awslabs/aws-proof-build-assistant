@@ -1,6 +1,0 @@
-[submodule "test/tests/s2n/s2n"]
-	path = test/tests/s2n/s2n
-	url = https://github.com/awslabs/s2n.git
-[submodule "test/tests/aws-c-common/aws-c-common"]
-	path = test/tests/aws-c-common/aws-c-common
-	url = https://github.com/awslabs/aws-c-common.git

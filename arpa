@@ -254,46 +254,45 @@ def validate_int_rep(rep):
     def h_c_file(value):
         if isinstance(value, str) and (value.endswith(".c") or value.endswith(".h")):
             return value
-        raise voluptuous.Invalid("Not a .c or .h file.")
+        raise voluptuous.Invalid("Not an existing .c or .h file.")
 
-    def is_file(value):
+    def existing_file(value):
         if isinstance(value, str) and os.path.isfile(value):
             return value
-        raise voluptuous.Invalid("Not a file.")
+        raise voluptuous.Invalid("Not an existing file.")
 
-    def is_dir(value):
+    def existing_directory(value):
         if isinstance(value, str) and os.path.isdir(value):
             return value
-        raise voluptuous.Invalid("Not a directory.")
+        raise voluptuous.Invalid("Not an existing directory.")
 
-    def is_define(value):
-        regex = re.compile(r"\w+(=\w+)?")
+    def compiler_define(value):
+        regex = re.compile(r"\w+(=.+)?")
         if isinstance(value, str) and regex.match(value):
             return value
-        raise voluptuous.Invalid("Not a valid define.")
+        raise voluptuous.Invalid("Not a valid compiler define.")
 
-    def is_fct(value):
+    def function_name(value):
         regex = re.compile(r"\w+")
         if isinstance(value, str) and regex.match(value):
             return value
         raise voluptuous.Invalid("Not a valid function name.")
 
     schema = voluptuous.Schema({
-        JSON_INFO: is_dir,
+        JSON_INFO: existing_directory,
         JSON_FILE: {
-            voluptuous.All(h_c_file, is_file): {
+            voluptuous.All(h_c_file, existing_file): {
                 JSON_NAME: h_c_file,
-                JSON_INC: [is_dir],
-                JSON_DEF: [is_define],
+                JSON_INC: [existing_directory],
+                JSON_DEF: [compiler_define],
                 JSON_FCT: {
-                    is_fct: {
-                        is_fct: voluptuous.Any(voluptuous.All(h_c_file, is_file), None)
+                    function_name: {
+                        function_name: voluptuous.Any(voluptuous.All(h_c_file, existing_file), None)
                     }
                 }
             }
         }
     }, required=True)
-    # schema(rep)
     voluptuous.humanize.validate_with_humanized_errors(rep, schema)
 
 
