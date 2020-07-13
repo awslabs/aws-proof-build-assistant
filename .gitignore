@@ -2,6 +2,13 @@
 c-test/
 out/
 aquifer.log
+arpa.log
 archive/
 Makefile.aquifer
+Makefile.arpa
 index.html
+
+test/tests/*/build
+test/tests/*/aquifer
+test/tests/*/arpa
+test/tests/*/logs
