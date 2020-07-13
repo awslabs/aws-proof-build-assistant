@@ -108,8 +108,9 @@ def builder(args, from_run):
     temp_file.close()
 
     cflow_cmd.extend(["-A", "--no-main", "-o%s" %(tf_path), "--brief"])
-    proc = subprocess.Popen(cflow_cmd, stderr=subprocess.PIPE)
-    for cflow_msg in proc.stderr:
+    proc = subprocess.Popen(cflow_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    _, errs = proc.communicate()
+    for cflow_msg in errs:
         logging.warning("cflow stderr > %s", cflow_msg)
 
     # parse CFLOW output
