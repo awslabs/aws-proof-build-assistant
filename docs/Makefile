@@ -11,13 +11,18 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-HTML_DEPS = head1.html style.css head2.html index.tmp.html foot.html
+SRC = sources
+HTML_DEPS += $(SRC)/head1.html
+HTML_DEPS += $(SRC)/style.css
+HTML_DEPS += $(SRC)/head2.html
+HTML_DEPS += $(SRC)/index.tmp.html
+HTML_DEPS += $(SRC)/foot.html
 
 index.html: $(HTML_DEPS)
 	cat $(HTML_DEPS) > $@
 
-.INTERMEDIATE: index.tmp.html
-index.tmp.html: index.md
+.INTERMEDIATE: $(SRC)/index.tmp.html
+$(SRC)/index.tmp.html: $(SRC)/index.md
 	markdown $^ > $@
 
 open: index.html

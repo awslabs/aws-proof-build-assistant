@@ -1,0 +1,780 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    Arpa documentation
+  </title>
+<style>#title{
+    background-color: #b83a3a;
+    padding: 2em;
+    margin-bottom: 4em;
+    color: #fff;
+}
+h1 {
+    margin-bottom: 0em;
+}
+#subtitle {
+    font-variant: small-caps;
+    text-transform: lowercase;
+    letter-spacing: 0.2em;
+}
+body {
+    color: #263238;
+    background-color: #fff;
+    font-family: Helvetica, sans-serif;
+    font-size: large;
+    text-align: justify;
+}
+#content {
+    max-width: 70ex;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 2em;
+    padding-bottom: 4em;
+}
+p {
+    margin: 0;
+    margin-bottom: 0.75em;
+}
+li p {
+    margin-bottom: 0;
+}
+code {
+    font-size: smaller;
+    font-family: Menlo, Consolas, monospace;
+}
+summary code {
+    background-color: #fff2f2;
+    color: #660c0c;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+p code {
+    background-color: #fff2f2;
+    color: #660c0c;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+li code {
+    background-color: #fff2f2;
+    color: #660c0c;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+li pre code {
+    /* font-size: 14; */
+    background-color: inherit;
+    color: inherit;
+    padding: 0;
+    margin-top: 0.25em;
+    margin-bottom: 0.5em;
+}
+pre {
+    border: 1pt solid #e2e2e2;
+    background-color: #e2f8ff;
+    padding: 0.4em;
+    white-space: pre-wrap;
+    text-align: left;
+    margin-top: 0.25em;
+    margin-bottom: 0.5em;
+}
+pre.command {
+    margin-top: 0.25em;
+    margin-bottom: 0.5em;
+    background-color: #fff0e2;
+    border: 1pt dashed #000000;
+}
+h2 {
+    margin-top: 2em;
+}
+h3 {
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+}
+li.cmd {
+    margin: 0;
+    padding-left: 0;
+    padding-top: 0;
+    padding-bottom: 0.2em;
+}
+li {
+    padding-left: 0em;
+    padding-top: 0.75em;
+}
+li li {
+    padding-top: 0.25em;
+}
+
+p.flag-name {
+    margin-top: 1em;
+    margin-bottom: 0em;
+}
+details p.flag-name {
+    margin-left: 2em;
+}
+p.flag-desc {
+    margin-left: 4em;
+    margin-top: 0;
+}
+details p.flag-desc {
+    margin-left: 6em;
+}
+  
+a:visited:hover   { background-color: #7e57c2; color: #fff; }
+a:hover           { background-color: #00bcd4; color: #fff; }
+a:visited:active  { background-color: #33691e; color: #fff; }
+a:active          { background-color: #33691e; color: #fff; }
+a:visited         {            color: #7e57c2;              }
+a                 {            color: #00bcd4;              }
+a {
+    text-decoration-style: solid;
+}
+/*
+@media (prefers-color-scheme: dark){
+    body {
+      color: #eceff1;
+      background-color: #263238;
+    }
+    #title h1{
+      color: #fffe;
+    }
+    a:visited:hover   { background-color: #7e57c2; color: #263238; }
+    a:hover           { background-color: #00bcd4; color: #263238; }
+    a:visited:active  { background-color: #33691e; color: #263238; }
+    a:active          { background-color: #33691e; color: #263238; }
+}
+*/
+</style>
+</head>
+<body>
+
+<main id="content"><p><header id="title">
+  <h1>AWS Proof Build Assistant</h1>
+  <p id="subtitle">arpa command-line Reference</p>
+</header></p>
+
+<p>AWS Proof Build Assistant automatically finds build-related information such as <em>file dependencies</em>, <em>included directories</em> and <em>defines</em> for source files within a <code>c</code> code base.
+Users can access the AWS Proof Build Assistant through <code>arpa</code>, the command-line interface.
+This document serves as a reference for using <code>arpa</code> and integrating it into your project.</p>
+
+<p><code>arpa</code> accumulates build information for a complete <code>c</code> code base inside an internal JSON representation which is used to generate a <code>Makefile</code> containing all the relevant information <em>for a single given source file</em>.
+<code>arpa</code> simplifies the task of proof developers by automatically generating a ready-to-use <code>Makefile</code> containing information that developers previously had to find manually.
+In order to use the generated <code>Makefile</code>, developers must include it in another custom (and possibly trivial) <code>Makefile</code> and run <code>make</code> on it.
+Its ease of use makes AWS Proof Build Assistant ideal for local proof implementation and building as well as part of CI.</p>
+
+<p><a href="path/to/aws-proof-assistant">Source code repository</a></p>
+
+<h2>Overview</h2>
+
+<p>Consider the following <code>c</code> file, which is a <em>CBMC proof harness</em> (discussed below):</p>
+
+<pre><code>#include "api/s2n.h"
+#include "stuffer/s2n_stuffer.h"
+#include &lt;assert.h&gt;
+#include &lt;cbmc_proof/proof_allocators.h&gt;
+#include &lt;cbmc_proof/make_common_datastructures.h&gt;
+
+void s2n_stuffer_alloc_harness() {
+    struct s2n_stuffer *stuffer = 
+        can_fail_malloc(sizeof(*stuffer));
+    struct s2n_blob* in = cbmc_allocate_s2n_blob();
+
+    if (s2n_stuffer_init(stuffer, in) == S2N_SUCCESS){
+        assert(s2n_stuffer_is_valid(stuffer));
+        assert(s2n_blob_is_valid(in));
+    };
+}
+</code></pre>
+
+<p>In order to run the above file as part of a CBMC proof, users must provide to CBMC a collection of build information for the file which consists of:</p>
+
+<ul>
+<li><strong>Source file dependencies</strong>: <br />
+Obtained through static analysis. For this purpose, AWS Proof Build Assistant uses <code>cflow</code>, which generates a function-level call graph. </li>
+<li><strong>Included directories</strong> and <strong>Defined variables</strong>: <br />
+Required for compilation. A compilation command for each source file is generated by setting the <code>-DCMAKE_EXPORT_COMPILE_COMMANDS</code> flag when calling <code>cmake</code> on the code base.</li>
+</ul>
+
+<p>AWS Proof Build Assistant calls the relevant tools, parses the outputs and gathers all the build information within an easy-to-read and easy-to-integrate <code>Makefile</code> that is custom-build for the specific proof harness under test. Users can run the following command:</p>
+
+<pre class="command"><code>arpa run                              \
+    -ha path/to/file.c                \
+    -cc $BLDDIR/compile_commands.json \
+    -r  $SRCDIR
+</code></pre>
+
+<p>Doing so generates the following <code>Makefile</code>, which contains all the relevant build information for the above source file:</p>
+
+<pre><code>SRCDIR = /path/to/source/dir
+HELPERDIR = /path/to/helper/dir
+
+DEFINES += -DS2N_HAVE_EXECINFO
+DEFINES += -DS2N_NO_PQ_ASM
+DEFINES += -D_POSIX_C_SOURCE=200809L
+
+INCLUDES += -I$(SRCDIR)
+INCLUDES += -I$(SRCDIR)/api
+
+DEPENDENCIES += $(HELPERDIR)/source/make_common_datastructures.c
+DEPENDENCIES += $(HELPERDIR)/source/proof_allocators.c
+DEPENDENCIES += $(SRCDIR)/stuffer/s2n_stuffer.c
+DEPENDENCIES += $(SRCDIR)/utils/s2n_blob.c
+</code></pre>
+
+<h2>Motivation</h2>
+
+<p>Although <code>arpa</code> is capable of generating valuable <code>Makefile</code>s for any source file of a code base, its main use case is in the context of running CBMC proofs. 
+Generally speaking, running a CBMC proof requires users to create a <em>harness</em> (a <code>c</code> source file containing the CBMC call) and a corresponding <em>Makefile</em>. 
+This <code>Makefile</code> should contain all the required build information for the proof harness under test and should include a <code>Makefile.common</code> that contains all the <code>make</code> rules. 
+<code>arpa</code> is useful in this context as it generates a <code>Makefile.arpa</code> that contains all the build information (excluding customizations) that can be included directly in a custom <code>Makefile</code>.</p>
+
+<p><code>arpa</code> would be ideal for code bases that already contain CBMC proofs. In this context, <code>arpa</code> would be integrated as a submodule inside these code bases and would simplify the development of additional CBMC proofs. Currently, we can envision <code>arpa</code> to be integrated in the following five AWS projects: </p>
+
+<ul>
+<li><a href="https://github.com/awslabs/aws-c-common/">AWS C Common</a></li>
+<li><a href="https://github.com/aws/aws-encryption-sdk-c">AWS Encryption sdk</a></li>
+<li><a href="https://github.com/aws/amazon-freertos/">Amazon FreeRTOS</a></li>
+<li><a href="https://github.com/aws/aws-iot-device-sdk-embedded-C">AWS Iot device sdk</a></li>
+<li><a href="https://github.com/awslabs/s2n/">S2n</a></li>
+</ul>
+
+<!-- <table style="width:100%">
+  <tr>
+    <td><a href="https://github.com/awslabs/aws-c-common/">AWS C Common</a></td>
+    <td><a href="https://github.com/aws/aws-encryption-sdk-c">AWS Encryption Sdk</a></td>
+    <td><a href="https://github.com/awslabs/s2n/">S2n</a></td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/aws/amazon-freertos/">Aamazon FreeRTOS</a></td>
+    <td><a href="https://github.com/aws/aws-iot-device-sdk-embedded-C">AWS Iot Device Sdk</a></td>
+  </tr>
+</table> -->
+
+<h2>For Proof Writers</h2>
+
+<p>In this section, we provide a step-by-step guide designed to help proof developers integrate AWS Proof Build Assistant into their project and use it for implementation of CBMC Proofs:</p>
+
+<h3>Integrating <code>arpa</code> into a project</h3>
+
+<ol>
+<li>Integrate AWS Proof Build Assistant as a submodule:
+<ol>
+<li>Inside your git repository, run: <br />
+<pre class="command"><code>git submodule add 
+    https://github.com/path/to/aws/proof/assistant
+</code></pre></li>
+<li>(Optional) Add the submodule root path to <code>PATH</code>: <br />
+<pre class="command"><code>export PATH=path/to/submodule/root/dir:$PATH
+</code></pre></li>
+</ol></li>
+<li>Install the required dependencies listed below:
+<ul>
+<li><a href="https://cmake.org/">Cmake</a> (for tests) - (<code>apt-get install cmake</code> or <code>brew install cmake</code>)</li>
+<li><a href="https://www.gnu.org/software/cflow/">GNU cflow</a> - (<code>apt-get install cflow</code> or <code>brew install cflow</code>)</li>
+<li><a href="https://pypi.org/project/voluptuous/">Voluptuous</a> - (<code>python3 -m pip install voluptuous</code>)</li>
+</ul></li>
+</ol>
+
+<h3>Using <code>arpa</code> for writing proofs</h3>
+
+<ol>
+<li><p>Generate the build files (including the compilation commands):</p>
+
+<ul>
+<li>Run <code>cmake</code> on the code base using project-specific flags, if necessary:
+<pre class="command"><code>cmake [--project-specific-flags]       \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=1  \
+    -B $BLDDIR                         \
+    -S $SRCDIR
+</code></pre></li>
+<li>This generates a <em>JSON</em> file containing compilation commands for each source file at <code>$BLDDIR/compile_commands.json</code>.</li>
+<li>Currently, <code>arpa</code> can only handle projects that build with <code>cmake</code>.</li>
+</ul></li>
+<li><p>Generate the internal representation <em>JSON</em> file:</p>
+
+<ol>
+<li>Move to the root directory of the code base :
+<pre class="command"><code>cd $SRCDIR
+</code></pre></li>
+<li>Run <code>arpa build</code>:
+<pre class="command"><code>arpa build                             \
+    -cc $BLDDIR/compile_commands.json 
+</code></pre></li>
+<li>This generates a <em>JSON</em> file containing the internal representation used by <code>arpa</code> at <code>$SRCDIR/internal_rep.json</code>.</li>
+</ol></li>
+<li>Generate a <code>Makefile</code> for a given proof harness:
+<ol>
+<li>Move to the proof directory which contains a harness source file:
+<pre class="command"><code>cd $PROOFDIR
+</code></pre></li>
+<li>Run <code>arpa makefile</code>:
+<pre class="command"><code>arpa makefile                      \
+    -jp $SRCDIR/internal_rep.json
+</code></pre></li>
+<li>This generates a <code>Makefile</code> at <code>$PROOFDIR/Makefile.arpa</code>.</li>
+</ol></li>
+<li>Create a simple <code>Makefile</code> that calls <code>Makefile.arpa</code>:
+<ol>
+<li>In the same directory as the harness, create a simple <code>Makefile</code> that:
+<ul>
+<li>contains variable name adaptations (if required)</li>
+<li>contains variable customizations (if required)</li>
+<li>includes <code>Makefile.arpa</code></li>
+<li>includes <code>Makefile.common</code></li>
+</ul></li>
+<li>Such a <code>Makefile</code> may resemble the following:
+<pre><code># Variable name adaptation:
+PROJECT_SPECIFIC_VAR_NAME = $(VAR_NAME_USED_BY_arpa)
+# ex. INC = $(INCLUDES) <br />
+# Variable customizations:
+CUSTOM_VAR = CUSTOM_VAL
+# ex. CHECKFLAGS += --bounds-check <br />
+include $PROOFDIR/Makefile.arpa
+include path/to/Makefile.common
+</code></pre></li>
+</ol></li>
+<li>Run CBMC:
+<ol>
+<li>While in the directory containing the harness and the <code>Makefile</code> created in step 4, run <code>make</code> to run CBMC. </li>
+<li>You may run a command such as:
+<pre class="command"><code>make report 
+</code></pre></li>
+</ol></li>
+</ol>
+
+<h2>Subtool reference</h2>
+
+<p><code>arpa</code> consists of three user-facing commands, where one is a combination of the other two commands:</p>
+
+<ul class="command-list">
+<li class="cmd"><code>arpa build</code>:<br>
+generate a JSON file containing the internal representation used by <code>arpa</code></li>
+<li class="cmd"><code>arpa makefile</code>:<br>
+generate a `Makefile` containing build information for a given harness</li>
+<li class="cmd"><code>arpa run</code>:<br>
+run the above commands successively</li>
+</ul>
+
+<p>As mentioned, <code>arpa build</code> and <code>arpa makefile</code> must be used sequentially. However, these commands can be replaced by a single <code>arpa run</code> call. Specifically, both of the following code boxes are equivalent:</p>
+
+<pre class="command"><code>arpa run                               \
+    -cc $BLDDIR/compile_commands.json  \
+    -r  $SRCDIR
+</code></pre>
+
+<pre class="command"><code>arpa build                             \
+    -cc $BLDDIR/compile_commands.json  \
+    -r  $SRCDIR
+arpa makefile                      \
+    -jp $SRCDIR/internal_rep.json  
+</code></pre>
+
+<h3><code>arpa build</code></h3>
+
+<pre class="command"><code>arpa build [-h] -cc FILE [-r DIR] [-jp FILE]
+</code></pre>
+
+<p>This command generates a JSON file containing the internal representation used by <code>arpa</code> from the compilation commands generated through the <code>cmake</code> call and from the root directory of the project.</p>
+
+<p><p class="flag-name">
+<code>-cc FILE, --compile-commands FILE</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Path to the <code>compile_commands.json</code> file generated during the <code>cmake</code> call.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-r DIR, --root-dir DIR</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Path to the root directory of the project under test. By default, this flag is set to the working directory.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-jp FILE, --json_path FILE</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Output path for the generated JSON file. By default, <code>arpa</code> generates an <code>internal_rep.json</code> in the working directory.
+</p><!-- class="flag-desc" --></p>
+
+<h3><code>arpa makefile</code></h3>
+
+<pre class="command"><code>arpa makefile [-h] -jp FILE [-ha FILE] [-sp FILE]
+                 [-ef V] [-en V] [-sh] 
+                 [-def V] [-inc V] [-dep V] 
+                 [-xfn V] [-unw V] [-dx EXT] 
+                 [-mrn V] [-mrs V] [-mrp DIR] 
+                 [-mhn V] [-mhp DIR]
+                 [-mpn V] [-mps V]
+</code></pre>
+
+<p>This command generates a <code>Makefile</code> containing relevant build information for a specified harness given the internal JSON representation generated by <code>arpa build</code>.</p>
+
+<p><p class="flag-name">
+<code>-jp FILE, --json_path FILE</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Path to the internal JSON representation file output by <code>arpa build</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-ha FILE, --harness FILE</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Path to the harness source file for which a <code>Makefile.arpa</code> will be generated. By default, <code>arpa</code> will search the working directory for a file that ends with "_harness.c". If the number of such files in the working directory is not exactly 1, <code>arpa</code> will throw an error.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-sp FILE, --save_path FILE</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Output path for the generated <code>Makefile</code>. By default, <code>arpa</code> generates a <code>Makefile.arpa</code> in the working directory.
+</p><!-- class="flag-desc" --></p>
+
+<p><details>
+<summary>Makefile Harness Entry Variables Flags: <code>-ef V</code>, <code>-en V</code>, <code>-sh</code></summary>
+<p class="flag-name">
+<code>-ef V, --entry-file V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>harness file name</em>. By default, the variable name is <code>HARNESS_FILE</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-en V, --entry-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>entry type</em> for the harness file. By default, the variable name is <code>HARNESS_ENTRY</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-sh, --shorten-entry</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Remove the "_harness" suffix from the entry file name when writing to the generated <code>Makefile</code>.
+</p><!-- class="flag-desc" -->
+</details></p>
+
+<p><details>
+<summary>Makefile Build Info Variables Flags: <code>-def V</code>, <code>-inc V</code>, <code>-dep V</code></summary>
+<p class="flag-name">
+<code>-def V, --define-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>variable definitions</em> required to compile the harness file. By default, the variable name is <code>DEFINES</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-inc V, --include-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>included directories</em> required to compile the harness file. By default, the variable name is <code>INCLUDES</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-dep V, --dependency-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>source file dependencies</em> for the harness. By default, the variable name is <code>DEPENDENCIES</code>.
+</p><!-- class="flag-desc" -->
+</details></p>
+
+<p><details>
+<summary>Makefile CBMC Customization Flags: <code>-xfn V</code>, <code>-unw V</code>, <code>-dx EXT</code></summary>
+<p class="flag-name">
+<code>-xfn V, --exclude-function-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>functions to be excluded by CBMC</em>. By default, the variable name is <code>REMOVE_FUNCTION_BODY</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-unw V, --unwindset-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>undwindset CBMC flag value</em>. By default, the variable name is <code>UNWINDSET</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-dx EXT, --dependency-extension EXT</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Modify the extension of the source file dependencies as they appear in the generated <code>Makefile</code>. By default, source file dependency extensions are left intact when writing the <code>Makefile</code>. 
+</p><!-- class="flag-desc" -->
+</details></p>
+
+<p><details>
+<summary>Makefile Root Variables Flags: <code>-mrn V</code>, <code>-mrs V</code>, <code>-mrp V</code></summary>
+<p class="flag-name">
+<code>-mrn V, --make-root-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>path to the source root directory</em>. By default, the variable name is <code>SRCDIR</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-mrs V, --make-root-sources V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>path to the source file under test</em>, used for CBMC proofs. By default, the variable name is <code>PROJECT_SOURCES</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-mrp DIR, --make-root-path DIR</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Path to the project root directory as it appears in the generated <code>Makefile</code>. By default, the project root directory is extracted from the internal representation and corresponds to the <code>-r</code> flag value when running <code>arpa build</code>.
+</p><!-- class="flag-desc" -->
+</details></p>
+
+<p><details>
+<summary>Makefile Helper Variable Flags: <code>-mhn V</code>, <code>-mhp DIR</code></summary>
+<p class="flag-name">
+<code>-mhn V, --make-helper-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>path to the helper directory containing all the proof directories</em>. By default, the variable name is <code>CBMC_ROOT</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-mhp DIR, --make-helper-path DIR</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Relative path from the project source root directory to the directory containing all the proof directories. By default, the relative path is <code>tests/cbmc</code>.
+</p><!-- class="flag-desc" -->
+</details></p>
+
+<p><details>
+<summary>Makefile Proofs Variable Flags: <code>-mpn V</code>, <code>-mps V</code></summary>
+<p class="flag-name">
+<code>-mpn V, --make-proofs-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>path to the proof directory containing the harness file</em>. By default, the variable name is <code>PROOFDIR</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-mps V, --make-proofs-sources V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>path to the harness file</em>. By default, the variable name is <code>PROOF_SOURCES</code>.
+</p><!-- class="flag-desc" -->
+</details></p>
+
+<h3><code>arpa run</code></h3>
+
+<pre class="command"><code>arpa run [-h] -cc FILE -r DIR [-ha FILE]
+            [-sp FILE] [-ef V] [-en V] [-sh] 
+            [-def V] [-inc V] [-dep V] 
+            [-xfn V] [-unw V] [-dx EXT] 
+            [-mrn V] [-mrs V] [-mrp DIR] 
+            [-mhn V] [-mhp DIR]
+            [-mpn V] [-mps V]
+</code></pre>
+
+<p>This command generates a <code>Makefile</code> containing relevant build information for a specified source file given the internal JSON representation generated by <code>arpa build</code>.</p>
+
+<p><p class="flag-name">
+<code>-cc FILE, --compile-commands FILE</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Path to the <code>compile_commands.json</code> file generated during the <code>cmake</code> call.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-r DIR, --root-dir DIR</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Path to the root directory of the project under test. By default, this flag is set to the working directory.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-ha FILE, --harness FILE</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Path to the harness source file for which a <code>Makefile.arpa</code> will be generated. By default, <code>arpa</code> will search the working directory for a file that ends with "_harness.c". If the number of such files in the working directory is not exactly 1, <code>arpa</code> will throw an error.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-sp FILE, --save_path FILE</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Output path for the generated <code>Makefile</code>. By default, <code>arpa</code> generates a <code>Makefile.arpa</code> in the working directory.
+</p><!-- class="flag-desc" --></p>
+
+<p><details>
+<summary>Makefile Harness Entry Variables Flags: <code>-ef V</code>, <code>-en V</code>, <code>-sh</code></summary>
+<p class="flag-name">
+<code>-ef V, --entry-file V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>harness file name</em>. By default, the variable name is <code>HARNESS_FILE</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-en V, --entry-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>entry type</em> for the harness file. By default, the variable name is <code>HARNESS_ENTRY</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-sh, --shorten-entry</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Remove the "_harness" suffix from the entry file name when writing to the generated <code>Makefile</code>.
+</p><!-- class="flag-desc" -->
+</details></p>
+
+<p><details>
+<summary>Makefile Build Info Variables Flags: <code>-def V</code>, <code>-inc V</code>, <code>-dep V</code></summary>
+<p class="flag-name">
+<code>-def V, --define-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>variable definitions</em> required to compile the harness file. By default, the variable name is <code>DEFINES</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-inc V, --include-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>included directories</em> required to compile the harness file. By default, the variable name is <code>INCLUDES</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-dep V, --dependency-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>source file dependencies</em> for the harness. By default, the variable name is <code>DEPENDENCIES</code>.
+</p><!-- class="flag-desc" -->
+</details></p>
+
+<p><details>
+<summary>Makefile CBMC Customization Flags: <code>-xfn V</code>, <code>-unw V</code>, <code>-dx EXT</code></summary>
+<p class="flag-name">
+<code>-xfn V, --exclude-function-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>functions to be excluded by CBMC</em>. By default, the variable name is <code>REMOVE_FUNCTION_BODY</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-unw V, --unwindset-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>undwindset CBMC flag value</em>. By default, the variable name is <code>UNWINDSET</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-dx EXT, --dependency-extension EXT</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Modify the extension of the source file dependencies as they appear in the generated <code>Makefile</code>. By default, source file dependency extensions are left intact when writing the <code>Makefile</code>. 
+</p><!-- class="flag-desc" -->
+</details></p>
+
+<p><details>
+<summary>Makefile Root Variables Flags: <code>-mrn V</code>, <code>-mrs V</code>, <code>-mrp V</code></summary>
+<p class="flag-name">
+<code>-mrn V, --make-root-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>path to the source root directory</em>. By default, the variable name is <code>SRCDIR</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-mrs V, --make-root-sources V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>path to the source file under test</em>, used for CBMC proofs. By default, the variable name is <code>PROJECT_SOURCES</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-mrp DIR, --make-root-path DIR</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Path to the project root directory as it appears in the generated <code>Makefile</code>. By default, the project root directory is equivalent to the <code>-r</code> flag value.
+</p><!-- class="flag-desc" -->
+</details></p>
+
+<p><details>
+<summary>Makefile Helper Variable Flags: <code>-mhn V</code>, <code>-mhp DIR</code></summary>
+<p class="flag-name">
+<code>-mhn V, --make-helper-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>path to the helper directory containing all the proof directories</em>. By default, the variable name is <code>CBMC_ROOT</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-mhp DIR, --make-helper-path DIR</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Relative path from the project source root directory to the directory containing all the proof directories. By default, the relative path is <code>tests/cbmc</code>.
+</p><!-- class="flag-desc" -->
+</details></p>
+
+<p><details>
+<summary>Makefile Proofs Variable Flags: <code>-mpn V</code>, <code>-mps V</code></summary>
+<p class="flag-name">
+<code>-mpn V, --make-proofs-name V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>path to the proof directory containing the harness file</em>. By default, the variable name is <code>PROOFDIR</code>.
+</p><!-- class="flag-desc" --></p>
+
+<p><p class="flag-name">
+<code>-mps V, --make-proofs-sources V</code>
+</p><!-- class="flag-name" --></p>
+
+<p><p class="flag-desc">
+Name of the <code>Makefile</code> variable containing the <em>path to the harness file</em>. By default, the variable name is <code>PROOF_SOURCES</code>.
+</p><!-- class="flag-desc" -->
+</details></p>
+</main><!-- id="content" -->
+
+</body>
+</html>
