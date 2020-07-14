@@ -64,7 +64,7 @@ def run_test(test, build_cmd, timestamp, results):
 
     stdout_build, _ = p_build.communicate()
     if p_build.returncode:
-        results["build_err"].append(test[0])
+        results["build_err"].append(test)
         return
 
     # ARPA BUILD JSON
