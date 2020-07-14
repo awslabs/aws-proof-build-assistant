@@ -13,7 +13,7 @@ This document serves as a reference for using `arpa` and integrating it into you
 In order to use the generated `Makefile`, developers must include it in another custom (and possibly trivial) `Makefile` and run `make` on it.
 Its ease of use makes AWS Proof Build Assistant ideal for local proof implementation and building as well as part of CI.
 
-[Source code repository](path/to/aws-proof-assistant)
+[Source code repository](https://github.com/awslabs/aws-proof-build-assistant)
 
 ## Overview
 Consider the following `c` file, which is a *CBMC proof harness* (discussed below):
