@@ -31,7 +31,7 @@ import uuid
 cur_dir = os.path.dirname(__file__)
 
 TESTS_DIR = "tests"
-BUILDS_DIR = "builds"
+BUILDS_DIR = "build"
 ARPA_DIR = "arpa"
 LOGS_DIR = "logs"
 
