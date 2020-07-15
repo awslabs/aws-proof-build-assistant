@@ -230,7 +230,9 @@ def parse_cflow(rep, tf_path):
 def find_h_and_c(root_dir):
     """From the project root, return a list of all header and source files in the project"""
     all_h_and_c = []
-    for root, _, files in os.walk(root_dir):
+    exclude = ["aws-proof-build-assistant"]
+    for root, dirs, files in os.walk(root_dir):
+        dirs[:] = [d for d in dirs if d not in exclude]
         for file in files:
             if file.endswith(".h") or file.endswith(".c"):
                 f_path = os.path.abspath(os.path.join(root, file))
@@ -434,10 +436,10 @@ def build_makefile(args, rep, h_path):
     out_lines.append("# This file is generated automatically by Arpa")
     out_lines.append("")
 
-    out_lines.append("%s = %s" % (args.make_root_name, args.make_root_path))
-    out_lines.append("%s = %s" % (args.make_helper_name, args.make_helper_path))
-    out_lines.append("%s = %s" % (args.make_proofs_name, args.make_proofs_path))
-    out_lines.append("")
+    # out_lines.append("%s = %s" % (args.make_root_name, args.make_root_path))
+    # out_lines.append("%s = %s" % (args.make_helper_name, args.make_helper_path))
+    # out_lines.append("%s = %s" % (args.make_proofs_name, args.make_proofs_path))
+    # out_lines.append("")
 
     entry_name, ext = os.path.splitext(os.path.basename(h_path))
     if not entry_name.endswith("_harness"):
