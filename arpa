@@ -446,9 +446,9 @@ def build_makefile(args, rep, h_path):
     function_name = entry_name[:-len("_harness")]
     if args.shorten_entry:
         entry_name = function_name
-    out_lines.append("%s = %s" % (args.entry_name, entry_name))
-    out_lines.append("%s = %s.c" % (args.entry_file, make_val(args.entry_name)))
-    out_lines.append("")
+    # out_lines.append("%s = %s" % (args.entry_name, entry_name))
+    # out_lines.append("%s = %s.c" % (args.entry_file, make_val(args.entry_name)))
+    # out_lines.append("")
 
     harness_info = MakefileInfo
     h_fcts = rep[JSON_FILE][h_path][JSON_FCT].keys()
@@ -458,8 +458,8 @@ def build_makefile(args, rep, h_path):
     # Which dependecy source contains the function under test?
     # src_file_path = find_source_file(rep, function_name, harness_info.dependencies)
     # harness_info.dependencies.add(src_file_path)
-    proof_src_path = find_proof_source(args, h_path)
-    harness_info.dependencies.add(proof_src_path)
+    # proof_src_path = find_proof_source(args, h_path)
+    # harness_info.dependencies.add(proof_src_path)
     # src_file_path = check_com_prefs(args, src_file_path)
 
     # write inc, def, dep info to Makefile
