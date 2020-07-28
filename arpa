@@ -160,6 +160,7 @@ def parse_cflow(rep, tf_path):
 
     current_at_level = []
     with open(tf_path, "r") as cflow_out:
+        cnt = 0
         for cur_line in cflow_out:
             # get depth of current line
             leading_spaces = len(cur_line) - len(cur_line.lstrip(" "))
@@ -209,7 +210,7 @@ def parse_cflow(rep, tf_path):
             elif cur_depth == len(current_at_level):
                 current_at_level.append(cur_node)
             elif cur_depth > len(current_at_level):
-                logging.error("jump in depth at line NOT AVAILABLE")
+                logging.error("jump in depth at line {}".format(cnt))
                 sys.exit(1)
 
             if cur_depth != 0:
@@ -225,7 +226,7 @@ def parse_cflow(rep, tf_path):
                 else:
                     rep[JSON_FILE][parent_file][JSON_FCT]\
                         [parent_func][cf_func] = cf_file
-
+            cnt += 1
 
 def find_h_and_c(root_dir):
     """From the project root, return a list of all header and source files in the project"""
@@ -422,6 +423,7 @@ class MakefileInfo:
     includes = set()
     defines = set()
     dependencies = set()
+    missingdeps = {}
     func_calls = {} # not currently used, but this may be useful going forward
 
 
@@ -528,6 +530,14 @@ def get_recursive_info(args, rep, info, cur_path, relevant_fcts):
                     info.func_calls[called_file_ext].append(called_fct)
                 else:
                     info.func_calls[called_file_ext] = [called_fct]
+            else:
+                #case where location of called fct is not known
+                entry = (cur_path, fct)
+                if entry in info.missingdeps:
+                    info.missingdeps[entry].add(called_fct)
+                else:
+                    info.missingdeps[entry] = {called_fct}
+
     for f_path, f_funcs in file_to_funcs.items():
         get_recursive_info(args, rep, info, f_path, f_funcs)
 
@@ -542,6 +552,7 @@ def adjust_info(args, info):
     ordered_info.proof_sources = dep_dict["proof"]
     ordered_info.project_sources = dep_dict["project"]
     ordered_info.other_deps = dep_dict["none"]
+    ordered_info.missing_deps = info.missingdeps
 
     return ordered_info
 
@@ -600,6 +611,7 @@ class MakefileOrderedinfo:
     proof_sources = []
     project_sources = []
     other_deps = []
+    missing_deps = {}
 
 
 def makefile_content(args, info):
@@ -611,6 +623,14 @@ def makefile_content(args, info):
     mf_lines.extend(add_to_makefile(info.project_sources, args.make_root_sources))
     mf_lines.extend(add_to_makefile(info.other_deps, args.dependency_name))
 
+    #add missing dependencies section
+    mf_lines.append("")
+    mf_lines.append("# The proof also calls into the following functions, whose source")
+    mf_lines.append("# files could not be determined.")
+    mf_lines.append("# You may need to find the files these functions reside in")
+    mf_lines.append("# and add them to the $(PROJECT_SOURCES) array.")
+    mf_lines.extend(add_missing_to_makefile(info.missing_deps))
+
     return mf_lines
 
 
@@ -619,6 +639,17 @@ def add_to_makefile(elements, label):
     lines = [add_to_var(label, e) for e in elements]
     lines.append("")
     return lines
+
+
+def add_missing_to_makefile(mapping):
+    """ return a list of comments for the missing dependencies"""
+    all_lines = []
+    for source, fcts in mapping.items():
+        file = source[0]
+        func = source[1]
+        all_lines.extend(["# * <%s>   in %s:%s" % (f, file, func) for f in fcts])
+    
+    return all_lines
 
 
 def add_to_var(var, term):
