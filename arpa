@@ -403,18 +403,22 @@ def handle_project_flag(args, root_path):
         args.make_root_path = root_path
 
     # handle proofs path
-    proofs_path = args.make_helper_path
-    joined_proofs_path = os.path.join(args.make_root_path, proofs_path)
-    if proofs_path:
-        if os.path.isabs(proofs_path) and os.path.exists(proofs_path):
-            args.make_helper_path = proofs_path
-        elif os.path.exists(joined_proofs_path):
-            args.make_helper_path = os.path.abspath(joined_proofs_path)
-        elif os.path.exists(proofs_path):
-            args.make_helper_path = os.path.abspath(proofs_path)
-        else:
-            logging.error("Specified proofs directory is incorrect: %s", proofs_path)
-            sys.exit(1)
+    args.make_helper_path = handle_path(args, args.make_helper_path)
+    args.make_stubs_path = handle_path(args, args.make_stubs_path)
+
+
+def handle_path(args, path_ut):
+    joined_path_ut = os.path.join(args.make_root_path, path_ut)
+    if path_ut:
+        if os.path.isabs(path_ut) and os.path.exists(path_ut):
+            return path_ut
+        elif os.path.exists(joined_path_ut):
+            return os.path.abspath(joined_path_ut)
+        elif os.path.exists(path_ut):
+            return os.path.abspath(path_ut)
+    
+    logging.error("Specified proofs directory is incorrect: %s", path_ut)
+    sys.exit(1)
 
 
 @dataclass
@@ -576,7 +580,8 @@ def check_com_prefs(args, path):
     """ check if prefix is a prefix of path. return updated path """
     cat2prefix_path2name = {"proof" : {
         args.make_proofs_path: args.make_proofs_name,
-        args.make_helper_path: args.make_helper_name},
+        args.make_helper_path: args.make_helper_name,
+        args.make_stubs_path: args.make_stubs_name},
                         "project" : {
                             args.make_root_path: args.make_root_name}}
     for cat in cat2prefix_path2name:
@@ -759,6 +764,13 @@ def parse_args():
                                  metavar="DIR",
                                  help="path makefile proofs directory")
 
+    parser_run_make.add_argument("-msn", "--make-stubs-name", default="PROOF_STUB",
+                                 metavar="V",
+                                 help="Makefile variable name for proof stubs directory")
+    parser_run_make.add_argument("-msp", "--make-stubs-path", default="tests/cbmc/stubs",
+                                 metavar="DIR",
+                                 help="path makefile proof stubs directory")
+
     parser_run_make.add_argument("-mpn", "--make-proofs-name", default="PROOFDIR",
                                  metavar="V",
                                  help="Makefile variable name for proofs directory")
@@ -793,6 +805,8 @@ def main():
     # log_file = os.path.join(arguments.root_dir, LOG_FILE_NAME)
     # Below is to make debugging simpler
     log_file = os.path.join(TOOL_PATH, "arpa.log")
+    if os.path.isfile(log_file) :
+        os.remove(log_file)
     logging.basicConfig(filename=log_file,
                         level=logging.DEBUG)
 
