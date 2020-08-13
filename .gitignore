@@ -1,13 +1,13 @@
 .vscode/
 c-test/
 out/
-aquifer.log
 arpa.log
 archive/
-Makefile.aquifer
 Makefile.arpa
 
 test/tests/*/build
 test/tests/*/aquifer
 test/tests/*/arpa
 test/tests/*/logs
+
+validation/arpa-validation-logs/

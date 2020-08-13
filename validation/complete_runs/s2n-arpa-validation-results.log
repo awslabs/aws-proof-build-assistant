@@ -1,0 +1,2348 @@
+(1/83) - SUCCESS - s2n_add_overflow
+  1.-SUCC RATE:#proofs=1, #succ=1, %succ=100%
+  2.-PROOF STATS : #deps-in-std=4 (1 stubs, 1 unnesc), #deps-in-arpa=2 (0 stubs), #non-stub-deps-in-common=2
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (2/2), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    1a2
+    > PROOF_SOURCES += $(PROOF_SOURCE)/make_common_datastructures.c
+    2a4
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=4 (1 stubs, 1 unnesc in 1 proofs), #deps-in-arpa=2, #non-stub-deps-in-common=2
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (2/2), #additional-deps=0 (0 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=100%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(2/83) - SUCCESS - s2n_align_to
+  1.-SUCC RATE:#proofs=2, #succ=2, %succ=100%
+  2.-PROOF STATS : #deps-in-std=4 (1 stubs, 1 unnesc), #deps-in-arpa=2 (0 stubs), #non-stub-deps-in-common=2
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (2/2), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    1a2
+    > PROOF_SOURCES += $(PROOF_SOURCE)/make_common_datastructures.c
+    2a4
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=8 (2 stubs, 2 unnesc in 2 proofs), #deps-in-arpa=4, #non-stub-deps-in-common=4
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (4/4), #additional-deps=0 (0 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=100%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(3/83) - FAILURE - s2n_blob_char_to_lower
+  1.-SUCC RATE:#proofs=3, #succ=2, %succ=66%
+  2.-PROOF STATS : #deps-in-std=7 (1 stubs, 0 unnesc), #deps-in-arpa=4 (0 stubs), #non-stub-deps-in-common=4
+    \-ARPA FINDS: %of-nesc-non-stub-deps=66% (4/6), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/error/s2n_errno.c
+    1a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_safety.c
+    4a7
+    > PROOF_SOURCES += $(PROOF_STUB)/__tolower.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=15 (3 stubs, 2 unnesc in 2 proofs), #deps-in-arpa=8, #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=80% (8/10), #additional-deps=0 (0 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=88%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(4/83) - SUCCESS - s2n_blob_init
+  1.-SUCC RATE:#proofs=4, #succ=3, %succ=75%
+  2.-PROOF STATS : #deps-in-std=3 (0 stubs, 1 unnesc), #deps-in-arpa=2 (0 stubs), #non-stub-deps-in-common=2
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (2/2), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    1a2
+    > PROOF_SOURCES += $(PROOF_SOURCE)/make_common_datastructures.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=18 (3 stubs, 3 unnesc in 3 proofs), #deps-in-arpa=10, #non-stub-deps-in-common=10
+    \-ARPA FINDS: %of-nesc-non-stub-deps=83% (10/12), #additional-deps=0 (0 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=91%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(5/83) - SUCCESS - s2n_blob_is_growable
+  1.-SUCC RATE:#proofs=5, #succ=4, %succ=80%
+  2.-PROOF STATS : #deps-in-std=5 (0 stubs, 1 unnesc), #deps-in-arpa=4 (0 stubs), #non-stub-deps-in-common=4
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (4/4), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/error/s2n_errno.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=23 (3 stubs, 4 unnesc in 4 proofs), #deps-in-arpa=14, #non-stub-deps-in-common=14
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (14/16), #additional-deps=0 (0 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=92%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(6/83) - FAILURE - s2n_blob_slice
+  1.-SUCC RATE:#proofs=6, #succ=4, %succ=66%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 0 unnesc), #deps-in-arpa=5 (0 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=83% (5/6), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/error/s2n_errno.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=29 (3 stubs, 4 unnesc in 4 proofs), #deps-in-arpa=19, #non-stub-deps-in-common=19
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (19/22), #additional-deps=0 (0 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=90%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(7/83) - SUCCESS - s2n_blob_zero
+  1.-SUCC RATE:#proofs=7, #succ=5, %succ=71%
+  2.-PROOF STATS : #deps-in-std=5 (0 stubs, 1 unnesc), #deps-in-arpa=4 (0 stubs), #non-stub-deps-in-common=4
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (4/4), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    1a2
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=34 (3 stubs, 5 unnesc in 5 proofs), #deps-in-arpa=23, #non-stub-deps-in-common=23
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (23/26), #additional-deps=0 (0 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=91%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(8/83) - SUCCESS - s2n_blob_zeroize_free
+  1.-SUCC RATE:#proofs=8, #succ=6, %succ=75%
+  2.-PROOF STATS : #deps-in-std=8 (3 stubs, 0 unnesc), #deps-in-arpa=6 (1 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (5/5), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    5a6,7
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=42 (6 stubs, 5 unnesc in 5 proofs), #deps-in-arpa=29, #non-stub-deps-in-common=28
+    \-ARPA FINDS: %of-nesc-non-stub-deps=90% (28/31), #additional-deps=1 (1 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=92%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(9/83) - SUCCESS - s2n_constant_time_copy_or_dont
+  1.-SUCC RATE:#proofs=9, #succ=7, %succ=77%
+  2.-PROOF STATS : #deps-in-std=2 (0 stubs, 0 unnesc), #deps-in-arpa=2 (0 stubs), #non-stub-deps-in-common=2
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (2/2), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=44 (6 stubs, 5 unnesc in 5 proofs), #deps-in-arpa=31, #non-stub-deps-in-common=30
+    \-ARPA FINDS: %of-nesc-non-stub-deps=90% (30/33), #additional-deps=1 (1 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=92%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(10/83) - SUCCESS - s2n_constant_time_pkcs1_unpad_or_dont
+  1.-SUCC RATE:#proofs=10, #succ=8, %succ=80%
+  2.-PROOF STATS : #deps-in-std=2 (0 stubs, 0 unnesc), #deps-in-arpa=2 (0 stubs), #non-stub-deps-in-common=2
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (2/2), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=46 (6 stubs, 5 unnesc in 5 proofs), #deps-in-arpa=33, #non-stub-deps-in-common=32
+    \-ARPA FINDS: %of-nesc-non-stub-deps=91% (32/35), #additional-deps=1 (1 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=92%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(11/83) - FAILURE - s2n_dup
+  1.-SUCC RATE:#proofs=11, #succ=8, %succ=72%
+  2.-PROOF STATS : #deps-in-std=12 (5 stubs, 0 unnesc), #deps-in-arpa=8 (1 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (6/7), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    1d0
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    2a2
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    7a8,11
+    > PROOF_SOURCES += $(PROOF_STUB)/madvise.c
+    > PROOF_SOURCES += $(PROOF_STUB)/mlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=58 (11 stubs, 5 unnesc in 5 proofs), #deps-in-arpa=41, #non-stub-deps-in-common=38
+    \-ARPA FINDS: %of-nesc-non-stub-deps=90% (38/42), #additional-deps=3 (2 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=91%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(12/83) - SUCCESS - s2n_free
+  1.-SUCC RATE:#proofs=12, #succ=9, %succ=75%
+  2.-PROOF STATS : #deps-in-std=8 (3 stubs, 0 unnesc), #deps-in-arpa=6 (1 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (5/5), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    5a6,7
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=66 (14 stubs, 5 unnesc in 5 proofs), #deps-in-arpa=47, #non-stub-deps-in-common=43
+    \-ARPA FINDS: %of-nesc-non-stub-deps=91% (43/47), #additional-deps=4 (3 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=91%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(13/83) - SUCCESS - s2n_free_object
+  1.-SUCC RATE:#proofs=13, #succ=10, %succ=76%
+  2.-PROOF STATS : #deps-in-std=8 (3 stubs, 2 unnesc), #deps-in-arpa=4 (1 stubs), #non-stub-deps-in-common=3
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (3/3), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    2a3,4
+    > PROOF_SOURCES += $(PROOF_SOURCE)/cbmc_utils.c
+    > PROOF_SOURCES += $(PROOF_SOURCE)/make_common_datastructures.c
+    3a6,7
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=74 (17 stubs, 7 unnesc in 6 proofs), #deps-in-arpa=51, #non-stub-deps-in-common=46
+    \-ARPA FINDS: %of-nesc-non-stub-deps=92% (46/50), #additional-deps=5 (4 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=91%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(14/83) - FAILURE - s2n_hex_string_to_bytes
+  1.-SUCC RATE:#proofs=14, #succ=10, %succ=71%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 0 unnesc), #deps-in-arpa=4 (0 stubs), #non-stub-deps-in-common=4
+    \-ARPA FINDS: %of-nesc-non-stub-deps=66% (4/6), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/error/s2n_errno.c
+    1a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_safety.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=80 (17 stubs, 7 unnesc in 6 proofs), #deps-in-arpa=55, #non-stub-deps-in-common=50
+    \-ARPA FINDS: %of-nesc-non-stub-deps=89% (50/56), #additional-deps=5 (4 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=89%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(15/83) - SUCCESS - s2n_is_base64_char
+  1.-SUCC RATE:#proofs=15, #succ=11, %succ=73%
+  2.-PROOF STATS : #deps-in-std=1 (0 stubs, 0 unnesc), #deps-in-arpa=1 (0 stubs), #non-stub-deps-in-common=1
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (1/1), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=81 (17 stubs, 7 unnesc in 6 proofs), #deps-in-arpa=56, #non-stub-deps-in-common=51
+    \-ARPA FINDS: %of-nesc-non-stub-deps=89% (51/57), #additional-deps=5 (4 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=89%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(16/83) - SUCCESS - s2n_mem_cleanup
+  1.-SUCC RATE:#proofs=16, #succ=12, %succ=75%
+  2.-PROOF STATS : #deps-in-std=8 (3 stubs, 4 unnesc), #deps-in-arpa=2 (1 stubs), #non-stub-deps-in-common=1
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (1/1), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_blob.c
+    1a3,7
+    > PROOF_SOURCES += $(PROOF_SOURCE)/cbmc_utils.c
+    > PROOF_SOURCES += $(PROOF_SOURCE)/make_common_datastructures.c
+    > PROOF_SOURCES += $(PROOF_SOURCE)/proof_allocators.c
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=89 (20 stubs, 11 unnesc in 7 proofs), #deps-in-arpa=58, #non-stub-deps-in-common=52
+    \-ARPA FINDS: %of-nesc-non-stub-deps=89% (52/58), #additional-deps=6 (5 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=89%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(17/83) - SUCCESS-OVERRIDE - s2n_mem_init
+  1.-SUCC RATE:#proofs=17, #succ=13, %succ=76%
+  2.-PROOF STATS : #deps-in-std=3 (2 stubs, 0 unnesc), #deps-in-arpa=2 (1 stubs), #non-stub-deps-in-common=1
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (1/1), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    1a2
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=92 (22 stubs, 11 unnesc in 7 proofs), #deps-in-arpa=60, #non-stub-deps-in-common=53
+    \-ARPA FINDS: %of-nesc-non-stub-deps=89% (53/59), #additional-deps=7 (6 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=89%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(18/83) - ERROR - s2n_mul_overflow_harness
+  0.- s2n_mul_overflow_harness_harness.c does not exist in (s2n_mul_overflow_harness)
+
+(19/83) - SUCCESS-OVERRIDE - s2n_pkcs3_to_dh_params
+  1.-SUCC RATE:#proofs=18, #succ=14, %succ=77%
+  2.-PROOF STATS : #deps-in-std=12 (2 stubs, 3 unnesc), #deps-in-arpa=8 (1 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (7/7), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    1a2
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer.c
+    2a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    3a6
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_safety.c
+    7a11
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=104 (24 stubs, 14 unnesc in 8 proofs), #deps-in-arpa=68, #non-stub-deps-in-common=60
+    \-ARPA FINDS: %of-nesc-non-stub-deps=90% (60/66), #additional-deps=8 (7 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=89%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(20/83) - FAILURE - s2n_realloc
+  1.-SUCC RATE:#proofs=19, #succ=14, %succ=73%
+  2.-PROOF STATS : #deps-in-std=12 (5 stubs, 0 unnesc), #deps-in-arpa=8 (1 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (6/7), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    1d0
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    2a2
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    7a8,11
+    > PROOF_SOURCES += $(PROOF_STUB)/madvise.c
+    > PROOF_SOURCES += $(PROOF_STUB)/mlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=116 (29 stubs, 14 unnesc in 8 proofs), #deps-in-arpa=76, #non-stub-deps-in-common=66
+    \-ARPA FINDS: %of-nesc-non-stub-deps=90% (66/73), #additional-deps=10 (8 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=88%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(21/83) - SUCCESS - s2n_safety_constant_time_equals
+  1.-SUCC RATE:#proofs=20, #succ=15, %succ=75%
+  2.-PROOF STATS : #deps-in-std=2 (0 stubs, 0 unnesc), #deps-in-arpa=2 (0 stubs), #non-stub-deps-in-common=2
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (2/2), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=118 (29 stubs, 14 unnesc in 8 proofs), #deps-in-arpa=78, #non-stub-deps-in-common=68
+    \-ARPA FINDS: %of-nesc-non-stub-deps=90% (68/75), #additional-deps=10 (8 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=88%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(22/83) - SUCCESS-OVERRIDE - s2n_strcpy
+  1.-SUCC RATE:#proofs=21, #succ=16, %succ=76%
+  2.-PROOF STATS : #deps-in-std=11 (4 stubs, 2 unnesc), #deps-in-arpa=6 (1 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (5/5), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    1a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_safety.c
+    5a8,10
+    > PROOF_SOURCES += $(PROOF_STUB)/mlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=129 (33 stubs, 16 unnesc in 9 proofs), #deps-in-arpa=84, #non-stub-deps-in-common=73
+    \-ARPA FINDS: %of-nesc-non-stub-deps=91% (73/80), #additional-deps=11 (9 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=88%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(23/83) - FAILURE - s2n_stuffer_alloc
+  1.-SUCC RATE:#proofs=22, #succ=16, %succ=72%
+  2.-PROOF STATS : #deps-in-std=7 (0 stubs, 0 unnesc), #deps-in-arpa=8 (1 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (6/7), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    2d1
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    8d7
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=136 (33 stubs, 16 unnesc in 9 proofs), #deps-in-arpa=92, #non-stub-deps-in-common=79
+    \-ARPA FINDS: %of-nesc-non-stub-deps=90% (79/87), #additional-deps=13 (10 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=87%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(24/83) - SUCCESS-OVERRIDE - s2n_stuffer_alloc_ro_from_fd
+  1.-SUCC RATE:#proofs=23, #succ=17, %succ=73%
+  2.-PROOF STATS : #deps-in-std=9 (3 stubs, 0 unnesc), #deps-in-arpa=8 (2 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (6/6), #additional-deps=2 (2 stubs)
+  3.- START DIFF:
+    8a9
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=145 (36 stubs, 16 unnesc in 9 proofs), #deps-in-arpa=100, #non-stub-deps-in-common=85
+    \-ARPA FINDS: %of-nesc-non-stub-deps=91% (85/93), #additional-deps=15 (12 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=87%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(25/83) - SUCCESS-OVERRIDE - s2n_stuffer_alloc_ro_from_file
+  1.-SUCC RATE:#proofs=24, #succ=18, %succ=75%
+  2.-PROOF STATS : #deps-in-std=11 (5 stubs, 0 unnesc), #deps-in-arpa=10 (4 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (6/6), #additional-deps=4 (4 stubs)
+  3.- START DIFF:
+    10a11
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=156 (41 stubs, 16 unnesc in 9 proofs), #deps-in-arpa=110, #non-stub-deps-in-common=91
+    \-ARPA FINDS: %of-nesc-non-stub-deps=91% (91/99), #additional-deps=19 (16 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=87%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(26/83) - FAILURE - s2n_stuffer_alloc_ro_from_string
+  1.-SUCC RATE:#proofs=25, #succ=18, %succ=72%
+  2.-PROOF STATS : #deps-in-std=9 (0 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    10d9
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=165 (41 stubs, 16 unnesc in 9 proofs), #deps-in-arpa=120, #non-stub-deps-in-common=99
+    \-ARPA FINDS: %of-nesc-non-stub-deps=91% (99/108), #additional-deps=21 (17 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=87%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(27/83) - FAILURE - s2n_stuffer_certificate_from_pem
+  1.-SUCC RATE:#proofs=26, #succ=18, %succ=69%
+  2.-PROOF STATS : #deps-in-std=19 (7 stubs, 0 unnesc), #deps-in-arpa=16 (6 stubs), #non-stub-deps-in-common=9
+    \-ARPA FINDS: %of-nesc-non-stub-deps=75% (9/12), #additional-deps=7 (6 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    5d5
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    6a7
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    8a10
+    > PROOF_SOURCES += $(PROOF_SOURCE)/cbmc_utils.c
+    10a13
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=184 (48 stubs, 16 unnesc in 9 proofs), #deps-in-arpa=136, #non-stub-deps-in-common=108
+    \-ARPA FINDS: %of-nesc-non-stub-deps=90% (108/120), #additional-deps=28 (23 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=86%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(28/83) - FAILURE - s2n_stuffer_copy
+  1.-SUCC RATE:#proofs=27, #succ=18, %succ=66%
+  2.-PROOF STATS : #deps-in-std=8 (0 stubs, 0 unnesc), #deps-in-arpa=8 (0 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (7/8), #additional-deps=1 (0 stubs)
+  3.- START DIFF:
+    2d1
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=192 (48 stubs, 16 unnesc in 9 proofs), #deps-in-arpa=144, #non-stub-deps-in-common=115
+    \-ARPA FINDS: %of-nesc-non-stub-deps=89% (115/128), #additional-deps=29 (23 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=86%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(29/83) - FAILURE - s2n_stuffer_dhparams_from_pem
+  1.-SUCC RATE:#proofs=28, #succ=18, %succ=64%
+  2.-PROOF STATS : #deps-in-std=19 (7 stubs, 0 unnesc), #deps-in-arpa=16 (6 stubs), #non-stub-deps-in-common=9
+    \-ARPA FINDS: %of-nesc-non-stub-deps=75% (9/12), #additional-deps=7 (6 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    5d5
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    6a7
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    8a10
+    > PROOF_SOURCES += $(PROOF_SOURCE)/cbmc_utils.c
+    10a13
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=211 (55 stubs, 16 unnesc in 9 proofs), #deps-in-arpa=160, #non-stub-deps-in-common=124
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (124/140), #additional-deps=36 (29 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=85%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(30/83) - FAILURE - s2n_stuffer_erase_and_read
+  1.-SUCC RATE:#proofs=29, #succ=18, %succ=62%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 0 unnesc), #deps-in-arpa=5 (0 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=83% (5/6), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=217 (55 stubs, 16 unnesc in 9 proofs), #deps-in-arpa=165, #non-stub-deps-in-common=129
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (129/146), #additional-deps=36 (29 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=84%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(31/83) - FAILURE - s2n_stuffer_erase_and_read_bytes
+  1.-SUCC RATE:#proofs=30, #succ=18, %succ=60%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 0 unnesc), #deps-in-arpa=5 (0 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=83% (5/6), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=223 (55 stubs, 16 unnesc in 9 proofs), #deps-in-arpa=170, #non-stub-deps-in-common=134
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (134/152), #additional-deps=36 (29 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=83%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(32/83) - FAILURE - s2n_stuffer_extract_blob
+  1.-SUCC RATE:#proofs=31, #succ=18, %succ=58%
+  2.-PROOF STATS : #deps-in-std=12 (3 stubs, 0 unnesc), #deps-in-arpa=9 (1 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=77% (7/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/error/s2n_errno.c
+    2d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    8a10,11
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=235 (58 stubs, 16 unnesc in 9 proofs), #deps-in-arpa=179, #non-stub-deps-in-common=141
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (141/161), #additional-deps=38 (30 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=82%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(33/83) - SUCCESS-OVERRIDE - s2n_stuffer_free
+  1.-SUCC RATE:#proofs=32, #succ=19, %succ=59%
+  2.-PROOF STATS : #deps-in-std=7 (0 stubs, 1 unnesc), #deps-in-arpa=6 (0 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (6/6), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=242 (58 stubs, 17 unnesc in 10 proofs), #deps-in-arpa=185, #non-stub-deps-in-common=147
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (147/167), #additional-deps=38 (30 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=82%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(34/83) - FAILURE - s2n_stuffer_growable_alloc
+  1.-SUCC RATE:#proofs=33, #succ=19, %succ=57%
+  2.-PROOF STATS : #deps-in-std=7 (0 stubs, 0 unnesc), #deps-in-arpa=8 (1 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (6/7), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    2d1
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    8d7
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=249 (58 stubs, 17 unnesc in 10 proofs), #deps-in-arpa=193, #non-stub-deps-in-common=153
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (153/174), #additional-deps=40 (31 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=82%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(35/83) - SUCCESS - s2n_stuffer_init
+  1.-SUCC RATE:#proofs=34, #succ=20, %succ=58%
+  2.-PROOF STATS : #deps-in-std=5 (0 stubs, 1 unnesc), #deps-in-arpa=4 (0 stubs), #non-stub-deps-in-common=4
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (4/4), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=254 (58 stubs, 18 unnesc in 11 proofs), #deps-in-arpa=197, #non-stub-deps-in-common=157
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (157/178), #additional-deps=40 (31 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=82%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(36/83) - SUCCESS - s2n_stuffer_is_consumed
+  1.-SUCC RATE:#proofs=35, #succ=21, %succ=60%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 1 unnesc), #deps-in-arpa=5 (0 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (5/5), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/error/s2n_errno.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=260 (58 stubs, 19 unnesc in 12 proofs), #deps-in-arpa=202, #non-stub-deps-in-common=162
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (162/183), #additional-deps=40 (31 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=82%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(37/83) - FAILURE - s2n_stuffer_peek_char
+  1.-SUCC RATE:#proofs=36, #succ=21, %succ=58%
+  2.-PROOF STATS : #deps-in-std=8 (0 stubs, 0 unnesc), #deps-in-arpa=7 (0 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (7/8), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    4a5
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=268 (58 stubs, 19 unnesc in 12 proofs), #deps-in-arpa=209, #non-stub-deps-in-common=169
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (169/191), #additional-deps=40 (31 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=82%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(38/83) - FAILURE - s2n_stuffer_peek_check_for_str
+  1.-SUCC RATE:#proofs=37, #succ=21, %succ=56%
+  2.-PROOF STATS : #deps-in-std=9 (1 stubs, 0 unnesc), #deps-in-arpa=7 (1 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=75% (6/8), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    1a2
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    3a5
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    7c9
+    < PROOF_SOURCES += $(PROOF_STUB)/s2n_stuffer_read_expected_str.c
+    ---
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=277 (59 stubs, 19 unnesc in 12 proofs), #deps-in-arpa=216, #non-stub-deps-in-common=175
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (175/199), #additional-deps=41 (32 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=81%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(39/83) - FAILURE - s2n_stuffer_private_key_from_pem
+  1.-SUCC RATE:#proofs=38, #succ=21, %succ=55%
+  2.-PROOF STATS : #deps-in-std=19 (7 stubs, 0 unnesc), #deps-in-arpa=16 (6 stubs), #non-stub-deps-in-common=9
+    \-ARPA FINDS: %of-nesc-non-stub-deps=75% (9/12), #additional-deps=7 (6 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    5d5
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    6a7
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    8a10
+    > PROOF_SOURCES += $(PROOF_SOURCE)/cbmc_utils.c
+    10a13
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=296 (66 stubs, 19 unnesc in 12 proofs), #deps-in-arpa=232, #non-stub-deps-in-common=184
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (184/211), #additional-deps=48 (38 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=80%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(40/83) - SUCCESS - s2n_stuffer_raw_read
+  1.-SUCC RATE:#proofs=39, #succ=22, %succ=56%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 1 unnesc), #deps-in-arpa=5 (0 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (5/5), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=302 (66 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=237, #non-stub-deps-in-common=189
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (189/216), #additional-deps=48 (38 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=80%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(41/83) - FAILURE - s2n_stuffer_raw_write
+  1.-SUCC RATE:#proofs=40, #succ=22, %succ=55%
+  2.-PROOF STATS : #deps-in-std=8 (0 stubs, 0 unnesc), #deps-in-arpa=9 (1 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (7/8), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    2d1
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9d8
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=310 (66 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=246, #non-stub-deps-in-common=196
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (196/224), #additional-deps=50 (39 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=80%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(42/83) - FAILURE - s2n_stuffer_read
+  1.-SUCC RATE:#proofs=41, #succ=22, %succ=53%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 0 unnesc), #deps-in-arpa=5 (0 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=83% (5/6), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=316 (66 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=251, #non-stub-deps-in-common=201
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (201/230), #additional-deps=50 (39 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=80%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(43/83) - FAILURE - s2n_stuffer_read_base64
+  1.-SUCC RATE:#proofs=42, #succ=22, %succ=52%
+  2.-PROOF STATS : #deps-in-std=14 (4 stubs, 0 unnesc), #deps-in-arpa=11 (2 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=80% (8/10), #additional-deps=3 (2 stubs)
+  3.- START DIFF:
+    3c3
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    ---
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    4a5
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    10c11,13
+    < PROOF_SOURCES += $(PROOF_STUB)/s2n_stuffer_read_base64.c
+    ---
+    > PROOF_SOURCES += $(PROOF_STUB)/mlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=330 (70 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=262, #non-stub-deps-in-common=209
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (209/240), #additional-deps=53 (41 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=80%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(44/83) - FAILURE - s2n_stuffer_read_bytes
+  1.-SUCC RATE:#proofs=43, #succ=22, %succ=51%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 0 unnesc), #deps-in-arpa=5 (0 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=83% (5/6), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=336 (70 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=267, #non-stub-deps-in-common=214
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (214/246), #additional-deps=53 (41 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=80%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(45/83) - FAILURE - s2n_stuffer_read_expected_str
+  1.-SUCC RATE:#proofs=44, #succ=22, %succ=50%
+  2.-PROOF STATS : #deps-in-std=9 (1 stubs, 0 unnesc), #deps-in-arpa=6 (1 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=62% (5/8), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    1a2,3
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    2a5
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    6c9
+    < PROOF_SOURCES += $(PROOF_STUB)/s2n_stuffer_read_expected_str.c
+    ---
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=345 (71 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=273, #non-stub-deps-in-common=219
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (219/254), #additional-deps=54 (42 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=79%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(46/83) - FAILURE - s2n_stuffer_read_line
+  1.-SUCC RATE:#proofs=45, #succ=22, %succ=48%
+  2.-PROOF STATS : #deps-in-std=12 (3 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9a10,11
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=357 (74 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=283, #non-stub-deps-in-common=227
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (227/263), #additional-deps=56 (43 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=79%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(47/83) - FAILURE - s2n_stuffer_read_token
+  1.-SUCC RATE:#proofs=46, #succ=22, %succ=47%
+  2.-PROOF STATS : #deps-in-std=12 (3 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9a10,11
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=369 (77 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=293, #non-stub-deps-in-common=235
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (235/272), #additional-deps=58 (44 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=79%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(48/83) - FAILURE - s2n_stuffer_read_uint16
+  1.-SUCC RATE:#proofs=47, #succ=22, %succ=46%
+  2.-PROOF STATS : #deps-in-std=7 (0 stubs, 0 unnesc), #deps-in-arpa=6 (0 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (6/7), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    3a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=376 (77 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=299, #non-stub-deps-in-common=241
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (241/279), #additional-deps=58 (44 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=79%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(49/83) - FAILURE - s2n_stuffer_read_uint24
+  1.-SUCC RATE:#proofs=48, #succ=22, %succ=45%
+  2.-PROOF STATS : #deps-in-std=7 (0 stubs, 0 unnesc), #deps-in-arpa=6 (0 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (6/7), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    3a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=383 (77 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=305, #non-stub-deps-in-common=247
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (247/286), #additional-deps=58 (44 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=79%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(50/83) - FAILURE - s2n_stuffer_read_uint32
+  1.-SUCC RATE:#proofs=49, #succ=22, %succ=44%
+  2.-PROOF STATS : #deps-in-std=7 (0 stubs, 0 unnesc), #deps-in-arpa=6 (0 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (6/7), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    3a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=390 (77 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=311, #non-stub-deps-in-common=253
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (253/293), #additional-deps=58 (44 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=79%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(51/83) - FAILURE - s2n_stuffer_read_uint64
+  1.-SUCC RATE:#proofs=50, #succ=22, %succ=44%
+  2.-PROOF STATS : #deps-in-std=7 (0 stubs, 0 unnesc), #deps-in-arpa=6 (0 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (6/7), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    3a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=397 (77 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=317, #non-stub-deps-in-common=259
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (259/300), #additional-deps=58 (44 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=79%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(52/83) - FAILURE - s2n_stuffer_read_uint8
+  1.-SUCC RATE:#proofs=51, #succ=22, %succ=43%
+  2.-PROOF STATS : #deps-in-std=7 (0 stubs, 0 unnesc), #deps-in-arpa=6 (0 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (6/7), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    3a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=404 (77 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=323, #non-stub-deps-in-common=265
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (265/307), #additional-deps=58 (44 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=79%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(53/83) - FAILURE - s2n_stuffer_recv_from_fd
+  1.-SUCC RATE:#proofs=52, #succ=22, %succ=42%
+  2.-PROOF STATS : #deps-in-std=15 (5 stubs, 0 unnesc), #deps-in-arpa=11 (2 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=80% (8/10), #additional-deps=3 (2 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/error/s2n_errno.c
+    3d3
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a5
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9a11,12
+    > PROOF_SOURCES += $(PROOF_STUB)/mlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    10a14
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=419 (82 stubs, 20 unnesc in 13 proofs), #deps-in-arpa=334, #non-stub-deps-in-common=273
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (273/317), #additional-deps=61 (46 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=79%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(54/83) - SUCCESS - s2n_stuffer_reread
+  1.-SUCC RATE:#proofs=53, #succ=23, %succ=43%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 1 unnesc), #deps-in-arpa=5 (0 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (5/5), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=425 (82 stubs, 21 unnesc in 14 proofs), #deps-in-arpa=339, #non-stub-deps-in-common=278
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (278/322), #additional-deps=61 (46 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=79%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(55/83) - FAILURE - s2n_stuffer_reserve
+  1.-SUCC RATE:#proofs=54, #succ=23, %succ=42%
+  2.-PROOF STATS : #deps-in-std=13 (4 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9a10,12
+    > PROOF_SOURCES += $(PROOF_STUB)/mlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=438 (86 stubs, 21 unnesc in 14 proofs), #deps-in-arpa=349, #non-stub-deps-in-common=286
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (286/331), #additional-deps=63 (47 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=79%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(56/83) - FAILURE - s2n_stuffer_reserve_space
+  1.-SUCC RATE:#proofs=55, #succ=23, %succ=41%
+  2.-PROOF STATS : #deps-in-std=10 (1 stubs, 0 unnesc), #deps-in-arpa=9 (1 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=77% (7/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/error/s2n_errno.c
+    2d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9c10
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    ---
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=448 (87 stubs, 21 unnesc in 14 proofs), #deps-in-arpa=358, #non-stub-deps-in-common=293
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (293/340), #additional-deps=65 (48 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=78%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(57/83) - FAILURE - s2n_stuffer_reserve_uint16
+  1.-SUCC RATE:#proofs=56, #succ=23, %succ=41%
+  2.-PROOF STATS : #deps-in-std=12 (3 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9a10,11
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=460 (90 stubs, 21 unnesc in 14 proofs), #deps-in-arpa=368, #non-stub-deps-in-common=301
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (301/349), #additional-deps=67 (49 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=78%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(58/83) - FAILURE - s2n_stuffer_reserve_uint24
+  1.-SUCC RATE:#proofs=57, #succ=23, %succ=40%
+  2.-PROOF STATS : #deps-in-std=12 (3 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9a10,11
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=472 (93 stubs, 21 unnesc in 14 proofs), #deps-in-arpa=378, #non-stub-deps-in-common=309
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (309/358), #additional-deps=69 (50 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=78%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(59/83) - FAILURE - s2n_stuffer_resize
+  1.-SUCC RATE:#proofs=58, #succ=23, %succ=39%
+  2.-PROOF STATS : #deps-in-std=13 (4 stubs, 0 unnesc), #deps-in-arpa=9 (1 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=77% (7/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/error/s2n_errno.c
+    2d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    8a10,12
+    > PROOF_SOURCES += $(PROOF_STUB)/mlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=485 (97 stubs, 21 unnesc in 14 proofs), #deps-in-arpa=387, #non-stub-deps-in-common=316
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (316/367), #additional-deps=71 (51 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=77%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(60/83) - FAILURE - s2n_stuffer_resize_if_empty
+  1.-SUCC RATE:#proofs=59, #succ=23, %succ=38%
+  2.-PROOF STATS : #deps-in-std=9 (0 stubs, 0 unnesc), #deps-in-arpa=9 (1 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=77% (7/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/error/s2n_errno.c
+    2d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9d9
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=494 (97 stubs, 21 unnesc in 14 proofs), #deps-in-arpa=396, #non-stub-deps-in-common=323
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (323/376), #additional-deps=73 (52 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=77%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(61/83) - SUCCESS - s2n_stuffer_rewind_read
+  1.-SUCC RATE:#proofs=60, #succ=24, %succ=40%
+  2.-PROOF STATS : #deps-in-std=5 (0 stubs, 0 unnesc), #deps-in-arpa=5 (0 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (5/5), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=499 (97 stubs, 21 unnesc in 14 proofs), #deps-in-arpa=401, #non-stub-deps-in-common=328
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (328/381), #additional-deps=73 (52 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=77%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(62/83) - SUCCESS - s2n_stuffer_rewrite
+  1.-SUCC RATE:#proofs=61, #succ=25, %succ=40%
+  2.-PROOF STATS : #deps-in-std=5 (0 stubs, 0 unnesc), #deps-in-arpa=5 (0 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (5/5), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=504 (97 stubs, 21 unnesc in 14 proofs), #deps-in-arpa=406, #non-stub-deps-in-common=333
+    \-ARPA FINDS: %of-nesc-non-stub-deps=86% (333/386), #additional-deps=73 (52 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=77%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(63/83) - FAILURE - s2n_stuffer_send_to_fd
+  1.-SUCC RATE:#proofs=62, #succ=25, %succ=40%
+  2.-PROOF STATS : #deps-in-std=13 (3 stubs, 0 unnesc), #deps-in-arpa=9 (2 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=60% (6/10), #additional-deps=3 (2 stubs)
+  3.- START DIFF:
+    0a1
+    > PROJECT_SOURCES += $(SRCDIR)/error/s2n_errno.c
+    2c3
+    < PROJECT_SOURCES += $(SRCDIR)/tests/fuzz/LD_PRELOAD/global_overrides.c
+    ---
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    3a5
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    4a7
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_safety.c
+    7a11
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=517 (100 stubs, 21 unnesc in 14 proofs), #deps-in-arpa=415, #non-stub-deps-in-common=339
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (339/396), #additional-deps=76 (54 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=76%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(64/83) - FAILURE - s2n_stuffer_skip_expected_char
+  1.-SUCC RATE:#proofs=63, #succ=25, %succ=39%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 0 unnesc), #deps-in-arpa=6 (1 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=83% (5/6), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    1a2
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    6d6
+    < PROOF_SOURCES += $(PROOF_STUB)/s2n_stuffer_skip_expected_char.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=523 (100 stubs, 21 unnesc in 14 proofs), #deps-in-arpa=421, #non-stub-deps-in-common=344
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (344/402), #additional-deps=77 (55 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=76%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(65/83) - SUCCESS - s2n_stuffer_skip_read
+  1.-SUCC RATE:#proofs=64, #succ=26, %succ=40%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 1 unnesc), #deps-in-arpa=5 (0 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (5/5), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=529 (100 stubs, 22 unnesc in 15 proofs), #deps-in-arpa=426, #non-stub-deps-in-common=349
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (349/407), #additional-deps=77 (55 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=76%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(66/83) - FAILURE - s2n_stuffer_skip_read_until
+  1.-SUCC RATE:#proofs=65, #succ=26, %succ=40%
+  2.-PROOF STATS : #deps-in-std=9 (1 stubs, 0 unnesc), #deps-in-arpa=7 (1 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=75% (6/8), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    1a2
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    3a5
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    7c9
+    < PROOF_SOURCES += $(PROOF_STUB)/s2n_stuffer_skip_to_char.c
+    ---
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=538 (101 stubs, 22 unnesc in 15 proofs), #deps-in-arpa=433, #non-stub-deps-in-common=355
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (355/415), #additional-deps=78 (56 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=75%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(67/83) - FAILURE - s2n_stuffer_skip_to_char
+  1.-SUCC RATE:#proofs=66, #succ=26, %succ=39%
+  2.-PROOF STATS : #deps-in-std=8 (0 stubs, 0 unnesc), #deps-in-arpa=6 (1 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=62% (5/8), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    1a2,3
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    2a5
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    6d8
+    < PROOF_SOURCES += $(PROOF_STUB)/s2n_stuffer_skip_to_char.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=546 (101 stubs, 22 unnesc in 15 proofs), #deps-in-arpa=439, #non-stub-deps-in-common=360
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (360/423), #additional-deps=79 (57 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(68/83) - FAILURE - s2n_stuffer_skip_whitespace
+  1.-SUCC RATE:#proofs=67, #succ=26, %succ=38%
+  2.-PROOF STATS : #deps-in-std=6 (0 stubs, 0 unnesc), #deps-in-arpa=6 (1 stubs), #non-stub-deps-in-common=5
+    \-ARPA FINDS: %of-nesc-non-stub-deps=83% (5/6), #additional-deps=1 (1 stubs)
+  3.- START DIFF:
+    1a2
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    6d6
+    < PROOF_SOURCES += $(PROOF_STUB)/s2n_stuffer_skip_whitespace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=552 (101 stubs, 22 unnesc in 15 proofs), #deps-in-arpa=445, #non-stub-deps-in-common=365
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (365/429), #additional-deps=80 (58 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(69/83) - FAILURE - s2n_stuffer_skip_write
+  1.-SUCC RATE:#proofs=68, #succ=26, %succ=38%
+  2.-PROOF STATS : #deps-in-std=8 (0 stubs, 0 unnesc), #deps-in-arpa=9 (1 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (7/8), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    2d1
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9d8
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=560 (101 stubs, 22 unnesc in 15 proofs), #deps-in-arpa=454, #non-stub-deps-in-common=372
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (372/437), #additional-deps=82 (59 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(70/83) - SUCCESS - s2n_stuffer_wipe
+  1.-SUCC RATE:#proofs=69, #succ=27, %succ=39%
+  2.-PROOF STATS : #deps-in-std=5 (0 stubs, 1 unnesc), #deps-in-arpa=4 (0 stubs), #non-stub-deps-in-common=4
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (4/4), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=565 (101 stubs, 23 unnesc in 16 proofs), #deps-in-arpa=458, #non-stub-deps-in-common=376
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (376/441), #additional-deps=82 (59 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(71/83) - SUCCESS - s2n_stuffer_wipe_n
+  1.-SUCC RATE:#proofs=70, #succ=28, %succ=40%
+  2.-PROOF STATS : #deps-in-std=5 (0 stubs, 1 unnesc), #deps-in-arpa=4 (0 stubs), #non-stub-deps-in-common=4
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (4/4), #additional-deps=0 (0 stubs)
+  3.- START DIFF:
+    2a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=570 (101 stubs, 24 unnesc in 17 proofs), #deps-in-arpa=462, #non-stub-deps-in-common=380
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (380/445), #additional-deps=82 (59 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(72/83) - FAILURE - s2n_stuffer_write
+  1.-SUCC RATE:#proofs=71, #succ=28, %succ=39%
+  2.-PROOF STATS : #deps-in-std=8 (0 stubs, 0 unnesc), #deps-in-arpa=9 (1 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (7/8), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    2d1
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9d8
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=578 (101 stubs, 24 unnesc in 17 proofs), #deps-in-arpa=471, #non-stub-deps-in-common=387
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (387/453), #additional-deps=84 (60 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(73/83) - FAILURE - s2n_stuffer_write_base64
+  1.-SUCC RATE:#proofs=72, #succ=28, %succ=38%
+  2.-PROOF STATS : #deps-in-std=14 (4 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=80% (8/10), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3c3
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    ---
+    > PROJECT_SOURCES += $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    4a5
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9a11,13
+    > PROOF_SOURCES += $(PROOF_STUB)/mlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=592 (105 stubs, 24 unnesc in 17 proofs), #deps-in-arpa=481, #non-stub-deps-in-common=395
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (395/463), #additional-deps=86 (61 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(74/83) - FAILURE - s2n_stuffer_write_bytes
+  1.-SUCC RATE:#proofs=73, #succ=28, %succ=38%
+  2.-PROOF STATS : #deps-in-std=8 (0 stubs, 0 unnesc), #deps-in-arpa=8 (1 stubs), #non-stub-deps-in-common=6
+    \-ARPA FINDS: %of-nesc-non-stub-deps=75% (6/8), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    2d1
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    5a6
+    > PROOF_SOURCES += $(PROOF_SOURCE)/cbmc_utils.c
+    8d8
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=600 (105 stubs, 24 unnesc in 17 proofs), #deps-in-arpa=489, #non-stub-deps-in-common=401
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (401/471), #additional-deps=88 (62 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(75/83) - FAILURE - s2n_stuffer_write_network_order
+  1.-SUCC RATE:#proofs=74, #succ=28, %succ=37%
+  2.-PROOF STATS : #deps-in-std=12 (3 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    9a10,11
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=612 (108 stubs, 24 unnesc in 17 proofs), #deps-in-arpa=499, #non-stub-deps-in-common=409
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (409/480), #additional-deps=90 (63 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(76/83) - FAILURE - s2n_stuffer_write_reservation
+  1.-SUCC RATE:#proofs=75, #succ=28, %succ=37%
+  2.-PROOF STATS : #deps-in-std=13 (4 stubs, 0 unnesc), #deps-in-arpa=9 (1 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=77% (7/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    6a7
+    > PROOF_SOURCES += $(PROOF_SOURCE)/cbmc_utils.c
+    8a10,12
+    > PROOF_SOURCES += $(PROOF_STUB)/mlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=625 (112 stubs, 24 unnesc in 17 proofs), #deps-in-arpa=508, #non-stub-deps-in-common=416
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (416/489), #additional-deps=92 (64 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(77/83) - FAILURE - s2n_stuffer_write_uint16
+  1.-SUCC RATE:#proofs=76, #succ=28, %succ=36%
+  2.-PROOF STATS : #deps-in-std=9 (0 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    10d9
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=634 (112 stubs, 24 unnesc in 17 proofs), #deps-in-arpa=518, #non-stub-deps-in-common=424
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (424/498), #additional-deps=94 (65 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(78/83) - FAILURE - s2n_stuffer_write_uint24
+  1.-SUCC RATE:#proofs=77, #succ=28, %succ=36%
+  2.-PROOF STATS : #deps-in-std=9 (0 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    10d9
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=643 (112 stubs, 24 unnesc in 17 proofs), #deps-in-arpa=528, #non-stub-deps-in-common=432
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (432/507), #additional-deps=96 (66 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(79/83) - FAILURE - s2n_stuffer_write_uint32
+  1.-SUCC RATE:#proofs=78, #succ=28, %succ=35%
+  2.-PROOF STATS : #deps-in-std=9 (0 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    10d9
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=652 (112 stubs, 24 unnesc in 17 proofs), #deps-in-arpa=538, #non-stub-deps-in-common=440
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (440/516), #additional-deps=98 (67 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(80/83) - FAILURE - s2n_stuffer_write_uint64
+  1.-SUCC RATE:#proofs=79, #succ=28, %succ=35%
+  2.-PROOF STATS : #deps-in-std=9 (0 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    10d9
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=661 (112 stubs, 24 unnesc in 17 proofs), #deps-in-arpa=548, #non-stub-deps-in-common=448
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (448/525), #additional-deps=100 (68 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(81/83) - FAILURE - s2n_stuffer_write_uint8
+  1.-SUCC RATE:#proofs=80, #succ=28, %succ=35%
+  2.-PROOF STATS : #deps-in-std=9 (0 stubs, 0 unnesc), #deps-in-arpa=10 (1 stubs), #non-stub-deps-in-common=8
+    \-ARPA FINDS: %of-nesc-non-stub-deps=88% (8/9), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    10d9
+    < PROOF_SOURCES += $(PROOF_STUB)/sysconf.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=670 (112 stubs, 24 unnesc in 17 proofs), #deps-in-arpa=558, #non-stub-deps-in-common=456
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (456/534), #additional-deps=102 (69 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(82/83) - SUCCESS-OVERRIDE - s2n_stuffer_write_vector_size
+  1.-SUCC RATE:#proofs=81, #succ=29, %succ=35%
+  2.-PROOF STATS : #deps-in-std=11 (2 stubs, 2 unnesc), #deps-in-arpa=9 (1 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=100% (7/7), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    3d2
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    4a4
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    6a7
+    > PROOF_SOURCES += $(PROOF_SOURCE)/cbmc_utils.c
+    8a10
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=681 (114 stubs, 26 unnesc in 18 proofs), #deps-in-arpa=567, #non-stub-deps-in-common=463
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (463/541), #additional-deps=104 (70 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    s2n_stuffer_write_vector_size
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+
+(83/83) - FAILURE - s2n_stuffer_writev_bytes
+  1.-SUCC RATE:#proofs=82, #succ=29, %succ=35%
+  2.-PROOF STATS : #deps-in-std=11 (3 stubs, 0 unnesc), #deps-in-arpa=9 (1 stubs), #non-stub-deps-in-common=7
+    \-ARPA FINDS: %of-nesc-non-stub-deps=87% (7/8), #additional-deps=2 (1 stubs)
+  3.- START DIFF:
+    2d1
+    < PROJECT_SOURCES += $(SRCDIR)/tests/LD_PRELOAD/allocator_overrides.c
+    3a3
+    > PROJECT_SOURCES += $(SRCDIR)/utils/s2n_ensure.c
+    8a9,10
+    > PROOF_SOURCES += $(PROOF_STUB)/munlock.c
+    > PROOF_SOURCES += $(PROOF_STUB)/s2n_calculate_stacktrace.c
+    \-- END DIFF
+  4.-TOTAL STATS : #deps-in-std=692 (117 stubs, 26 unnesc in 18 proofs), #deps-in-arpa=576, #non-stub-deps-in-common=470
+    \-ARPA FINDS: %of-nesc-non-stub-deps=85% (470/549), #additional-deps=106 (71 stubs)
+    \-AVERAGE   : avg%deps_found_per_proof=74%
+  5.- START DEPS_MISSED_AT_LEAST_ONCE (NOT STUBS):
+    $(SRCDIR)/error/s2n_errno.c
+    $(SRCDIR)/utils/s2n_safety.c
+    $(SRCDIR)/utils/s2n_ensure.c
+    $(SRCDIR)/stuffer/s2n_stuffer_network_order.c
+    $(PROOF_SOURCE)/cbmc_utils.c
+    $(SRCDIR)/stuffer/s2n_stuffer_text.c
+    $(SRCDIR)/stuffer/s2n_stuffer_file.c
+    \-- END DEPS_MISSED_AT_LEAST_ONCE
+  6.- START PROOFS_OVERRIDEN_SO_FAR:
+    s2n_mem_init
+    s2n_pkcs3_to_dh_params
+    s2n_strcpy
+    s2n_stuffer_alloc_ro_from_fd
+    s2n_stuffer_alloc_ro_from_file
+    s2n_stuffer_free
+    s2n_stuffer_write_vector_size
+    \-- END PROOFS_OVERRIDEN_SO_FAR
+

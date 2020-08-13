@@ -1,0 +1,10 @@
+# This file should contain a list of proofs in s2n 
+# that will be automatically overridden during validation runs
+
+s2n_mem_init
+s2n_pkcs3_to_dh_params
+s2n_strcpy
+s2n_stuffer_alloc_ro_from_fd
+s2n_stuffer_alloc_ro_from_file
+s2n_stuffer_free
+s2n_stuffer_write_vector_size
