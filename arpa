@@ -49,6 +49,278 @@ JSON_FCT = "functions"
 CC_INCLUDE = "-I"
 CC_DEFINE = "-D"
 
+class CompileCommands:
+
+    def __init__(self, cc_path):
+        self.path = cc_path
+        self.file_2_command = {}
+
+    def validate(self):
+        if not os.path.exists(self.path):
+            logging.error("Specified path does not point to an existing file: %s", self.path)
+            sys.exit(1)
+
+    def create_file_2_command_map(self):
+        with open(self.path, "r") as handle:
+            all_commands = json.load(handle)
+
+        for compilation_command in all_commands:
+            cc_file = str(compilation_command['file'])
+            cc_command = compilation_command['command'].split()
+            self.file_2_command[cc_file] = cc_command
+
+    def __get_flag_arg(self, flag, arg, next_arg):
+        """ if string corresponds to correct flag, return corresponding argument. """
+        if arg.startswith(flag):
+            if len(arg) == len(flag):
+                return next_arg
+            if len(arg) > len(flag):
+                return arg[len(flag):]
+        else:
+            return None
+
+    def __get_abspath(self, include):
+        """transform included path to an absolute path """
+        if os.path.isabs(include) and os.path.exists(include):
+            return include
+        path = os.path.join(os.path.dirname(self.path), include)
+        if os.path.exists(path):
+            return os.path.abspath(path)
+
+        logging.error("include path not found at %s", path)
+        sys.exit(1)
+
+    def get_flags(self, prefix, file):
+        command_split = self.file_2_command[file]
+        all_flags = []
+        for command_tuple in enumerate(command_split):
+            cmd_ind = command_tuple[0]
+            next_arg = "" if cmd_ind == len(command_split)-1 else command_split[cmd_ind+1]
+            flag = self.__get_flag_arg(prefix, command_split[cmd_ind], next_arg)
+            if flag:
+                all_flags.append(flag)
+        
+        return all_flags
+
+    def get_includes(self, file):
+        all_includes = self.get_flags(CC_INCLUDE, file)
+        all_includes_absolute = []
+        for include_path in all_includes:
+            all_includes_absolute.append(self.__get_abspath(include_path))
+        return all_includes_absolute
+
+    def get_defines(self, file):
+        return self.get_flags(CC_DEFINE, file)
+
+    # TODO handle other flags from the compilation commands, put them in CFLAGS
+
+class InternalRepresentation:
+    
+    def __init__(self, root_path):
+        self.representation = {JSON_INFO: root_path,
+                               JSON_FILE: {}, }
+
+    def __add_element(self, file_path, key, value):
+        self.representation[JSON_FILE][file_path][key] = value
+
+    def add_file_entry(self, file_path):
+        file_name = os.path.basename(file_path)
+        if file_path in self.representation[JSON_FILE]:
+            logging.warning("Clashing file name: %s", file_path)
+        else:
+            self.representation[JSON_FILE][file_path] = {}
+            self.__add_element(file_path, JSON_NAME, file_name)
+
+    def add_defines(self, file_path, defines_list):
+        self.__add_element(file_path, JSON_DEF, defines_list)
+
+    def add_includes(self, file_path, includes_list):
+        self.__add_element(file_path, JSON_INC, includes_list)
+
+    def add_dependencies(self, file_2_dependencies):
+        for file in file_2_dependencies:
+            if file in self.representation[JSON_FILE]:
+                self.representation[JSON_FILE][file][JSON_FCT] = file_2_dependencies[file]
+            else:
+                if file.endswith(".c"):
+                    logging.info("source file <%s> not found"
+                                " in internal representation. Adding.", file)
+                elif file.endswith(".h"):
+                    logging.debug("Header <%s> not found "
+                                "in internal representation. Adding.", file)
+                else:
+                    print("in")
+                    logging.error("<%s> not found in internal representation. Exiting.", file)
+                    sys.exit(1)
+                self.representation[JSON_FILE][file] = {
+                    JSON_NAME: os.path.basename(file),
+                    JSON_INC: [],
+                    JSON_DEF: [],
+                    JSON_FCT: file_2_dependencies[file],
+                }
+
+        # TODO possibly remove?
+        for file in self.representation[JSON_FILE]:
+            if file not in file_2_dependencies:
+                self.representation[JSON_FILE][file][JSON_FCT] = {}
+
+
+    def validate(self):
+        """ validate the internal representation using voluptuous """
+        def h_c_file(value):
+            if isinstance(value, str) and (value.endswith(".c") or value.endswith(".h")):
+                return value
+            raise voluptuous.Invalid("Not an existing .c or .h file.")
+
+        def existing_file(value):
+            if isinstance(value, str) and os.path.isfile(value):
+                return value
+            raise voluptuous.Invalid("Not an existing file.")
+
+        def existing_directory(value):
+            if isinstance(value, str) and os.path.isdir(value):
+                return value
+            raise voluptuous.Invalid("Not an existing directory.")
+
+        def compiler_define(value):
+            regex = re.compile(r"\w+(=.+)?")
+            if isinstance(value, str) and regex.match(value):
+                return value
+            raise voluptuous.Invalid("Not a valid compiler define.")
+
+        def function_name(value):
+            regex = re.compile(r"\w+")
+            if isinstance(value, str) and regex.match(value):
+                return value
+            raise voluptuous.Invalid("Not a valid function name.")
+
+        schema = voluptuous.Schema({
+            JSON_INFO: existing_directory,
+            JSON_FILE: {
+                voluptuous.All(h_c_file, existing_file): {
+                    JSON_NAME: h_c_file,
+                    JSON_INC: [existing_directory],
+                    JSON_DEF: [compiler_define],
+                    JSON_FCT: {
+                        function_name: {
+                            function_name: voluptuous.Any(voluptuous.All(h_c_file, existing_file), None)
+                        }
+                    }
+                }
+            }
+        }, required=True)
+        voluptuous.humanize.validate_with_humanized_errors(self.representation, schema)
+
+    def write_to_file(self, from_run, path):
+        """ output a file continaing the json internal representation used in the tool """
+        # TODO improve this from_run thing
+        outjson = json.dumps(self.representation, indent=4)
+        with open(path, "w") as handle:
+            print(outjson, file=handle)
+        if not from_run:
+            print("-- Saved the internal representation at: {}".format(os.path.abspath(path)))
+
+class CflowInstance:
+
+    def __init__(self):
+        self.command = ["cflow"]
+        self.file_2_dependencies = {}
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        self.output_path = temp_file.name
+        temp_file.close()
+
+
+    def __add_to_command(self, item):
+        self.command.append(item)
+
+
+    def __find_h_and_c(self, root_dir):
+        """From the project root, return a list of all header and source files in the project"""
+        all_h_and_c = []
+        exclude = ["aws-proof-build-assistant"]
+        for root, dirs, files in os.walk(root_dir):
+            dirs[:] = [d for d in dirs if d not in exclude]
+            for file in files:
+                if file.endswith(".h") or file.endswith(".c"):
+                    f_path = os.path.abspath(os.path.join(root, file))
+                    all_h_and_c.append(f_path)
+        return all_h_and_c
+
+    def prepare_command(self, root_path):
+        h_and_c_files = self.__find_h_and_c(root_path)
+        self.command.extend(h_and_c_files)
+        self.command.extend(["-A", "--no-main", "-o%s" %(self.output_path), "--brief"])
+
+    def run_command(self):
+        proc = subprocess.Popen(self.command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        _, errors = proc.communicate()
+        for cflow_message in errors.split("\n"):
+            logging.warning("cflow stderr > %s", cflow_message)
+    
+    def parse_output(self):
+        """parse cflow output file. integrate it into json internal representation"""
+
+        current_at_level = []
+        with open(self.output_path, "r") as cflow_out:
+            cnt = 0
+            for cur_line in cflow_out:
+                # get depth of current line
+                leading_spaces = len(cur_line) - len(cur_line.lstrip(" "))
+                cur_depth = leading_spaces // 4
+                if leading_spaces % 4:
+                    logging.warning("Line has %d leading spaces: %s", leading_spaces, cur_line[:-1])
+
+                #add function to internal rep
+                regex = (r"(?P<fct>\w+)\(\)"
+                        r"( <.+ at (?P<file>.+):\d+>"
+                        r"( (?P<rec>\(R\)))?:)?"
+                        r"( \[see (?P<ref>\d+)\])?")
+                match = re.match(regex, cur_line.strip())
+                if not match:
+                    logging.warning("Regex did not match for \"%s\"", cur_line[:-1])
+                    continue
+
+                cf_func = match["fct"]
+                cf_file = match["file"]
+                cf_ref = match["ref"]
+                if cf_file and not cf_ref:
+                    if cf_file in self.file_2_dependencies:
+                        if cf_func in self.file_2_dependencies[cf_file]:
+                            logging.warning("duplicate entry for %s in %s", cf_func,
+                                            cf_file)                    
+                        self.file_2_dependencies[cf_file][cf_func] = {}
+                    else:
+                        self.file_2_dependencies[cf_file] = {cf_func:{}}
+
+                #handle function callings
+                cur_node = (cf_func, cf_file)
+
+                if cur_depth < len(current_at_level) - 1:
+                    current_at_level = current_at_level[:cur_depth + 1]
+                    current_at_level[cur_depth] = cur_node
+                elif cur_depth == len(current_at_level) - 1:
+                    current_at_level[cur_depth] = cur_node
+                elif cur_depth == len(current_at_level):
+                    current_at_level.append(cur_node)
+                elif cur_depth > len(current_at_level):
+                    logging.error("jump in depth at line {}".format(cnt))
+                    sys.exit(1)
+
+                if cur_depth != 0:
+                    #add to 1 depth less
+                    parent_depth = cur_depth - 1
+                    parent_func = current_at_level[parent_depth][0]
+                    parent_file = current_at_level[parent_depth][1]
+
+                    if parent_file in self.file_2_dependencies:
+                        self.file_2_dependencies[parent_file][parent_func][cf_func] = cf_file
+                    else:
+                        logging.error("Parent file %s of calling function %s of "
+                                    "called function %s is not found in cflow output.",
+                                    parent_file, parent_func, cf_func)
+                        sys.exit(1)
+                cnt += 1
+
 
 def build(args):
     """ this function is called only when the arpa build command is called """
@@ -58,265 +330,191 @@ def builder(args, from_run):
     """ Generate a json build database from given compile commands.
     If not compile commands path given, generate compile commands.
     No return"""
+    # >>>>>>>>
 
-    comp_cmds_path = args.compile_commands
-    json_path = args.json_path
+    cc = CompileCommands(args.compile_commands)
+    internal_repr = InternalRepresentation(os.path.abspath(args.root_dir))
+    cflow_instance = CflowInstance()
+
+    cc.validate()
+    cc.create_file_2_command_map()
+    for file in cc.file_2_command:
+        internal_repr.add_file_entry(file)
+        internal_repr.add_includes(file, cc.get_includes(file))
+        internal_repr.add_defines(file, cc.get_defines(file))
+
+    cflow_instance.prepare_command(args.root_dir)
+    cflow_instance.run_command()
+    cflow_instance.parse_output()
+
+    internal_repr.add_dependencies(cflow_instance.file_2_dependencies)
+    internal_repr.validate()
+
+    if args.json_path:
+        internal_repr.write_to_file(from_run, args.json_path)
+    else:
+        internal_repr.write_to_file(from_run, OUT_JSON_NAME)
+    
+
+    # <<<<<<<<
+
+    # comp_cmds_path = args.compile_commands
+    # json_path = args.json_path
     # Load the generated compilation commands, if possible
-    if not os.path.exists(comp_cmds_path):
-        logging.error("Specified path does not point to an existing file: %s", comp_cmds_path)
-        sys.exit(1)
+    # if not os.path.exists(comp_cmds_path):
+    #     logging.error("Specified path does not point to an existing file: %s", comp_cmds_path)
+    #     sys.exit(1)
 
     # get compilation commands
-    internal_rep_path = OUT_JSON_NAME
-    with open(comp_cmds_path, "r") as handle:
-        comp_cmds = json.load(handle)
+    # internal_rep_path = OUT_JSON_NAME
+    # with open(comp_cmds_path, "r") as handle:
+    #     comp_cmds = json.load(handle)
 
-    # Extract relevant information
-    internal_rep = {}
-    internal_rep[JSON_INFO] = os.path.abspath(args.root_dir)
-    internal_rep[JSON_FILE] = {}
-    cflow_cmd = ["cflow"]
+    
 
-    for comp_cmd in comp_cmds:
-        internal_file = {}
-        file_path = str(comp_cmd['file'])
+    # ADAPTATION FOR NOW
 
-        file_name = os.path.basename(file_path)
-        internal_file[JSON_NAME] = file_name
-
-        # COMPILE COMMAND
-        command_split = comp_cmd['command'].split()
-        command_include_dirs = []
-        command_defines = []
-        for cmd_tup in enumerate(command_split):
-            cmd_ind = cmd_tup[0]
-            next_arg = "" if cmd_ind == len(command_split)-1 else command_split[cmd_ind+1]
-            include = get_flag_arg(CC_INCLUDE, command_split[cmd_ind], next_arg)
-            if include:
-                command_include_dirs.append(get_abspath(include, comp_cmds_path))
-            # TODO get all other flags and put them in CFLAGS
-            # include = get_flag_arg("-isystem", command_split[cmd_ind], next_arg)
-            # if include:
-            #     command_include_dirs.append(include)
-            define = get_flag_arg(CC_DEFINE, command_split[cmd_ind], next_arg)
-            if define:
-                command_defines.append(define)
-
-        # fill in internal representation
-        internal_file[JSON_INC] = command_include_dirs
-        internal_file[JSON_DEF] = command_defines
-        internal_file[JSON_FCT] = {}
-
-        # collect makefile information
-        if file_path in internal_rep[JSON_FILE]:
-            logging.warning("Clashing file name: %s", file_path)
-        else:
-            internal_rep[JSON_FILE][file_path] = internal_file
+    # internal_rep = internal_repr.representation
+    # cflow_cmd = cflow_instance.command
 
     # HANDLING DEPENDENCIES
     # get all header and source files in the project,
     # add to cflow command
-    h_and_c_files = find_h_and_c(args.root_dir)
-    cflow_cmd.extend(h_and_c_files)
+    # h_and_c_files = find_h_and_c(args.root_dir)
+    # cflow_cmd.extend(h_and_c_files)
 
     # run CFLOW, and output to file
-    temp_file = tempfile.NamedTemporaryFile(delete=False)
-    tf_path = temp_file.name
-    temp_file.close()
+    # temp_file = tempfile.NamedTemporaryFile(delete=False)
+    # tf_path = temp_file.name
+    # temp_file.close()
 
-    cflow_cmd.extend(["-A", "--no-main", "-o%s" %(tf_path), "--brief"])
-    proc = subprocess.Popen(cflow_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    _, errs = proc.communicate()
-    for cflow_msg in errs.split("\n"):
-        logging.warning("cflow stderr > %s", cflow_msg)
+    # cflow_cmd.extend(["-A", "--no-main", "-o%s" %(tf_path), "--brief"])
+    # proc = subprocess.Popen(cflow_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    # _, errs = proc.communicate()
+    # for cflow_msg in errs.split("\n"):
+    #     logging.warning("cflow stderr > %s", cflow_msg)
 
     # parse CFLOW output
-    parse_cflow(internal_rep, tf_path)
+    # parse_cflow(internal_rep, tf_path)
 
     #voluptuous
-    validate_int_rep(internal_rep)
+    # validate_int_rep(internal_rep)
 
     # Write internal representation to files
-    if json_path:
-        write_internal_representation(from_run, internal_rep, json_path)
-    else:
-        write_internal_representation(from_run, internal_rep, internal_rep_path)
+    # if json_path:
+    #     write_internal_representation(from_run, internal_rep, json_path)
+    # else:
+    #     write_internal_representation(from_run, internal_rep, internal_rep_path)
 
 
-def get_abspath(include, cc_path):
-    """transform included path to an absolute path """
-    if os.path.isabs(include) and os.path.exists(include):
-        return include
-    path = os.path.join(os.path.dirname(cc_path), include)
-    if os.path.exists(path):
-        return os.path.abspath(path)
+# def parse_cflow(rep, tf_path):
+#     """parse cflow output file. integrate it into json internal representation"""
 
-    logging.error("include path not found at %s", path)
-    sys.exit(1)
+#     current_at_level = []
+#     with open(tf_path, "r") as cflow_out:
+#         cnt = 0
+#         for cur_line in cflow_out:
+#             # get depth of current line
+#             leading_spaces = len(cur_line) - len(cur_line.lstrip(" "))
+#             cur_depth = leading_spaces // 4
+#             if leading_spaces % 4:
+#                 logging.warning("Line has %d leading spaces: %s", leading_spaces, cur_line[:-1])
 
+#             #add function to internal rep
+#             regex = (r"(?P<fct>\w+)\(\)"
+#                      r"( <.+ at (?P<file>.+):\d+>"
+#                      r"( (?P<rec>\(R\)))?:)?"
+#                      r"( \[see (?P<ref>\d+)\])?")
+#             match = re.match(regex, cur_line.strip())
+#             if not match:
+#                 logging.warning("Regex did not match for \"%s\"", cur_line[:-1])
+#                 continue
 
-def parse_cflow(rep, tf_path):
-    """parse cflow output file. integrate it into json internal representation"""
+#             cf_func = match["fct"]
+#             cf_file = match["file"]
+#             cf_ref = match["ref"]
+#             if cf_file and not cf_ref:
+#                 if cf_file in rep[JSON_FILE]:
+#                     if cf_func in rep[JSON_FILE][cf_file][JSON_FCT]:
+#                         logging.warning("duplicate entry for %s in %s", cf_func,
+#                                         cf_file)
+#                     rep[JSON_FILE][cf_file][JSON_FCT][cf_func] = {}
+#                 else:
+#                     if cf_file.endswith(".c"):
+#                         logging.info("source file <%s> not found"
+#                                      " in internal representation. Adding.", cf_file)
+#                     elif cf_file.endswith(".h"):
+#                         logging.debug("Header <%s> not found "
+#                                       "in internal representation. Adding.", cf_file)
+#                     else:
+#                         logging.error("<%s> not found in internal representation. Adding.", cf_file)
+#                         sys.exit(1)
+#                     add_to_int_rep(cf_file, cf_func, rep)
 
-    current_at_level = []
-    with open(tf_path, "r") as cflow_out:
-        cnt = 0
-        for cur_line in cflow_out:
-            # get depth of current line
-            leading_spaces = len(cur_line) - len(cur_line.lstrip(" "))
-            cur_depth = leading_spaces // 4
-            if leading_spaces % 4:
-                logging.warning("Line has %d leading spaces: %s", leading_spaces, cur_line[:-1])
+#             #handle function callings
+#             cur_node = (cf_func, cf_file)
 
-            #add function to internal rep
-            regex = (r"(?P<fct>\w+)\(\)"
-                     r"( <.+ at (?P<file>.+):\d+>"
-                     r"( (?P<rec>\(R\)))?:)?"
-                     r"( \[see (?P<ref>\d+)\])?")
-            match = re.match(regex, cur_line.strip())
-            if not match:
-                logging.warning("Regex did not match for \"%s\"", cur_line[:-1])
-                continue
+#             if cur_depth < len(current_at_level) - 1:
+#                 current_at_level = current_at_level[:cur_depth + 1]
+#                 current_at_level[cur_depth] = cur_node
+#             elif cur_depth == len(current_at_level) - 1:
+#                 current_at_level[cur_depth] = cur_node
+#             elif cur_depth == len(current_at_level):
+#                 current_at_level.append(cur_node)
+#             elif cur_depth > len(current_at_level):
+#                 logging.error("jump in depth at line {}".format(cnt))
+#                 sys.exit(1)
 
-            cf_func = match["fct"]
-            cf_file = match["file"]
-            cf_ref = match["ref"]
-            if cf_file and not cf_ref:
-                if cf_file in rep[JSON_FILE]:
-                    if cf_func in rep[JSON_FILE][cf_file][JSON_FCT]:
-                        logging.warning("duplicate entry for %s in %s", cf_func,
-                                        cf_file)
-                    rep[JSON_FILE][cf_file][JSON_FCT][cf_func] = {}
-                else:
-                    if cf_file.endswith(".c"):
-                        logging.info("source file <%s> not found"
-                                     " in internal representation. Adding.", cf_file)
-                    elif cf_file.endswith(".h"):
-                        logging.debug("Header <%s> not found "
-                                      "in internal representation. Adding.", cf_file)
-                    else:
-                        logging.error("<%s> not found in internal representation. Adding.", cf_file)
-                        sys.exit(1)
-                    add_to_int_rep(cf_file, cf_func, rep)
+#             if cur_depth != 0:
+#                 #add to 1 depth less
+#                 parent_depth = cur_depth - 1
+#                 parent_func = current_at_level[parent_depth][0]
+#                 parent_file = current_at_level[parent_depth][1]
+#                 if not parent_file in rep[JSON_FILE]:
+#                     logging.error("Parent file %s of calling function %s of "
+#                                   "called function %s is not found in internal rep.",
+#                                   parent_file, parent_func, cf_func)
+#                     sys.exit(1)
+#                 else:
+#                     rep[JSON_FILE][parent_file][JSON_FCT]\
+#                         [parent_func][cf_func] = cf_file
+#             cnt += 1
 
-            #handle function callings
-            cur_node = (cf_func, cf_file)
-
-            if cur_depth < len(current_at_level) - 1:
-                current_at_level = current_at_level[:cur_depth + 1]
-                current_at_level[cur_depth] = cur_node
-            elif cur_depth == len(current_at_level) - 1:
-                current_at_level[cur_depth] = cur_node
-            elif cur_depth == len(current_at_level):
-                current_at_level.append(cur_node)
-            elif cur_depth > len(current_at_level):
-                logging.error("jump in depth at line {}".format(cnt))
-                sys.exit(1)
-
-            if cur_depth != 0:
-                #add to 1 depth less
-                parent_depth = cur_depth - 1
-                parent_func = current_at_level[parent_depth][0]
-                parent_file = current_at_level[parent_depth][1]
-                if not parent_file in rep[JSON_FILE]:
-                    logging.error("Parent file %s of calling function %s of "
-                                  "called function %s is not found in internal rep.",
-                                  parent_file, parent_func, cf_func)
-                    sys.exit(1)
-                else:
-                    rep[JSON_FILE][parent_file][JSON_FCT]\
-                        [parent_func][cf_func] = cf_file
-            cnt += 1
-
-def find_h_and_c(root_dir):
-    """From the project root, return a list of all header and source files in the project"""
-    all_h_and_c = []
-    exclude = ["aws-proof-build-assistant"]
-    for root, dirs, files in os.walk(root_dir):
-        dirs[:] = [d for d in dirs if d not in exclude]
-        for file in files:
-            if file.endswith(".h") or file.endswith(".c"):
-                f_path = os.path.abspath(os.path.join(root, file))
-                all_h_and_c.append(f_path)
-    return all_h_and_c
+# def add_to_int_rep(cf_file, cf_func, rep):
+#     """add a file to the internal json representation adequately"""
+#     f_info = {
+#         JSON_NAME: os.path.basename(cf_file),
+#         JSON_INC: [],
+#         JSON_DEF: [],
+#         JSON_FCT: {cf_func:{}},
+#     }
+#     rep[JSON_FILE][cf_file] = f_info
 
 
-def add_to_int_rep(cf_file, cf_func, rep):
-    """add a file to the internal json representation adequately"""
-    f_info = {
-        JSON_NAME: os.path.basename(cf_file),
-        JSON_INC: [],
-        JSON_DEF: [],
-        JSON_FCT: {cf_func:{}},
-    }
-    rep[JSON_FILE][cf_file] = f_info
+# def find_h_and_c(root_dir):
+#     """From the project root, return a list of all header and source files in the project"""
+#     all_h_and_c = []
+#     exclude = ["aws-proof-build-assistant"]
+#     for root, dirs, files in os.walk(root_dir):
+#         dirs[:] = [d for d in dirs if d not in exclude]
+#         for file in files:
+#             if file.endswith(".h") or file.endswith(".c"):
+#                 f_path = os.path.abspath(os.path.join(root, file))
+#                 all_h_and_c.append(f_path)
+#     return all_h_and_c
 
 
-def validate_int_rep(rep):
-    """ validate the internal representation using voluptuous """
-    def h_c_file(value):
-        if isinstance(value, str) and (value.endswith(".c") or value.endswith(".h")):
-            return value
-        raise voluptuous.Invalid("Not an existing .c or .h file.")
-
-    def existing_file(value):
-        if isinstance(value, str) and os.path.isfile(value):
-            return value
-        raise voluptuous.Invalid("Not an existing file.")
-
-    def existing_directory(value):
-        if isinstance(value, str) and os.path.isdir(value):
-            return value
-        raise voluptuous.Invalid("Not an existing directory.")
-
-    def compiler_define(value):
-        regex = re.compile(r"\w+(=.+)?")
-        if isinstance(value, str) and regex.match(value):
-            return value
-        raise voluptuous.Invalid("Not a valid compiler define.")
-
-    def function_name(value):
-        regex = re.compile(r"\w+")
-        if isinstance(value, str) and regex.match(value):
-            return value
-        raise voluptuous.Invalid("Not a valid function name.")
-
-    schema = voluptuous.Schema({
-        JSON_INFO: existing_directory,
-        JSON_FILE: {
-            voluptuous.All(h_c_file, existing_file): {
-                JSON_NAME: h_c_file,
-                JSON_INC: [existing_directory],
-                JSON_DEF: [compiler_define],
-                JSON_FCT: {
-                    function_name: {
-                        function_name: voluptuous.Any(voluptuous.All(h_c_file, existing_file), None)
-                    }
-                }
-            }
-        }
-    }, required=True)
-    voluptuous.humanize.validate_with_humanized_errors(rep, schema)
 
 
-def write_internal_representation(from_run, rep, path):
-    """ output a file continaing the json internal representation used in the tool """
-    outjson = json.dumps(rep, indent=4)
-    with open(path, "w") as handle:
-        print(outjson, file=handle)
-    if not from_run:
-        print("-- Saved the internal representation at: {}".format(os.path.abspath(path)))
+# def write_internal_representation(from_run, rep, path):
+#     """ output a file continaing the json internal representation used in the tool """
+#     outjson = json.dumps(rep, indent=4)
+#     with open(path, "w") as handle:
+#         print(outjson, file=handle)
+#     if not from_run:
+#         print("-- Saved the internal representation at: {}".format(os.path.abspath(path)))
 
 
-def get_flag_arg(flag, arg, next_arg):
-    """ if string corresponds to correct flag, return corresponding argument. """
-    if arg.startswith(flag):
-        if len(arg) == len(flag):
-            return next_arg
-        if len(arg) > len(flag):
-            return arg[len(flag):]
-    else:
-        return None
 
 
 def makefile(args):
