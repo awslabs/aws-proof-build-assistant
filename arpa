@@ -215,8 +215,6 @@ class InternalRepresentation:
         outjson = json.dumps(self.representation, indent=4)
         with open(path, "w") as handle:
             print(outjson, file=handle)
-        # if not from_run:
-        print("-- Saved the internal representation at: {}".format(os.path.abspath(path)))
 
 class CflowInstance:
 
@@ -368,26 +366,23 @@ class Makefile:
         self.textual_representation.append("# This file is generated automatically by Arpa")
         self.textual_representation.append("")
 
-    def __add_directory_paths_to_text(self, args):
-        self.textual_representation.append("%s = %s" % (args.make_root_name, args.make_root_path))
-        self.textual_representation.append("%s = %s" % (args.make_helper_name, args.make_helper_path))
-        self.textual_representation.append("%s = %s" % (args.make_proofs_name, args.make_proofs_path))
-        self.textual_representation.append("")
+    # def __add_directory_paths_to_text(self, args):
+    #     self.textual_representation.append("%s = %s" % (args.make_root_variable, args.make_root_path))
+    #     self.textual_representation.append("%s = %s" % (args.make_proof_source_variable, args.make_proof_source_path))
+    #     # self.textual_representation.append("%s = %s" % (args.make_proofs_name, args.make_proofs_path))
+    #     self.textual_representation.append("")
 
-    def __add_entry_info_to_text(self, args):
-        entry_name, ext = os.path.splitext(os.path.basename(self.directory.harness_path))
-        if not entry_name.endswith("_harness"):
-            logging.error("invalid harness name: %s", self.directory.harness_path)
-            sys.exit(1)
-        function_name = entry_name[:-len("_harness")]
-        if args.shorten_entry:
-            entry_name = function_name
-        self.textual_representation.append("%s = %s" % (args.entry_name, entry_name))
-        self.textual_representation.append("%s = %s.c" % (args.entry_file, self.__make_val(args.entry_name)))
-        self.textual_representation.append("")
-
-    def __add_arpa_makefile_to_text(self, args):
-        self.textual_representation.append("include %s" %(args.makefile_common_path))
+    # def __add_entry_info_to_text(self, args):
+    #     entry_name, ext = os.path.splitext(os.path.basename(self.directory.harness_path))
+    #     if not entry_name.endswith("_harness"):
+    #         logging.error("invalid harness name: %s", self.directory.harness_path)
+    #         sys.exit(1)
+    #     function_name = entry_name[:-len("_harness")]
+    #     if args.shorten_entry:
+    #         entry_name = function_name
+    #     self.textual_representation.append("%s = %s" % (args.entry_name, entry_name))
+    #     self.textual_representation.append("%s = %s.c" % (args.entry_file, self.__make_val(args.entry_name)))
+    #     self.textual_representation.append("")
 
     def __find_custom_info_recursively(self, args, internal_rep, current_path, relevant_functions):
         # info = self.contents
@@ -403,8 +398,8 @@ class Makefile:
                 if called_file:
                     # case where a file location is specified for the called function
                     called_file_w_ext = called_file
-                    if args.dependency_extension:
-                        called_file_w_ext = self.__change_extension(called_file, args.dependency_extension)
+                    if args.change_dependency_extensions:
+                        called_file_w_ext = self.__change_extension(called_file, args.change_dependency_extension)
                     self.contents.dependencies.add(called_file_w_ext)
 
                     # add called function to the list of recursive future calls
@@ -461,11 +456,11 @@ class Makefile:
         #TODO this is very complicated
         """ check if prefix is a prefix of path. return updated path """
         cat2prefix_path2name = {"proof" : {
-            args.make_proofs_path: args.make_proofs_name,
-            args.make_helper_path: args.make_helper_name,
-            args.make_stubs_path: args.make_stubs_name},
+            # args.make_proofs_path: args.make_proofs_name,
+            args.make_proof_source_path: args.make_proof_source_variable,
+            args.make_proof_stub_path: args.make_proof_stub_variable},
                             "project" : {
-                                args.make_root_path: args.make_root_name}}
+                                args.make_root_path: args.make_root_variable}}
         for cat in cat2prefix_path2name:
             for prefix_path in cat2prefix_path2name[cat]:
                 if os.path.commonprefix([path, prefix_path]) == prefix_path:
@@ -506,11 +501,11 @@ class Makefile:
     
     def __add_custom_info_to_text(self, args):
         lines_to_add = []
-        lines_to_add.extend(self.__add_to_makefile(self.contents_ordered.defines, args.define_name))
-        lines_to_add.extend(self.__add_to_makefile(self.contents_ordered.includes, args.include_name))
-        lines_to_add.extend(self.__add_to_makefile(self.contents_ordered.proof_sources, args.make_proofs_sources))
-        lines_to_add.extend(self.__add_to_makefile(self.contents_ordered.project_sources, args.make_root_sources))
-        lines_to_add.extend(self.__add_to_makefile(self.contents_ordered.other_dependencies, args.dependency_name))
+        lines_to_add.extend(self.__add_to_makefile(self.contents_ordered.defines, args.define_variable))
+        lines_to_add.extend(self.__add_to_makefile(self.contents_ordered.includes, args.include_variable))
+        lines_to_add.extend(self.__add_to_makefile(self.contents_ordered.proof_sources, args.make_proof_sources_variable))
+        lines_to_add.extend(self.__add_to_makefile(self.contents_ordered.project_sources, args.make_project_sources_variable))
+        lines_to_add.extend(self.__add_to_makefile(self.contents_ordered.other_dependencies, "# EXTERNAL_DEPENDENCIES"))
 
         #add missing dependencies section
         lines_to_add.append("")
@@ -540,9 +535,6 @@ class Makefile:
         self.__add_custom_info_to_text(args)
 
 
-        # self.__add_arpa_makefile_to_text(args)
-
-
     def save(self):
         with open(self.save_path, "w") as output:
             print("\n".join(self.textual_representation), file=output)
@@ -565,7 +557,7 @@ class ProofDirectory:
                 logging.error("Specified path does not point to an existing file: %s", harness_path)
                 sys.exit(1)
             self.harness_path = harness_path
-            self.path = os.path.dirname(harness_path)
+            self.path = os.path.abspath(os.path.dirname(harness_path))
             return
 
         # look for harness in cwd
@@ -582,7 +574,7 @@ class ProofDirectory:
             logging.error("no harness found in current directory!!")
             sys.exit(1)
         self.harness_path = harness_path
-        self.path = os.path.dirname(harness_path)
+        self.path = os.path.abspath(os.path.dirname(harness_path))
 
 
 class ArpaInstance:
@@ -607,115 +599,104 @@ class ArpaInstance:
         parser = argparse.ArgumentParser(description=__doc__)
         subparser = parser.add_subparsers(help="Available commands for {}".format(TOOL_NAME))
 
-        # build command
-        # default = called from project root
-        parser_run_build = argparse.ArgumentParser(add_help=False)
-        parser_run_build.add_argument("-cc", "--compile-commands", required=True,
-                                    metavar="F",
+        # BARE MINIMUM PARSER
+        parser_bare_minimum = argparse.ArgumentParser(add_help=False)
+        parser_bare_minimum.add_argument("-cc", "--compile-commands", required=True,
+                                    metavar="FILE",
                                     help="path to compile_commands json file.")
 
-        parser_build = subparser.add_parser('build', parents=[parser_run_build],
+        # ARPA BUILD PARSER
+        # default = called from project root directory
+        parser_build = subparser.add_parser('build', parents=[parser_bare_minimum],
                                             help="Generate a JSON build database \
-            for the current project. Assumed cwd = roject root.")
+            for the current project. Assumed cwd = project root.")
         parser_build.add_argument("-r", "--root-dir", default=os.getcwd(),
                                 metavar="DIR",
                                 help="root directory for the project under test")
         parser_build.add_argument("-jp", "--json_path", default=OUT_JSON_NAME,
-                                metavar="F",
+                                metavar="FILE",
                                 help="output location for a file containing a json internal \
             representation of the stored information.")
+
         parser_build.set_defaults(func=self.__call_build)
 
-        # makefile command
+        # ARPA RUN PARSER
         # default = called from harness directory
-        parser_run_make = argparse.ArgumentParser(add_help=False)
-        parser_run_make.add_argument("-ha", "--harness", metavar="F",
+        parser_run = subparser.add_parser('run', parents=[parser_bare_minimum],
+                                        help="Generate a Makefile from scratch \
+            for a given harness. Assumed cwd = harness directory.")
+
+        # FLAGS related to I/O
+        parser_run.add_argument("-r", "--root-dir", required=True, metavar="DIR",
+                                help="root directory for the project under test")
+        parser_run.add_argument("-file", "--file-under-test", metavar="FILE",
                                     help="path to harness for which we create a makefile.")
-        parser_run_make.add_argument("-sp", "--save-path", metavar="F",
+        parser_run.add_argument("-sp", "--save-path", metavar="FILE",
                                     help="file path where the output Makefile will be saved")
 
-        # parser_run_make.add_argument("-p", "--project", choices=['s2n', 'freertos'],
-        #                              help="predefine configurartion for a given project")
-        parser_run_make.add_argument("-ef", "--entry-file", default="HARNESS_FILE",
-                                    metavar="V",
-                                    help="label for entry file used in the Makefile")
-        parser_run_make.add_argument("-en", "--entry-name", default="HARNESS_ENTRY",
-                                    metavar="V",
-                                    help="label for entry type used in the Makefile")
-        parser_run_make.add_argument("-sh", "--shorten-entry", action="store_true",
-                                    help="shorten harness name when writing entry")
-        parser_run_make.add_argument("-def", "--define-name", default="DEFINES",
+        # FLAGS related to PROOF ENTRY
+        # parser_run.add_argument("-ef", "--entry-file", default="HARNESS_FILE",
+        #                             metavar="V",
+        #                             help="label for entry file used in the Makefile")
+        # parser_run.add_argument("-en", "--entry-name", default="HARNESS_ENTRY",
+        #                             metavar="V",
+        #                             help="label for entry type used in the Makefile")
+        # parser_run.add_argument("-sh", "--shorten-entry", action="store_true",
+        #                             help="shorten harness name when writing entry")
+
+        # FLAGS related to BUILD INFO TYPES
+        parser_run.add_argument("-def", "--define-variable", default="DEFINES",
                                     metavar="V",
                                     help="label for defines used in the Makefile")
-        parser_run_make.add_argument("-inc", "--include-name", default="INCLUDES",
+        parser_run.add_argument("-inc", "--include-variable", default="INCLUDES",
                                     metavar="V",
                                     help="label for includes used in the Makefile")
-        parser_run_make.add_argument("-dep", "--dependency-name", default="DEPENDENCIES",
-                                    metavar="V",
-                                    help="label for dependencies used in the Makefile")
-        parser_run_make.add_argument("-xfn", "--exclude-function-name", default="REMOVE_FUNCTION_BODY",
-                                    metavar="V",
-                                    help="label for function body exclusion used in the Makefile")
-        parser_run_make.add_argument("-unw", "--unwindset-name", default="UNWINDSET",
-                                    metavar="V",
-                                    help="label for dependencies used in the Makefile")
-        parser_run_make.add_argument("-dx", "--dependency-extension",
+        # parser_run.add_argument("-dep", "--dependency-variable", default="DEPENDENCIES",
+        #                             metavar="V",
+        #                             help="label for dependencies used in the Makefile")
+        parser_run.add_argument("-ext", "--change-dependency-extensions",
                                     metavar="EXT",
-                                    help="alternate extension for dependecies")
-        # parser_run_make.add_argument("-mc", "--makefile-common-path",
-        #                              default="../Makefile.common",
-        #                              metavar="DIR",
-        #                              help="path to Makefile.common")
+                                    help="modify the extension of dependencies in the generated Makefile")
 
-        parser_run_make.add_argument("-mrn", "--make-root-name", default="SRCDIR",
+        # FLAGS related to MAKEFILE SRCDIR
+        parser_run.add_argument("-mrv", "--make-root-variable", default="SRCDIR",
                                     metavar="V",
                                     help="Makefile variable name for root directory")
-        parser_run_make.add_argument("-mrs", "--make-root-sources", default="PROJECT_SOURCES",
-                                    metavar="V",
-                                    help="Makefile variable name for source file under test")
-        parser_run_make.add_argument("-mrp", "--make-root-path",
-                                    metavar="DIR",
+        parser_run.add_argument("-mrp", "--make-root-path", metavar="DIR",
                                     help="path makefile real root directory")
 
-        parser_run_make.add_argument("-mhn", "--make-helper-name", default="PROOF_SOURCE",
+        # FLAGS related to MAKEFILE PROOF_SOURCES
+        parser_run.add_argument("-msrv", "--make-proof-source-variable", default="PROOF_SOURCE",
                                     metavar="V",
                                     help="Makefile variable name for proofs directory")
-        parser_run_make.add_argument("-mhp", "--make-helper-path", default="tests/cbmc/sources",
+        parser_run.add_argument("-msrp", "--make-proof-source-path", default="tests/cbmc/sources",
                                     metavar="DIR",
                                     help="path makefile proofs directory")
 
-        parser_run_make.add_argument("-msn", "--make-stubs-name", default="PROOF_STUB",
+        # FLAGS related to MAKEFILE PROOF_STUBS
+        parser_run.add_argument("-mstv", "--make-proof-stub-variable", default="PROOF_STUB",
                                     metavar="V",
                                     help="Makefile variable name for proof stubs directory")
-        parser_run_make.add_argument("-msp", "--make-stubs-path", default="tests/cbmc/stubs",
+        parser_run.add_argument("-mstp", "--make-proof-stub-path", default="tests/cbmc/stubs",
                                     metavar="DIR",
                                     help="path makefile proof stubs directory")
 
-        parser_run_make.add_argument("-mpn", "--make-proofs-name", default="PROOFDIR",
+        # FLAGS related to MAKEFILE DEPENDENCY TYPES
+        parser_run.add_argument("-mproj", "--make-project-sources-variable", default="PROJECT_SOURCES",
                                     metavar="V",
-                                    help="Makefile variable name for proofs directory")
-        parser_run_make.add_argument("-mps", "--make-proofs-sources", default="PROOF_SOURCES",
+                                    help="Makefile variable name for source file under test")
+        parser_run.add_argument("-mproo", "--make-proof-sources-variable", default="PROOF_SOURCES",
                                     metavar="V",
                                     help="Makefile variable name for proofs source file")
 
-        parser_make = subparser.add_parser('makefile', parents=[parser_run_make],
-                                        help="Create a makefile \
-            from the internal representation for a given harness. Assumed cwd = harness directory.")
-        parser_make.add_argument("-jp", "--json-path", required=True,
-                                metavar="F",
-                                help="file path to JSON internal representation")
-        parser_make.set_defaults(func=self.__call_makefile)
+        # # FLAGS related to ...
+        # parser_run.add_argument("-mpn", "--make-proofs-name", default="PROOFDIR",
+        #                             metavar="V",
+        #                             help="Makefile variable name for proofs directory")
 
-        # run command
-        # default = called from harness directory
-        parser_run = subparser.add_parser('run', parents=[parser_run_build, parser_run_make],
-                                        help="Generate a Makefile from scratch \
-            for a given harness. Assumed cwd = harness directory.")
-        parser_run.add_argument("-r", "--root-dir", required=True, metavar="DIR",
-                                help="root directory for the project under test")
         parser_run.set_defaults(func=self.__call_run)
 
-        # parse
+        # PARSE ARGUMENTS
         self.args = parser.parse_args()
         self.__adjust_fields()
         
@@ -747,18 +728,12 @@ class ArpaInstance:
         self.internal_rep.add_dependencies(self.cflow_instance.file_2_dependencies)
         self.internal_rep.validate()
 
-        # self.args.json_path = None # TEMP TODO
-        if hasattr(self.args, "json_path") and self.args.json_path:
-            self.internal_rep.write_to_file(self.args.json_path)
-        else:
-            self.internal_rep.write_to_file(OUT_JSON_NAME)
-
 
     def __call_build(self):
-        print("build")
+        # saves the internal representation to a file
+        self.internal_rep.write_to_file(self.args.json_path)
+        print("-- Saved the internal representation at: {}".format(os.path.abspath(self.args.json_path)))
 
-    def __call_makefile(self):
-        print("makefile")
 
     def __call_run(self):
         """ Output a makefile containing relevant information for
@@ -767,9 +742,9 @@ class ArpaInstance:
         proof_directory = ProofDirectory()
         makefile = Makefile(proof_directory)
 
-        proof_directory.set_harness_path(self.args.harness)
+        proof_directory.set_harness_path(self.args.file_under_test)
         # TODO make below line part of ProofDirectory class
-        self.args.make_proofs_path = os.path.abspath(proof_directory.path)
+        # self.args.make_proofs_path = proof_directory.path
 
         if self.args.save_path:
             makefile.set_save_path(self.args.save_path)
@@ -781,8 +756,6 @@ class ArpaInstance:
         makefile.build(self.args, self.internal_rep.representation)
         makefile.save()
         
-        # TODO remove exclude-function-name and unwindset-name flags
-
 
     def __handle_args(self, root_path):
         """ handle comand line flags that modify global variables"""
@@ -795,8 +768,8 @@ class ArpaInstance:
             args.make_root_path = root_path
 
         # handle proofs path
-        args.make_helper_path = self.__handle_path(args.make_helper_path)
-        args.make_stubs_path = self.__handle_path(args.make_stubs_path)
+        args.make_proof_source_path = self.__handle_path(args.make_proof_source_path)
+        args.make_proof_stub_path = self.__handle_path(args.make_proof_stub_path)
 
 
     def __handle_path(self, path_ut):
