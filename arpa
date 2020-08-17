@@ -30,9 +30,7 @@ import voluptuous
 import voluptuous.humanize
 #TODO add the import in method to allow running without validation
 
-LOG_FILE_NAME = "arpa.log"
 TOOL_NAME = "arpa"
-TOOL_PATH = os.path.dirname(__file__)
 COMPILE_CMD_NAME = "compile_commands.json"
 
 PROJECT_NAME = os.path.basename(os.getcwd())
@@ -211,14 +209,14 @@ class InternalRepresentation:
         }, required=True)
         voluptuous.humanize.validate_with_humanized_errors(self.representation, schema)
 
-    def write_to_file(self, from_run, path):
+    def write_to_file(self, path):
         """ output a file continaing the json internal representation used in the tool """
         # TODO improve this from_run thing
         outjson = json.dumps(self.representation, indent=4)
         with open(path, "w") as handle:
             print(outjson, file=handle)
-        if not from_run:
-            print("-- Saved the internal representation at: {}".format(os.path.abspath(path)))
+        # if not from_run:
+        print("-- Saved the internal representation at: {}".format(os.path.abspath(path)))
 
 class CflowInstance:
 
@@ -587,254 +585,245 @@ class ProofDirectory:
         self.path = os.path.dirname(harness_path)
 
 
-class ExistingInternalRepresentation(InternalRepresentation):
+class ArpaInstance:
 
-    def __init__(self, json_path):
-        # print("in")
-        # super(ExistingInternalRepresentation, self).__init__()
-        self.json_path = json_path
-        self.__validate_path()
-        self.__load_json()
-
-    def __validate_path(self):
-        if not os.path.exists(self.json_path):
-            logging.error("Specified path does not point to an existing .json file: %s", self.json_path)
-            sys.exit(1)
-
-    def __load_json(self):
-        with open(self.json_path, "r") as json_file:
-            self.representation = json.load(json_file)
+    def __init__(self):
+        self.args = None
+        self.compilation_commands = None
+        self.cflow_instance = CflowInstance()
+        self.internal_rep = None
+        self.command_to_run = None
 
 
+    def __adjust_fields(self):
+        self.compilation_commands = CompileCommands(self.args.compile_commands)
+        self.internal_rep = InternalRepresentation(os.path.abspath(self.args.root_dir))
+        self.command_to_run = None        
 
 
-def build(args):
-    """ this function is called only when the arpa build command is called """
-    builder(args, False)
+    def parse_args(self):
+        """parse arguments"""
+        # potentialTODO get inputs from JSON
+        parser = argparse.ArgumentParser(description=__doc__)
+        subparser = parser.add_subparsers(help="Available commands for {}".format(TOOL_NAME))
 
-def builder(args, from_run):
-    """ Generate a json build database from given compile commands.
-    If not compile commands path given, generate compile commands.
-    No return"""
+        # build command
+        # default = called from project root
+        parser_run_build = argparse.ArgumentParser(add_help=False)
+        parser_run_build.add_argument("-cc", "--compile-commands", required=True,
+                                    metavar="F",
+                                    help="path to compile_commands json file.")
 
-    cc = CompileCommands(args.compile_commands)
-    internal_repr = InternalRepresentation(os.path.abspath(args.root_dir))
-    cflow_instance = CflowInstance()
+        parser_build = subparser.add_parser('build', parents=[parser_run_build],
+                                            help="Generate a JSON build database \
+            for the current project. Assumed cwd = roject root.")
+        parser_build.add_argument("-r", "--root-dir", default=os.getcwd(),
+                                metavar="DIR",
+                                help="root directory for the project under test")
+        parser_build.add_argument("-jp", "--json_path", default=OUT_JSON_NAME,
+                                metavar="F",
+                                help="output location for a file containing a json internal \
+            representation of the stored information.")
+        parser_build.set_defaults(func=self.__call_build)
 
-    cc.create_file_2_command_map()
-    for file in cc.file_2_command:
-        internal_repr.add_file_entry(file)
-        internal_repr.add_includes(file, cc.get_includes(file))
-        internal_repr.add_defines(file, cc.get_defines(file))
+        # makefile command
+        # default = called from harness directory
+        parser_run_make = argparse.ArgumentParser(add_help=False)
+        parser_run_make.add_argument("-ha", "--harness", metavar="F",
+                                    help="path to harness for which we create a makefile.")
+        parser_run_make.add_argument("-sp", "--save-path", metavar="F",
+                                    help="file path where the output Makefile will be saved")
 
-    cflow_instance.prepare_command(args.root_dir)
-    cflow_instance.run_command()
-    cflow_instance.parse_output()
+        # parser_run_make.add_argument("-p", "--project", choices=['s2n', 'freertos'],
+        #                              help="predefine configurartion for a given project")
+        parser_run_make.add_argument("-ef", "--entry-file", default="HARNESS_FILE",
+                                    metavar="V",
+                                    help="label for entry file used in the Makefile")
+        parser_run_make.add_argument("-en", "--entry-name", default="HARNESS_ENTRY",
+                                    metavar="V",
+                                    help="label for entry type used in the Makefile")
+        parser_run_make.add_argument("-sh", "--shorten-entry", action="store_true",
+                                    help="shorten harness name when writing entry")
+        parser_run_make.add_argument("-def", "--define-name", default="DEFINES",
+                                    metavar="V",
+                                    help="label for defines used in the Makefile")
+        parser_run_make.add_argument("-inc", "--include-name", default="INCLUDES",
+                                    metavar="V",
+                                    help="label for includes used in the Makefile")
+        parser_run_make.add_argument("-dep", "--dependency-name", default="DEPENDENCIES",
+                                    metavar="V",
+                                    help="label for dependencies used in the Makefile")
+        parser_run_make.add_argument("-xfn", "--exclude-function-name", default="REMOVE_FUNCTION_BODY",
+                                    metavar="V",
+                                    help="label for function body exclusion used in the Makefile")
+        parser_run_make.add_argument("-unw", "--unwindset-name", default="UNWINDSET",
+                                    metavar="V",
+                                    help="label for dependencies used in the Makefile")
+        parser_run_make.add_argument("-dx", "--dependency-extension",
+                                    metavar="EXT",
+                                    help="alternate extension for dependecies")
+        # parser_run_make.add_argument("-mc", "--makefile-common-path",
+        #                              default="../Makefile.common",
+        #                              metavar="DIR",
+        #                              help="path to Makefile.common")
 
-    internal_repr.add_dependencies(cflow_instance.file_2_dependencies)
-    internal_repr.validate()
+        parser_run_make.add_argument("-mrn", "--make-root-name", default="SRCDIR",
+                                    metavar="V",
+                                    help="Makefile variable name for root directory")
+        parser_run_make.add_argument("-mrs", "--make-root-sources", default="PROJECT_SOURCES",
+                                    metavar="V",
+                                    help="Makefile variable name for source file under test")
+        parser_run_make.add_argument("-mrp", "--make-root-path",
+                                    metavar="DIR",
+                                    help="path makefile real root directory")
 
-    if args.json_path:
-        internal_repr.write_to_file(from_run, args.json_path)
-    else:
-        internal_repr.write_to_file(from_run, OUT_JSON_NAME)
+        parser_run_make.add_argument("-mhn", "--make-helper-name", default="PROOF_SOURCE",
+                                    metavar="V",
+                                    help="Makefile variable name for proofs directory")
+        parser_run_make.add_argument("-mhp", "--make-helper-path", default="tests/cbmc/sources",
+                                    metavar="DIR",
+                                    help="path makefile proofs directory")
 
-def makefile(args):
-    """ Output a makefile containing relevant information for
-    an input harness. No return. """
+        parser_run_make.add_argument("-msn", "--make-stubs-name", default="PROOF_STUB",
+                                    metavar="V",
+                                    help="Makefile variable name for proof stubs directory")
+        parser_run_make.add_argument("-msp", "--make-stubs-path", default="tests/cbmc/stubs",
+                                    metavar="DIR",
+                                    help="path makefile proof stubs directory")
 
-    proof_directory = ProofDirectory()
-    makefile = Makefile(proof_directory)
-    input_rep = ExistingInternalRepresentation(args.json_path)
+        parser_run_make.add_argument("-mpn", "--make-proofs-name", default="PROOFDIR",
+                                    metavar="V",
+                                    help="Makefile variable name for proofs directory")
+        parser_run_make.add_argument("-mps", "--make-proofs-sources", default="PROOF_SOURCES",
+                                    metavar="V",
+                                    help="Makefile variable name for proofs source file")
 
-    proof_directory.set_harness_path(args.harness)
-    # TODO make below line part of ProofDirectory class
-    args.make_proofs_path = os.path.abspath(proof_directory.path)
+        parser_make = subparser.add_parser('makefile', parents=[parser_run_make],
+                                        help="Create a makefile \
+            from the internal representation for a given harness. Assumed cwd = harness directory.")
+        parser_make.add_argument("-jp", "--json-path", required=True,
+                                metavar="F",
+                                help="file path to JSON internal representation")
+        parser_make.set_defaults(func=self.__call_makefile)
 
-    if args.save_path:
-        makefile.set_save_path(args.save_path)
-    else:
-        makefile.set_default_save_path(proof_directory.path)
+        # run command
+        # default = called from harness directory
+        parser_run = subparser.add_parser('run', parents=[parser_run_build, parser_run_make],
+                                        help="Generate a Makefile from scratch \
+            for a given harness. Assumed cwd = harness directory.")
+        parser_run.add_argument("-r", "--root-dir", required=True, metavar="DIR",
+                                help="root directory for the project under test")
+        parser_run.set_defaults(func=self.__call_run)
 
-    handle_args(args, input_rep.representation[JSON_INFO])
+        # parse
+        self.args = parser.parse_args()
+        self.__adjust_fields()
+        
+        
+    def prepare_log(self):
+        # log_file = os.path.join(self.args.root_dir, "arpa.log")
+        # Below is to make debugging simpler
+        log_file = os.path.join(os.path.dirname(__file__), "arpa.log")
+        if os.path.isfile(log_file) :
+            os.remove(log_file)
+        logging.basicConfig(filename=log_file, level=logging.DEBUG)
 
-    makefile.build(args, input_rep.representation)
-    makefile.save()
     
-    # TODO remove exclude-function-name and unwindset-name flags
+    def build_internal_rep(self):
+        """ Generate a json build database from given compile commands.
+        If not compile commands path given, generate compile commands.
+        No return"""
+
+        self.compilation_commands.create_file_2_command_map()
+        for file in self.compilation_commands.file_2_command:
+            self.internal_rep.add_file_entry(file)
+            self.internal_rep.add_includes(file, self.compilation_commands.get_includes(file))
+            self.internal_rep.add_defines(file, self.compilation_commands.get_defines(file))
+
+        self.cflow_instance.prepare_command(self.args.root_dir)
+        self.cflow_instance.run_command()
+        self.cflow_instance.parse_output()
+
+        self.internal_rep.add_dependencies(self.cflow_instance.file_2_dependencies)
+        self.internal_rep.validate()
+
+        # self.args.json_path = None # TEMP TODO
+        if hasattr(self.args, "json_path") and self.args.json_path:
+            self.internal_rep.write_to_file(self.args.json_path)
+        else:
+            self.internal_rep.write_to_file(OUT_JSON_NAME)
 
 
-def handle_args(args, root_path):
-    """ handle comand line flags that modify global variables"""
+    def __call_build(self):
+        print("build")
 
-    # store root path
-    if args.make_root_path:
-        args.make_root_path = os.path.abspath(os.path.join(os.getcwd(), args.make_source_path))
-    else:
-        args.make_root_path = root_path
+    def __call_makefile(self):
+        print("makefile")
 
-    # handle proofs path
-    args.make_helper_path = handle_path(args, args.make_helper_path)
-    args.make_stubs_path = handle_path(args, args.make_stubs_path)
+    def __call_run(self):
+        """ Output a makefile containing relevant information for
+        an input harness. No return. """
 
+        proof_directory = ProofDirectory()
+        makefile = Makefile(proof_directory)
 
-def handle_path(args, path_ut):
-    joined_path_ut = os.path.join(args.make_root_path, path_ut)
-    if path_ut:
-        if os.path.isabs(path_ut) and os.path.exists(path_ut):
-            return path_ut
-        elif os.path.exists(joined_path_ut):
-            return os.path.abspath(joined_path_ut)
-        elif os.path.exists(path_ut):
-            return os.path.abspath(path_ut)
-    
-    logging.error("Specified proofs directory is incorrect: %s", path_ut)
-    sys.exit(1)
+        proof_directory.set_harness_path(self.args.harness)
+        # TODO make below line part of ProofDirectory class
+        self.args.make_proofs_path = os.path.abspath(proof_directory.path)
 
+        if self.args.save_path:
+            makefile.set_save_path(self.args.save_path)
+        else:
+            makefile.set_default_save_path(proof_directory.path)
 
-def run(args):
-    """ build internal representation and create a Makefil for a given harness """
+        self.__handle_args(self.internal_rep.representation[JSON_INFO])
 
-    # tempfile for storing json int_rep
-    temp_file = tempfile.NamedTemporaryFile()
-    args.json_path = temp_file.name
-
-    builder(args, True)
-    makefile(args)
-
-    temp_file.close()
+        makefile.build(self.args, self.internal_rep.representation)
+        makefile.save()
+        
+        # TODO remove exclude-function-name and unwindset-name flags
 
 
-def parse_args():
-    """parse arguments"""
-    # potentialTODO get inputs from JSON
-    parser = argparse.ArgumentParser(description=__doc__)
-    subparser = parser.add_subparsers(help="Available commands for {}".format(TOOL_NAME))
+    def __handle_args(self, root_path):
+        """ handle comand line flags that modify global variables"""
 
-    # build command
-    # default = called from project root
-    parser_run_build = argparse.ArgumentParser(add_help=False)
-    parser_run_build.add_argument("-cc", "--compile-commands", required=True,
-                                  metavar="F",
-                                  help="path to compile_commands json file.")
+        args = self.args
+        # store root path
+        if args.make_root_path:
+            args.make_root_path = os.path.abspath(os.path.join(os.getcwd(), args.make_source_path))
+        else:
+            args.make_root_path = root_path
 
-    parser_build = subparser.add_parser('build', parents=[parser_run_build],
-                                        help="Generate a JSON build database \
-        for the current project. Assumed cwd = roject root.")
-    parser_build.add_argument("-r", "--root-dir", default=os.getcwd(),
-                              metavar="DIR",
-                              help="root directory for the project under test")
-    parser_build.add_argument("-jp", "--json_path", default=OUT_JSON_NAME,
-                              metavar="F",
-                              help="output location for a file containing a json internal \
-        representation of the stored information.")
-    parser_build.set_defaults(func=build)
+        # handle proofs path
+        args.make_helper_path = self.__handle_path(args.make_helper_path)
+        args.make_stubs_path = self.__handle_path(args.make_stubs_path)
 
-    # makefile command
-    # default = called from harness directory
-    parser_run_make = argparse.ArgumentParser(add_help=False)
-    parser_run_make.add_argument("-ha", "--harness", metavar="F",
-                                 help="path to harness for which we create a makefile.")
-    parser_run_make.add_argument("-sp", "--save-path", metavar="F",
-                                 help="file path where the output Makefile will be saved")
 
-    # parser_run_make.add_argument("-p", "--project", choices=['s2n', 'freertos'],
-    #                              help="predefine configurartion for a given project")
-    parser_run_make.add_argument("-ef", "--entry-file", default="HARNESS_FILE",
-                                 metavar="V",
-                                 help="label for entry file used in the Makefile")
-    parser_run_make.add_argument("-en", "--entry-name", default="HARNESS_ENTRY",
-                                 metavar="V",
-                                 help="label for entry type used in the Makefile")
-    parser_run_make.add_argument("-sh", "--shorten-entry", action="store_true",
-                                 help="shorten harness name when writing entry")
-    parser_run_make.add_argument("-def", "--define-name", default="DEFINES",
-                                 metavar="V",
-                                 help="label for defines used in the Makefile")
-    parser_run_make.add_argument("-inc", "--include-name", default="INCLUDES",
-                                 metavar="V",
-                                 help="label for includes used in the Makefile")
-    parser_run_make.add_argument("-dep", "--dependency-name", default="DEPENDENCIES",
-                                 metavar="V",
-                                 help="label for dependencies used in the Makefile")
-    parser_run_make.add_argument("-xfn", "--exclude-function-name", default="REMOVE_FUNCTION_BODY",
-                                 metavar="V",
-                                 help="label for function body exclusion used in the Makefile")
-    parser_run_make.add_argument("-unw", "--unwindset-name", default="UNWINDSET",
-                                 metavar="V",
-                                 help="label for dependencies used in the Makefile")
-    parser_run_make.add_argument("-dx", "--dependency-extension",
-                                 metavar="EXT",
-                                 help="alternate extension for dependecies")
-    # parser_run_make.add_argument("-mc", "--makefile-common-path",
-    #                              default="../Makefile.common",
-    #                              metavar="DIR",
-    #                              help="path to Makefile.common")
+    def __handle_path(self, path_ut):
+        joined_path_ut = os.path.join(self.args.make_root_path, path_ut)
+        if path_ut:
+            if os.path.isabs(path_ut) and os.path.exists(path_ut):
+                return path_ut
+            elif os.path.exists(joined_path_ut):
+                return os.path.abspath(joined_path_ut)
+            elif os.path.exists(path_ut):
+                return os.path.abspath(path_ut)
+        
+        logging.error("Specified proofs directory is incorrect: %s", path_ut)
+        sys.exit(1)
 
-    parser_run_make.add_argument("-mrn", "--make-root-name", default="SRCDIR",
-                                 metavar="V",
-                                 help="Makefile variable name for root directory")
-    parser_run_make.add_argument("-mrs", "--make-root-sources", default="PROJECT_SOURCES",
-                                 metavar="V",
-                                 help="Makefile variable name for source file under test")
-    parser_run_make.add_argument("-mrp", "--make-root-path",
-                                 metavar="DIR",
-                                 help="path makefile real root directory")
 
-    parser_run_make.add_argument("-mhn", "--make-helper-name", default="PROOF_SOURCE",
-                                 metavar="V",
-                                 help="Makefile variable name for proofs directory")
-    parser_run_make.add_argument("-mhp", "--make-helper-path", default="tests/cbmc/sources",
-                                 metavar="DIR",
-                                 help="path makefile proofs directory")
-
-    parser_run_make.add_argument("-msn", "--make-stubs-name", default="PROOF_STUB",
-                                 metavar="V",
-                                 help="Makefile variable name for proof stubs directory")
-    parser_run_make.add_argument("-msp", "--make-stubs-path", default="tests/cbmc/stubs",
-                                 metavar="DIR",
-                                 help="path makefile proof stubs directory")
-
-    parser_run_make.add_argument("-mpn", "--make-proofs-name", default="PROOFDIR",
-                                 metavar="V",
-                                 help="Makefile variable name for proofs directory")
-    parser_run_make.add_argument("-mps", "--make-proofs-sources", default="PROOF_SOURCES",
-                                 metavar="V",
-                                 help="Makefile variable name for proofs source file")
-
-    parser_make = subparser.add_parser('makefile', parents=[parser_run_make],
-                                       help="Create a makefile \
-        from the internal representation for a given harness. Assumed cwd = harness directory.")
-    parser_make.add_argument("-jp", "--json-path", required=True,
-                             metavar="F",
-                             help="file path to JSON internal representation")
-    parser_make.set_defaults(func=makefile)
-
-    # run command
-    # default = called from harness directory
-    parser_run = subparser.add_parser('run', parents=[parser_run_build, parser_run_make],
-                                      help="Generate a Makefile from scratch \
-        for a given harness. Assumed cwd = harness directory.")
-    parser_run.add_argument("-r", "--root-dir", required=True, metavar="DIR",
-                            help="root directory for the project under test")
-    parser_run.set_defaults(func=run)
-
-    # parse
-    return parser.parse_args()
+    def run_command(self):
+        self.args.func()
 
 
 def main():
     """ Main function """
-    arguments = parse_args()
-    # log_file = os.path.join(arguments.root_dir, LOG_FILE_NAME)
-    # Below is to make debugging simpler
-    log_file = os.path.join(TOOL_PATH, "arpa.log")
-    if os.path.isfile(log_file) :
-        os.remove(log_file)
-    logging.basicConfig(filename=log_file,
-                        level=logging.DEBUG)
-
-    arguments.func(arguments)
+    arpa_instance = ArpaInstance()
+    arpa_instance.parse_args()
+    arpa_instance.prepare_log()
+    arpa_instance.build_internal_rep()
+    arpa_instance.run_command()
 
 
 if __name__ == "__main__":
