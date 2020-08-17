@@ -4,6 +4,7 @@ out/
 arpa.log
 archive/
 Makefile.arpa
+__pycache__
 
 test/tests/*/build
 test/tests/*/aquifer
