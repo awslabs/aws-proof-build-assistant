@@ -38,10 +38,12 @@ class CompileCommands:
         self.__validate()
         self.file_2_command = {}
 
+
     def __validate(self):
         if not os.path.exists(self.path):
             logging.error("Specified path does not point to an existing file: %s", self.path)
             sys.exit(1)
+
 
     def create_file_2_command_map(self):
         ''' create a map between files in the code base and the correspoding compile command '''
@@ -52,6 +54,7 @@ class CompileCommands:
             cc_file = str(compilation_command['file'])
             cc_command = compilation_command['command'].split()
             self.file_2_command[cc_file] = cc_command
+
 
     @classmethod
     def __get_flag_arg(cls, flag, arg, next_arg):
@@ -64,6 +67,7 @@ class CompileCommands:
         else:
             return None
 
+
     def __get_abspath(self, include):
         '''transform included path to an absolute path '''
         if os.path.isabs(include) and os.path.exists(include):
@@ -74,6 +78,7 @@ class CompileCommands:
 
         logging.error("include path not found at %s", path)
         sys.exit(1)
+
 
     def __get_flags(self, prefix, file):
         command_split = self.file_2_command[file]
@@ -87,6 +92,7 @@ class CompileCommands:
 
         return all_flags
 
+
     def get_includes(self, file):
         ''' return included directories (from the compile command) for a given file '''
         all_includes = self.__get_flags(helper.CC_INCLUDE, file)
@@ -95,9 +101,11 @@ class CompileCommands:
             all_includes_absolute.append(self.__get_abspath(include_path))
         return all_includes_absolute
 
+
     def get_defines(self, file):
         ''' return cmd line defines (from the compile command) for a given file '''
         return self.__get_flags(helper.CC_DEFINE, file)
+
 
     # TODO handle other flags from the compilation commands, put them in CFLAGS
 
@@ -110,8 +118,10 @@ class InternalRepresentation:
         self.representation = {helper.JSON_INFO: root_path,
                                helper.JSON_FILE: {}, }
 
+
     def __add_element(self, file_path, key, value):
         self.representation[helper.JSON_FILE][file_path][key] = value
+
 
     def add_file_entry(self, file_path):
         ''' add file as key in internal_rep '''
@@ -122,13 +132,16 @@ class InternalRepresentation:
             self.representation[helper.JSON_FILE][file_path] = {}
             self.__add_element(file_path, helper.JSON_NAME, file_name)
 
+
     def add_defines(self, file_path, defines_list):
         ''' add cmd line defines to internal_rep '''
         self.__add_element(file_path, helper.JSON_DEF, defines_list)
 
+
     def add_includes(self, file_path, includes_list):
         ''' add included dirs to internal_rep '''
         self.__add_element(file_path, helper.JSON_INC, includes_list)
+
 
     def add_dependencies(self, file_2_dependencies):
         ''' add fct=level dependencies to internal_rep '''
@@ -153,7 +166,8 @@ class InternalRepresentation:
                     helper.JSON_FCT: file_2_dependencies[file],
                 }
 
-        # TODO possibly remove?
+        # create and empty dependencies set for files with
+        # no dependencies within the internal representation
         for file in self.representation[helper.JSON_FILE]:
             if file not in file_2_dependencies:
                 self.representation[helper.JSON_FILE][file][helper.JSON_FCT] = {}
@@ -206,6 +220,7 @@ class InternalRepresentation:
         }, required=True)
         voluptuous.humanize.validate_with_humanized_errors(self.representation, schema)
 
+
     def write_to_file(self, path):
         ''' output a file continaing the json internal representation used in the tool '''
         outjson = json.dumps(self.representation, indent=4)
@@ -227,6 +242,7 @@ class CflowInstance:
     def __add_to_command(self, item):
         self.command.append(item)
 
+
     @classmethod
     def __find_h_and_c(cls, root_dir):
         '''From the project root, return a list of all header and source files in the project'''
@@ -240,11 +256,13 @@ class CflowInstance:
                     all_h_and_c.append(f_path)
         return all_h_and_c
 
-    def init_command(self, root_path):
+
+    def create_command(self, root_path):
         ''' initialize the cflow command'''
         h_and_c_files = self.__find_h_and_c(root_path)
         self.command.extend(h_and_c_files)
         self.command.extend(["-A", "--no-main", "-o%s" %(self.output_path), "--brief"])
+
 
     def run_command(self):
         ''' run the cflow command '''
@@ -254,8 +272,10 @@ class CflowInstance:
         for cflow_message in errors.split("\n"):
             logging.warning("cflow stderr > %s", cflow_message)
 
+
     def parse_output(self):
         '''parse cflow output file, integrate it into the file_2_dependencies field'''
+        # TODO use the `--print-level` command line flag when calling aRPA, THIS SIMPLIFIES GETTING THE levels
 
         current_at_level = []
         with open(self.output_path, "r") as cflow_out:

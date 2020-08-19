@@ -34,13 +34,11 @@ class ArpaInstance:
         self.compilation_commands = None
         self.cflow_instance = arpa_build.CflowInstance()
         self.internal_rep = None
-        self.command_to_run = None
 
 
     def __adjust_fields(self):
         self.compilation_commands = arpa_build.CompileCommands(self.args.compile_commands)
         self.internal_rep = arpa_build.InternalRepresentation(os.path.abspath(self.args.root_dir))
-        self.command_to_run = None
 
 
     def parse_args(self):
@@ -48,12 +46,13 @@ class ArpaInstance:
         self.args = helper.ParserInstance(self).parse_arguments()
         self.__adjust_fields()
 
+
     @classmethod
     def prepare_log(cls):
         ''' Set up logging for this command run '''
-        # log_file = os.path.join(self.args.root_dir, "arpa.log")
-        # Below is to make debugging simpler
-        log_file = os.path.join(os.path.dirname(__file__), helper.TOOL_NAME + ".log")
+        # log_root = self.args.root_dir
+        log_root = os.path.dirname(__file__)
+        log_file = helper.Util().get_log_path(log_root)
         if os.path.isfile(log_file):
             os.remove(log_file)
         logging.basicConfig(filename=log_file, level=logging.DEBUG)
@@ -67,10 +66,14 @@ class ArpaInstance:
         self.compilation_commands.create_file_2_command_map()
         for file in self.compilation_commands.file_2_command:
             self.internal_rep.add_file_entry(file)
-            self.internal_rep.add_includes(file, self.compilation_commands.get_includes(file))
-            self.internal_rep.add_defines(file, self.compilation_commands.get_defines(file))
 
-        self.cflow_instance.init_command(self.args.root_dir)
+            includes = self.compilation_commands.get_includes(file)
+            self.internal_rep.add_includes(file, includes)
+
+            defines = self.compilation_commands.get_defines(file)
+            self.internal_rep.add_defines(file, defines)
+
+        self.cflow_instance.create_command(self.args.root_dir)
         self.cflow_instance.run_command()
         self.cflow_instance.parse_output()
 
@@ -82,10 +85,10 @@ class ArpaInstance:
         ''' run the specified command '''
         self.args.func()
 
+
     def call_build(self):
         ''' implementation of the <arpa build> command:
         saves the internal representation to a file. '''
-        # saves the internal representation to a file
         self.internal_rep.write_to_file(self.args.json_path)
         print("-- Saved the internal representation at: \
               {}".format(os.path.abspath(self.args.json_path)))
@@ -95,27 +98,27 @@ class ArpaInstance:
         ''' implementation of the <arpa run> command:
         outputs a proof-specific makefile. '''
 
-        makefile = arpa_makefile.Makefile(self.args)
-        makefile.directory.set_harness_path(self.args.file_under_test)
+        makefile = arpa_makefile.Makefile(self.args, self.internal_rep.representation)
 
-        if self.args.save_path:
-            makefile.set_save_path(self.args.save_path)
-        else:
-            makefile.set_save_path(os.path.join(makefile.directory.path, helper.OUT_MF_NAME))
+        self.__handle_arguments(makefile)
+        # END SETUP
 
-        self.__handle_args(self.internal_rep.representation[helper.JSON_INFO])
-
-        makefile.build(self.internal_rep.representation)
+        makefile.build()
         makefile.save()
 
 
-    def __handle_args(self, root_path):
+    def __handle_arguments(self, makefile):
+        root_path = self.internal_rep.representation[helper.JSON_INFO]
         args = self.args
+
         # store root path
         if args.make_root_path:
             args.make_root_path = os.path.abspath(os.path.join(os.getcwd(), args.make_source_path))
         else:
             args.make_root_path = root_path
+
+        # store makefile save path
+        makefile.set_save_path()
 
         # handle proofs path
         args.make_proof_source_path = self.__handle_path(args.make_proof_source_path)

@@ -39,24 +39,20 @@ CC_DEFINE = "-D"
 class FileSpecificInfo:
     ''' Class that finds and stores file-specific build info '''
 
-    def __init__(self):
+    def __init__(self, internal_rep):
+        self.internal_rep = internal_rep
+
         self.includes = set()
         self.defines = set()
         self.dependencies = set()
         self.missing_dependencies = {}
         self.func_calls = {} # not currently used, but this may be useful going forward
 
-    @classmethod
-    def __change_extension(cls, path, ext):
-        '''change the extension of a file given it's path'''
-        name, _ = os.path.splitext(path)
-        return "%s.%s" % (name, ext)
 
-    def find_custom_info_recursively(self, change_dependency_extensions, internal_rep,
-                                     current_path, relevant_functions):
+    def find_custom_info_recursively(self, current_path, relevant_functions):
         ''' recursively look for interesting information related to Makefile generation '''
         # Recursion issues are supposed to be handled by cflow
-        current_json_entry = internal_rep[JSON_FILE][current_path]
+        current_json_entry = self.internal_rep[JSON_FILE][current_path]
         self.includes.update(set(current_json_entry[JSON_INC]))
         self.defines.update(set(current_json_entry[JSON_DEF]))
 
@@ -64,12 +60,7 @@ class FileSpecificInfo:
         for fct in relevant_functions:
             for called_fct, called_file in current_json_entry[JSON_FCT][fct].items():
                 if called_file:
-                    # case where a file location is specified for the called function
-                    called_file_w_ext = called_file
-                    if change_dependency_extensions:
-                        called_file_w_ext = \
-                            self.__change_extension(called_file, change_dependency_extensions)
-                    self.dependencies.add(called_file_w_ext)
+                    self.dependencies.add(called_file)
 
                     # add called function to the list of recursive future calls
                     if called_file in file_2_called_functions:
@@ -79,9 +70,9 @@ class FileSpecificInfo:
 
                     # map of which function calls which other function
                     if called_file in self.func_calls:
-                        self.func_calls[called_file_w_ext].append(called_fct)
+                        self.func_calls[called_file].append(called_fct)
                     else:
-                        self.func_calls[called_file_w_ext] = [called_fct]
+                        self.func_calls[called_file] = [called_fct]
                 else:
                     #case where the location of a called fct is not known
                     entry = (current_path, fct)
@@ -91,8 +82,7 @@ class FileSpecificInfo:
                         self.missing_dependencies[entry] = {called_fct}
 
         for file_path, file_functions in file_2_called_functions.items():
-            self.find_custom_info_recursively(change_dependency_extensions,
-                                              internal_rep, file_path, file_functions)
+            self.find_custom_info_recursively(file_path, file_functions)
 
 
 class ParserInstance:
@@ -146,16 +136,6 @@ class ParserInstance:
         parser.add_argument("-sp", "--save-path", metavar="FILE",
                             help="file path where the output Makefile will be saved")
 
-        # ADD FLAGS related to PROOF ENTRY
-        # parser.add_argument("-ef", "--entry-file", default="HARNESS_FILE",
-        #                         metavar="V",
-        #                         help="label for entry file used in the Makefile")
-        # parser.add_argument("-en", "--entry-name", default="HARNESS_ENTRY",
-        #                         metavar="V",
-        #                         help="label for entry type used in the Makefile")
-        # parser.add_argument("-sh", "--shorten-entry", action="store_true",
-        #                         help="shorten harness name when writing entry")
-
         # ADD FLAGS related to BUILD INFO TYPES
         parser.add_argument("-def", "--define-variable", default="DEFINES",
                             metavar="V",
@@ -163,9 +143,6 @@ class ParserInstance:
         parser.add_argument("-inc", "--include-variable", default="INCLUDES",
                             metavar="V",
                             help="label for includes used in the Makefile")
-        # parser.add_argument("-dep", "--dependency-variable", default="DEPENDENCIES",
-        #                         metavar="V",
-        #                         help="label for dependencies used in the Makefile")
         parser.add_argument("-ext", "--change-dependency-extensions",
                             metavar="EXT",
                             help="modify the extension of dependencies \
@@ -203,11 +180,6 @@ class ParserInstance:
                             metavar="V",
                             help="Makefile variable name for proofs source file")
 
-        # # ADD FLAGS related to ...
-        # parser.add_argument("-mpn", "--make-proofs-name", default="PROOFDIR",
-        #                             metavar="V",
-        #                             help="Makefile variable name for proofs directory")
-
         # ADD FUNCTION
         parser.set_defaults(func=self.parent.call_run)
 
@@ -225,3 +197,11 @@ class ParserInstance:
 
         # return Parsed Args
         return parser.parse_args()
+
+
+class Util:
+    '''general purpose util methods '''
+
+    def get_log_path(self, root):
+        "return path to logging file given"
+        return os.path.join(root, TOOL_NAME + ".log")

@@ -40,8 +40,8 @@ class MakefileReadyContents:
     def __init__(self, info):
         self.raw_info = info
         self.variable_2_path = {}
-
         self.data = MakefileData()
+
 
     def __shortcut_path(self, paths, prefix):
         #TODO this is very complicated
@@ -56,6 +56,7 @@ class MakefileReadyContents:
         for key in new_paths:
             new_paths[key] = sorted(new_paths[key])
         return new_paths
+
 
     def __check_com_prefixes(self, path):
         #TODO this is very complicated
@@ -72,32 +73,56 @@ class MakefileReadyContents:
 
         return ("none", path)
 
+
     def __make_val(self, var):
         ''' return MAKE syntax for accessing a variable value '''
         return "$(" + str(var) + ")"
+
 
     def __add_prefix(self, items, prefix):
         ''' add prefix flag to input items. Return list '''
         new_items = ["%s%s" % (prefix, i) for i in items]
         return sorted(new_items)
 
-    def process_custom_info(self):
+
+    def __change_extensions(self, dependencies, extension):
+        dependencies_w_ext = []
+        for dep_path in dependencies:
+            if extension:
+                name, _ = os.path.splitext(dep_path)
+                dependencies_w_ext.append("%s.%s" % (name, extension))
+            else:
+                dependencies_w_ext.append(dep_path)
+        return dependencies_w_ext
+
+
+    def process_custom_info(self, args):
         ''' add Makefile shortcuts to paths in MakefileInfo '''
+
+        self.__set_variable_2_path(args)
+
+        # INCLUDES
         includes_2_shortcut_path = \
             self.__shortcut_path(self.raw_info.includes, helper.CC_INCLUDE)
         _ = [self.data.includes.extend(includes_2_shortcut_path[k])
              for k in includes_2_shortcut_path]
 
+        # DEFINES
         self.data.defines = self.__add_prefix(self.raw_info.defines, helper.CC_DEFINE)
 
-        dependencies_2_shortcut_path = self.__shortcut_path(self.raw_info.dependencies, "")
+        #DEPENDENCIES
+        dependencies_w_ext = self.__change_extensions(self.raw_info.dependencies,
+                                                      args.change_dependency_extensions)
+        dependencies_2_shortcut_path = self.__shortcut_path(dependencies_w_ext, "")
         self.data.proof_sources = dependencies_2_shortcut_path["proof"]
         self.data.project_sources = dependencies_2_shortcut_path["project"]
         self.data.other_dependencies = dependencies_2_shortcut_path["none"]
+
+        # MISSING DEPENDENCIES
         self.data.missing_dependencies = self.raw_info.missing_dependencies # unordered
 
-    def set_variable_2_path(self, args):
-        ''' create a map between dependency types and (variable, path) pairs '''
+
+    def __set_variable_2_path(self, args):
         self.variable_2_path = {"proof" : {
             # args.make_proofs_path: args.make_proofs_name,
             args.make_proof_source_path: args.make_proof_source_variable,
@@ -109,23 +134,29 @@ class MakefileReadyContents:
 class Makefile:
     ''' Class that stores Makefile-related info and that can generate a makefile '''
 
-    def __init__(self, args):
-        self.contents_raw = helper.FileSpecificInfo()
+    def __init__(self, args, internal_rep):
+        self.contents_raw = helper.FileSpecificInfo(internal_rep)
         self.contents_processed = MakefileReadyContents(self.contents_raw)
 
         self.args = args
         self.save_path = ""
-        self.directory = ProofDirectory()
+        self.directory = ProofDirectory(self.args.file_under_test)
         self.textual_representation = []
 
-    def set_save_path(self, path):
-        ''' set the save_path field '''
-        self.save_path = path
+
+    def set_save_path(self):
+        ''' set field values according to input arguments '''
+        if self.args.save_path:
+            self.save_path = self.args.save_path
+        else:
+            self.save_path = os.path.join(self.directory.path, helper.OUT_MF_NAME)
+
 
     def __add_initial_comment_to_text(self):
         self.textual_representation.append("# This file is generated automatically by \
             {}".format(helper.TOOL_NAME))
         self.textual_representation.append("")
+
 
     def __add_directory_paths_to_text(self):
         # currently not called
@@ -136,6 +167,7 @@ class Makefile:
         # self.textual_representation.append("%s = %s" % (self.args.make_proofs_name,
         #                                                 self.args.make_proofs_path))
         self.textual_representation.append("")
+
 
     def __add_entry_info_to_text(self):
         # currently not called
@@ -150,6 +182,7 @@ class Makefile:
         self.textual_representation.append("%s = %s.c" % (self.args.entry_file,
                                                           "$(" + str(self.args.entry_name) + ")"))
         self.textual_representation.append("")
+
 
     def __add_custom_info_to_text(self):
         lines_to_add = []
@@ -166,11 +199,13 @@ class Makefile:
 
         self.textual_representation.extend(lines_to_add)
 
+
     def __append_variable(self, elements, label):
         ''' return a list of Makefile commands associated to a specific variable '''
         lines = ["%s += %s" % (label, e) for e in elements]
         lines.append("")
         return lines
+
 
     def __add_missing_to_makefile(self):
         ''' return a list of comments for the missing dependencies'''
@@ -188,10 +223,11 @@ class Makefile:
 
         self.textual_representation.extend(lines_to_add)
 
-    def build(self, internal_rep):
+
+    def build(self):
         ''' create an internal textual representation of a Makefile to generate '''
         harness_path = self.directory.harness_path
-        if harness_path not in internal_rep[helper.JSON_FILE]:
+        if harness_path not in self.contents_raw.internal_rep[helper.JSON_FILE]:
             logging.error("<%s> not found in given internal representation. "
                           "Try rebuilding the internal rep.", harness_path)
             sys.exit(1)
@@ -200,15 +236,13 @@ class Makefile:
         # self.__add_directory_paths_to_text()
         # self.__add_entry_info_to_text()
 
-        harness_functions = \
-            internal_rep[helper.JSON_FILE][harness_path][helper.JSON_FCT].keys()
-        self.contents_raw.find_custom_info_recursively(self.args.change_dependency_extensions,
-                                                       internal_rep, harness_path,
-                                                       harness_functions)
+        # TODO simplify below
+        harness_functions = self.contents_raw.internal_rep[helper.JSON_FILE]\
+            [harness_path][helper.JSON_FCT].keys()
 
         # find and process custom build info
-        self.contents_processed.set_variable_2_path(self.args)
-        self.contents_processed.process_custom_info()
+        self.contents_raw.find_custom_info_recursively(harness_path, harness_functions)
+        self.contents_processed.process_custom_info(self.args)
 
         self.__add_custom_info_to_text()
         self.__add_missing_to_makefile()
@@ -225,11 +259,13 @@ class Makefile:
 class ProofDirectory:
     ''' Class that encapsulates the contents of a Proof directory '''
 
-    def __init__(self):
+    def __init__(self, input_path):
         self.path = ""
         self.harness_path = ""
+        self.__set_harness_path(input_path)
 
-    def set_harness_path(self, input_path):
+
+    def __set_harness_path(self, input_path):
         ''' find harness file in current directory. Return its path '''
         harness_path = ""
         # if harness path is given
