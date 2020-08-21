@@ -23,9 +23,8 @@ import logging
 import sys
 import lib.arpa_helper as helper
 
-# @dataclasses
 class MakefileData():
-    ''' DataClass that contains information found within a Makefile '''
+    ''' Class that contains information found within a Makefile '''
     includes = []
     defines = []
     proof_sources = []
@@ -44,7 +43,6 @@ class MakefileReadyContents:
 
 
     def __shortcut_path(self, paths, prefix):
-        #TODO this is very complicated
         ''' replace project root and proofs root path with Makefile variable '''
         new_paths = {"proof":[],
                      "project":[],
@@ -59,7 +57,6 @@ class MakefileReadyContents:
 
 
     def __check_com_prefixes(self, path):
-        #TODO this is very complicated
         ''' check if prefix is a prefix of path. return updated path '''
         for cat in self.variable_2_path:
             for prefix_path in self.variable_2_path[cat]:
@@ -79,9 +76,11 @@ class MakefileReadyContents:
         return "$(" + str(var) + ")"
 
 
-    def __add_prefix(self, items, prefix):
+    def __add_prefix_and_sort(self, items, prefix):
         ''' add prefix flag to input items. Return list '''
         new_items = ["%s%s" % (prefix, i) for i in items]
+        # TODO for INCLUDES and DEFINES, their order might be important to maintain.
+        # Thus, we should not sort them before incorporating them into the Makefile
         return sorted(new_items)
 
 
@@ -108,7 +107,7 @@ class MakefileReadyContents:
              for k in includes_2_shortcut_path]
 
         # DEFINES
-        self.data.defines = self.__add_prefix(self.raw_info.defines, helper.CC_DEFINE)
+        self.data.defines = self.__add_prefix_and_sort(self.raw_info.defines, helper.CC_DEFINE)
 
         #DEPENDENCIES
         dependencies_w_ext = self.__change_extensions(self.raw_info.dependencies,
@@ -123,6 +122,24 @@ class MakefileReadyContents:
 
 
     def __set_variable_2_path(self, args):
+        # TODO instead of relying on paths to find whether a file is a PROOF_SOURCE
+        # or a PROJECT_SOURCE, make that distinction based on proof markers found in the
+        # file system. For this purpose, we may add a command line flag that indicates
+        # what a proof marker is for a given project, such that the entire process
+        # can be automated.
+
+        # TODO instead, it may also be possible to extend the existing cli such that it
+        # would allow users to specify a list of proof source root directories rather
+        # than a single proof source directory.
+
+        # TODO another idea may be to incorporate a "arpa_config.json" file in
+        # each project where we specify the paths to proof source directories,
+        # and other relevant information
+
+        # this dictionary maps the type of dependency (PROOF_SOURCE. PROJECT_SOURCE)
+        # to the file location. For example, we currently assume that all PROOF_SOURCES
+        # are under "make_proof_source_path" or under "make_proof_stub_path",
+        # and that all PROJECT_SOURCES are under "make_root_path"
         self.variable_2_path = {"proof" : {
             # args.make_proofs_path: args.make_proofs_name,
             args.make_proof_source_path: args.make_proof_source_variable,
@@ -236,7 +253,8 @@ class Makefile:
         # self.__add_directory_paths_to_text()
         # self.__add_entry_info_to_text()
 
-        # TODO simplify below
+        # From the internal representation,
+        # get list of all functions defined in the harness
         harness_functions = self.contents_raw.internal_rep[helper.JSON_FILE]\
             [harness_path][helper.JSON_FCT].keys()
 
@@ -245,6 +263,10 @@ class Makefile:
         self.contents_processed.process_custom_info(self.args)
 
         self.__add_custom_info_to_text()
+        # TODO for (missing) function that cflow is unable to locate, create a list of
+        # expected such failures (e.g. <nondet_*>), and suppress output to Makefile accordingly.
+        # This list may be project-specific and incorporated in the project code base directly
+        # as a json file, or an ".arpaignore" file
         self.__add_missing_to_makefile()
 
 

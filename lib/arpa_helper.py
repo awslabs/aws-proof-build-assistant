@@ -50,7 +50,8 @@ class FileSpecificInfo:
 
 
     def find_custom_info_recursively(self, current_path, relevant_functions):
-        ''' recursively look for interesting information related to Makefile generation '''
+        ''' recursively look inside the internal representation to collect
+         harness-specific build information '''
         # Recursion issues are supposed to be handled by cflow
         current_json_entry = self.internal_rep[JSON_FILE][current_path]
         self.includes.update(set(current_json_entry[JSON_INC]))
@@ -124,6 +125,7 @@ class ParserInstance:
     def __create_run_parser(self):
         # default = called from harness directory
         # TODO this subcommand should be changed to "makefile" instead of "run"
+        # this will mean that the arpa integration for the templates repository must be adjusted
         parser = self.subparser.add_parser('run', parents=[self.bare_minimum_parser],
                                            help="Generate a Makefile from scratch \
             for a given harness file. Assumed cwd = harness directory.")

@@ -27,8 +27,6 @@ import tempfile
 import voluptuous
 import voluptuous.humanize
 import lib.arpa_helper as helper
-#TODO add the import in method to allow running without validation
-
 
 class CompileCommands:
     ''' Class that contains an internal representation of the input compile commands '''
@@ -107,9 +105,6 @@ class CompileCommands:
         return self.__get_flags(helper.CC_DEFINE, file)
 
 
-    # TODO handle other flags from the compilation commands, put them in CFLAGS
-
-
 class InternalRepresentation:
     ''' Class that defines an internal representation containing all build information
     for a given code base '''
@@ -129,6 +124,7 @@ class InternalRepresentation:
         if file_path in self.representation[helper.JSON_FILE]:
             logging.warning("Clashing file name: %s", file_path)
         else:
+            # TODO Use relative file path as key instead of absolute file path
             self.representation[helper.JSON_FILE][file_path] = {}
             self.__add_element(file_path, helper.JSON_NAME, file_name)
 
@@ -259,6 +255,11 @@ class CflowInstance:
 
     def create_command(self, root_path):
         ''' initialize the cflow command'''
+        # TODO
+        # -- Currently, we look through the entire code base to find source
+        # and header files, then we run cflow on all the found files.
+        # -- Instead, we should only run cflow on the files included in the
+        # compilation commands found by cmake
         h_and_c_files = self.__find_h_and_c(root_path)
         self.command.extend(h_and_c_files)
         self.command.extend(["-A", "--no-main", "-o%s" %(self.output_path), "--brief"])
@@ -275,7 +276,10 @@ class CflowInstance:
 
     def parse_output(self):
         '''parse cflow output file, integrate it into the file_2_dependencies field'''
-        # TODO use the `--print-level` command line flag when calling aRPA, THIS SIMPLIFIES GETTING THE levels
+        # TODO Use the `--print-level` command line flag when calling cflow
+        # to simplify parsing of the depth level of a function call
+        # (the depth level will be explicitly indicated, and we will no longer
+        # be required to count the number of leading whitespaces)
 
         current_at_level = []
         with open(self.output_path, "r") as cflow_out:
@@ -286,6 +290,44 @@ class CflowInstance:
                 cur_depth = leading_spaces // 4
                 if leading_spaces % 4:
                     logging.warning("Line has %d leading spaces: %s", leading_spaces, cur_line[:-1])
+
+                # START REGEX DESCRIPTION:
+                # A given line in the cflow output may contain up to 4 pieces
+                # of relevant information that will be matched by the regex below:
+                # 1. fct:
+                #    --the name of a function in the code base
+                # 2. file:
+                #    --the file in which this function is defined
+                #      (if cflow is able to find that file)
+                # 3. rec:
+                #    --whether this function is recursive or not (if the function
+                #      is recursive, a "(R)" is added to the output line)
+                # 4. ref:
+                #    --if this function has previously been described in the cflow output,
+                #      cflow references that first description by adding "[see ##]" to
+                #      the output line, where ## is the line number in the cflow output
+                #      where the function is first described
+
+                # cflow also outputs the function signature, but we do no parse that in arpa
+                # END REGEX DESCRIPTION
+
+                # START EXAMPLE:
+                # Here is an example of a line found in the cflow output
+                # that is parsed using the below regex:
+                #
+                # "    s2n_map_embiggen() <S2N_RESULT s2n_map_embiggen (struct s2n_map *map, uint32_t capacity) at /path/to/s2n_map.c:50> (R): [see 657]"
+                #
+                # The regex will match as follows:
+                # fct: "s2n_map_embiggen"
+                # file: "/path/to/s2n_map.c"
+                # rec: "(R)", which means that this function is recursive
+                # ref: "[see 657]", which means that this function has been previously
+                #                   described in line 657 of the cflow output
+
+                # Concretely, this line means that the "/path/to/s2n_map.c" file contains
+                # a recursive "s2n_map_embiggen" function that has already been described
+                # in the cflow output
+                # END EXAMPLE
 
                 #add function to internal rep
                 regex = (r"(?P<fct>\w+)\(\)"

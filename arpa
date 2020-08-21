@@ -73,6 +73,9 @@ class ArpaInstance:
             defines = self.compilation_commands.get_defines(file)
             self.internal_rep.add_defines(file, defines)
 
+            # TODO Consider incorporating other command line flags
+            # in the internal representation
+
         self.cflow_instance.create_command(self.args.root_dir)
         self.cflow_instance.run_command()
         self.cflow_instance.parse_output()
@@ -144,8 +147,8 @@ def main():
     arpa_instance = ArpaInstance()
     arpa_instance.parse_args()
     arpa_instance.prepare_log()
-    arpa_instance.build_internal_rep()
-    arpa_instance.run_command()
+    arpa_instance.build_internal_rep() # includes cflow run
+    arpa_instance.run_command() # produces output
 
 
 if __name__ == "__main__":
